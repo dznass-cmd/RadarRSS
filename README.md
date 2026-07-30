@@ -1,56 +1,125 @@
-# Radar RSS
+<div align="center">
 
-O Radar RSS e um agregador de noticias dinamico e centralizado que monitora multiplos portais em tempo real. O sistema organiza os feeds automaticamente por categorias personalizadas (como Manchetes, Tecnologia, Economia) e utiliza Inteligencia Artificial para fazer a curadoria, filtrar conteudos relevantes e gerar insights rapidos.
+# 📡 Radar RSS
 
-## Scripts Disponiveis
+**Agregador de noticias com IA que monitora portais em tempo real**
 
-### Automacao
-- `auto_gram.py` - Automacao Instagram
-- `auto2.py` / `auto3.py` - Automacoes diversas
-- `like_comment.py` - Curtir e comentar posts
-- `comentar.py` - Comentar automaticamente
-- `fast.py` / `final.py` / `do_it.py` - Scripts de automacao
+[![GitHub release](https://img.shields.io/github/v/release/dznass-cmd/RadarRSS?style=flat-square)](https://github.com/dznass-cmd/RadarRSS/releases)
+[![GitHub issues](https://img.shields.io/github/issues/dznass-cmd/RadarRSS?style=flat-square)](https://github.com/dznass-cmd/RadarRSS/issues)
+[![GitHub stars](https://img.shields.io/github/stars/dznass-cmd/RadarRSS?style=flat-square)](https://github.com/dznass-cmd/RadarRSS/stargazers)
+[![License](https://img.shields.io/github/license/dznass-cmd/RadarRSS?style=flat-square)](LICENSE)
 
-### Arte e Audio
-- `fix_artwork.py` - Corrigir artwork de musicas
-- `fix_covers.py` - Corrigir capas
-- `remove_duplicate_artwork.py` - Remover artwork duplicada
-- `smart.py` - Script inteligente
+</div>
 
-### Windows e Privacidade
-- `disable-edge.ps1` - Desativar Microsoft Edge
-- `otimizar_privacidade.ps1` - Otimizar privacidade
-- `disable_windows_defender.ps1` - Desativar Windows Defender
-- `ativar_windows_update.bat` / `desativar_windows_update.bat` - Controle do Windows Update
-- `configurar_navegadores.bat` - Configurar navegadores
+---
 
-### Utilitarios
-- `avatar_desktop.ps1` / `avatar_signal.ps1` - Scripts de avatar
-- `setup-opencode-wsl.ps1` - Setup OpenCode no WSL
-- `Ghost Toolbox.cmd` - Toolbox de manutencao
+## 🎯 O que e?
 
-## Requisitos
+O Radar RSS e um agregador de noticias dinamico e centralizado que monitora multiplos portais em tempo real. O sistema organiza os feeds automaticamente por categorias personalizadas e utiliza Inteligencia Artificial para fazer a curadoria e filtrar conteudos relevantes.
 
-- Windows 10/11
-- Python 3.x (para scripts .py)
-- PowerShell 5.1+ (para scripts .ps1)
-- Git (para versionamento)
+## ✨ Features
 
-## Downloads
+- 🔄 **Monitoramento em Tempo Real** - Verifica novos articles a cada 5 minutos
+- 🤖 **Curadoria com IA** - Filtra e prioriza noticias relevantes
+- 📂 **Organizacao Automatica** - Categorias: Manchetes, Tecnologia, Economia, etc
+- 🎯 **Filtro Inteligente** - Remove duplicatas e conteudo irrelevante
+- 📊 **Dashboard Limpa** - Interface rapida e intuitiva
 
-Baixe a versao mais recente em: [Releases](https://github.com/dznass-cmd/RadarRSS/releases)
+## 📥 Download
 
-## Uso
+| Versao | Sistema | Download |
+|--------|---------|----------|
+| v1.0.5 | Windows | [RSS.Radar.Setup.1.0.5.exe](https://github.com/dznass-cmd/RadarRSS/releases/download/v1.0.5/RSS.Radar.Setup.1.0.5.exe) |
 
-### Radar RSS
-1. Baixe o instalador na pagina de Releases
-2. Execute `RSS Radar Setup 1.0.5.exe`
+## 🚀 Como Usar
+
+### Instalacao (Windows)
+
+1. Baixe o instalador na pagina de [Releases](https://github.com/dznass-cmd/RadarRSS/releases)
+2. Execute `RSS.Radar.Setup.1.0.5.exe`
 3. Siga as instrucoes de instalacao
+4. Abra o Radar RSS e adicione seus feeds
 
-### Scripts
-Cada script pode ser executado individualmente. Consulte os comentarios dentro de cada arquivo para mais detalhes.
+### Para Desenvolvedores
 
-### Criar Nova Release
-```powershell
-.\create-release.ps1 -Version "1.0.6" -ExePath "C:\caminho\para\arquivo.exe"
+```bash
+# Clonar repositorio
+git clone https://github.com/dznass-cmd/RadarRSS.git
+
+# Entrar na pasta
+cd RadarRSS
+
+# Instalar dependencias
+pip install -r requirements.txt
+
+# Executar
+python main.py
 ```
+
+## 📁 Estrutura do Projeto
+
+```
+Radar RSS/
+├── main.py                 # Ponto de entrada
+├── requirements.txt        # Dependencias Python
+├── config/                 # Configuracoes
+│   └── feeds.json         # Lista de feeds RSS
+├── src/                    # Codigo fonte
+│   ├── collector.py       # Coletor de feeds
+│   ├── ai_curator.py      # IA para curadoria
+│   └── categorizer.py     # Organizacao por categorias
+├── scripts/                # Scripts de automacao
+│   ├── create-release.ps1 # Criar releases
+│   └── setup.ps1          # Setup inicial
+└── docs/                   # Documentacao
+```
+
+## 🛠️ Tecnologias
+
+- **Backend**: Python 3.x
+- **IA**: OpenAI / Modelos locais
+- **Automacao**: PowerShell 5.1+
+- **Banco**: SQLite (local)
+- **Sistema**: Windows 10/11
+
+## 📋 Requisitos
+
+| Componente | Versao Minima |
+|------------|---------------|
+| Sistema Operacional | Windows 10/11 |
+| Python | 3.8+ |
+| PowerShell | 5.1+ |
+| Git | 2.30+ |
+| Espaco em Disco | 500 MB |
+
+## 🤝 Contribuir
+
+Contribuicoes sao bem-vindas! Veja como:
+
+1. Fork o repositorio
+2. Crie uma branch (`git checkout -b feature/nova-feature`)
+3. Commit suas mudancas (`git commit -m 'feat: add nova feature'`)
+4. Push para a branch (`git push origin feature/nova-feature`)
+5. Abra um Pull Request
+
+### Issues e Sugestoes
+
+- Abra uma [Issue](https://github.com/dznass-cmd/RadarRSS/issues) para bugs ou sugestoes
+- Use as labels para categorizar
+
+## 📄 Licenca
+
+Este projeto esta licenciado sob a Licenca MIT - veja o arquivo [LICENSE](LICENSE) para detalhes.
+
+## 📞 Contato
+
+- **GitHub**: [@dznass-cmd](https://github.com/dznass-cmd)
+- **Issues**: [GitHub Issues](https://github.com/dznass-cmd/RadarRSS/issues)
+
+---
+
+<div align="center">
+
+**Se este projeto te ajudou, deixe um ⭐ no GitHub!**
+
+</div>
