@@ -1,0 +1,30 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+venv/
+.env
+
+# Windows
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+*.log
+
+# IDE
+.vscode/
+.idea/
+
+# Opencode
+.opencode/
+
+# Binarios
+*.exe
+
+# State files (podem conter dados sensiveis)
+avatar_state.json
+
+# Imagens de documentacao (manter so necessarias)
+*.tmp
