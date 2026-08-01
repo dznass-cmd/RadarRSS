@@ -1,0 +1,9 @@
+[Desktop Entry]
+Type=Application
+Name=Radar RSS
+Comment=Monitor de noticias em tempo real com IA
+Exec=radar-rss
+Icon=radar-rss
+Terminal=false
+Categories=Network;News;
+Keywords=rss;news;feed;ai;

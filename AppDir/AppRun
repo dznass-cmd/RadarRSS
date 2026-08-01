@@ -1,0 +1,44 @@
+#!/bin/bash
+# Radar RSS - Launcher para AppImage
+APPDIR="$(dirname "$(readlink -f "$0")")"
+APP_DIR="$APPDIR/usr/bin/app"
+
+# Copia o app para /tmp para ter escrita
+WORK_DIR="/tmp/radar-rss-$$"
+rm -rf "$WORK_DIR"
+cp -r "$APP_DIR" "$WORK_DIR"
+
+# Mata processos anteriores na porta 3000
+fuser -k 3000/tcp 2>/dev/null
+
+echo "📡 Iniciando Radar RSS..."
+echo "   Servidor iniciando na porta 3000..."
+
+# Inicia o servidor em background
+cd "$WORK_DIR"
+node ./dist/server.cjs &
+SERVER_PID=$!
+
+# Espera o servidor iniciar
+sleep 3
+
+# Abre o navegador
+URL="http://localhost:3000"
+if command -v xdg-open &>/dev/null; then
+    xdg-open "$URL"
+elif command -v firefox &>/dev/null; then
+    firefox "$URL" &
+elif command -v chromium &>/dev/null; then
+    chromium "$URL" &
+elif command -v google-chrome &>/dev/null; then
+    google-chrome "$URL" &
+else
+    echo "   Abra manualmente: $URL"
+fi
+
+echo "   Radar RSS rodando em: $URL"
+echo "   Pressione Ctrl+C para parar"
+
+# Mantém rodando
+trap "kill $SERVER_PID 2>/dev/null; fuser -k 3000/tcp 2>/dev/null; rm -rf $WORK_DIR; exit" INT TERM
+wait $SERVER_PID
