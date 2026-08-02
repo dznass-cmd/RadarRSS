@@ -18,11 +18,6 @@ curadoria: filtra conteúdos relevantes, organiza automaticamente por categorias
 (Manchetes, Tecnologia, Economia, etc.) e gera resumos rápidos — tudo em uma
 interface única e centralizada.
 
-O repositório também reúne ferramentas auxiliares de suporte:
-
--   **Gerenciador de FLAC** — remoção de artwork duplicado e normalização de capas de álbuns (`src/flac_tools.py`)
--   **Scripts de sistema** — configuração de navegadores, otimização e gerenciamento do Windows (`scripts/`)
-
 ## 🚀 Download
 
 | Plataforma | Arquivo |
@@ -57,53 +52,13 @@ RadarRSS/
 │   └── usr/bin/app/
 │       ├── electron-main.cjs     # Entry point do Electron (porta 3000)
 │       └── dist/                 # Frontend React + servidor Express
-├── src/
-│   └── flac_tools.py             # Ferramentas de artwork FLAC
-├── scripts/                       # Scripts PowerShell/Batch do Windows
-│   ├── disable-edge.ps1          # Desativar Microsoft Edge
-│   ├── cleanup-edge.ps1          # Limpeza de dados do Edge
-│   ├── otimizar_privacidade.ps1
-│   ├── configurar_navegadores.ps1
-│   └── ...
-├── config/                        # Arquivos de configuração
-├── marketing/                     # Materiais de divulgação (artigos, posts)
+├── marketing/                     # Materiais de divulgação
 ├── create-release.ps1             # Script de criação de releases
 ├── setup-opencode-wsl.ps1         # Setup do OpenCode no WSL
-├── requirements.txt
+├── config/                        # Arquivos de configuração
+├── LICENSE
+├── CHANGELOG.md
 └── README.md
-```
-
-## 🛠️ Ferramentas auxiliares
-
-### FLAC
-
-```bash
-pip install -r requirements.txt
-```
-
-```python
-from src.flac_tools import remove_duplicate_artwork, normalize_covers
-
-# Remover artwork duplicado
-remove_duplicate_artwork('D:\\Musica')
-
-# Normalizar capas (dry-run primeiro)
-normalize_covers('D:\\Musica', dry_run=True)
-
-# Normalizar capas (aplicar)
-normalize_covers('D:\\Musica')
-```
-
-### Scripts do Windows
-
-Execute via PowerShell (Admin):
-
-```powershell
-# Desativar Microsoft Edge
-.\scripts\disable-edge.ps1
-
-# Otimizar privacidade
-.\scripts\otimizar_privacidade.ps1
 ```
 
 ## 🛠 Tecnologias
@@ -111,8 +66,6 @@ Execute via PowerShell (Admin):
 -   **Electron + React 19 + Vite + Tailwind CSS** — app desktop
 -   **Express + rss-parser** — servidor e coleta de feeds
 -   **Google Gemini (@google/genai)** — curadoria, resumos e tradução
--   **Python 3.8+ (mutagen)** — ferramentas FLAC
--   **PowerShell 5.1+** — automação Windows
 
 ## 🤝 Contribuir
 

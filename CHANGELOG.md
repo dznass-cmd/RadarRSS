@@ -10,10 +10,11 @@ e este projeto adere ao [Semantic Versioning](https://semver.org/lang/pt-BR/).
 ## [2.0.1] - 2026-08-02
 
 ### Corrigido
-- README.md reescrito para refletir o projeto real: **RSS Radar** (app desktop
-  Electron de agregador de noticias com IA) como produto principal, com as
-  ferramentas FLAC e scripts Windows como utilitarios auxiliares
-- Estrutura do README agora inclui `AppDir/` (app Electron) e `marketing/`
+- README.md reescrito: apenas o app RSS Radar (agregador de noticias com IA)
+- Removidos `src/` (flac_tools), `scripts/` (Windows) e `requirements.txt`
+
+### Adicionado
+- Topics do repo: rss, news, ai, electron, react, rss-aggregator, gemini
 
 ---
 
