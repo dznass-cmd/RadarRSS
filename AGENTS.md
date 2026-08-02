@@ -4,7 +4,6 @@
 
 - `src/` — codigo Python organizado por modulo
 - `scripts/` — scripts PowerShell/Batch do Windows
-- `docs/screenshots/` — screenshots de referencia
 - `config/` — arquivos de configuracao
 
 ## Regras
