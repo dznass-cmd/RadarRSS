@@ -31,5 +31,6 @@ avatar_state.json
 *.tmp
 
 # AppImage / builds
+node_modules/
 *.AppImage
 AppDir/
