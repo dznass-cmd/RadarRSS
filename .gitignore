@@ -5,6 +5,7 @@ __pycache__/
 *.so
 .Python
 venv/
+.venv/
 .env
 
 # Windows
@@ -17,14 +18,18 @@ Desktop.ini
 .vscode/
 .idea/
 
-# Opencode
+# OpenCode
 .opencode/
 
 # Binarios
 *.exe
 
-# State files (podem conter dados sensiveis)
+# State files
 avatar_state.json
 
-# Imagens de documentacao (manter so necessarias)
+# Screenshots temporarios
 *.tmp
+
+# AppImage / builds
+*.AppImage
+AppDir/

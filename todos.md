@@ -1,16 +1,12 @@
-# Todos - Plano Mestre
+# Todos
 
 ## Em Andamento
 
-### Desativar Microsoft Edge
-- [x] Diagnosticar processos e servicos do Edge
-- [x] Criar script de desativacao completa (disable-edge.ps1)
-- [x] Criar script de configuracoes de usuario (disable-edge-user.ps1)
-- [x] Criar script de limpeza (cleanup-edge.ps1)
-- [ ] Executar scripts como administrador
-- [ ] Reiniciar computador
-- [ ] Verificar se Edge foi desativado
-
 ## Concluido
+
+- [x] Refatorar estrutura do projeto (src/, scripts/, docs/)
+- [x] Consolidar scripts Python duplicados
+- [x] Atualizar README, CHANGELOG e .gitignore
+- [x] Criar requirements.txt
 
 ## Cancelado

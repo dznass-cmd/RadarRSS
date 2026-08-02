@@ -1,0 +1,2 @@
+pyautogui>=0.9.54
+mutagen>=1.47.0
