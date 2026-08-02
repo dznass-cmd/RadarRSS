@@ -78,17 +78,20 @@ RadarRSS/
 ### FLAC
 
 ```bash
-# Pré-requisitos: Python 3.8+ e mutagen
 pip install -r requirements.txt
+```
+
+```python
+from src.flac_tools import remove_duplicate_artwork, normalize_covers
 
 # Remover artwork duplicado
-python -c "from src.flac_tools import remove_duplicate_artwork; remove_duplicate_artwork('D:\\Musica')"
+remove_duplicate_artwork('D:\\Musica')
 
 # Normalizar capas (dry-run primeiro)
-python -c "from src.flac_tools import normalize_covers; normalize_covers('D:\\Musica', dry_run=True)"
+normalize_covers('D:\\Musica', dry_run=True)
 
 # Normalizar capas (aplicar)
-python -c "from src.flac_tools import normalize_covers; normalize_covers('D:\\Musica')"
+normalize_covers('D:\\Musica')
 ```
 
 ### Scripts do Windows
