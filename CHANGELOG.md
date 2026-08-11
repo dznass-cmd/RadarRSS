@@ -7,6 +7,19 @@ e este projeto adere ao [Semantic Versioning](https://semver.org/lang/pt-BR/).
 
 ---
 
+## [2.0.2] - 2026-08-11
+
+### Adicionado
+- Build Windows via electron-builder: `RSS Radar-2.0.1-portable-x64.exe` e `RSS Radar-2.0.1-setup-x64.exe`
+- Script `build:win` e config de build (portable + NSIS) no `package.json`
+- `electron` como devDependency e script `start` para rodar no Windows
+
+### Corrigido
+- `process.chdir(__dirname)` falhava dentro do `app.asar` (ENOENT) — chdir agora só em dev
+- `distPath` resolvia `dist/dist` no bundle empacotado — usa `__dirname` (raiz do dist)
+
+---
+
 ## [2.0.1] - 2026-08-02
 
 ### Corrigido
