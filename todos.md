@@ -8,5 +8,7 @@
 - [x] Consolidar scripts Python duplicados
 - [x] Atualizar README, CHANGELOG e .gitignore
 - [x] Criar requirements.txt
+- [x] Criar versao Windows (portable + instalador NSIS) a partir do codigo do AppImage
+- [x] Corrigir chdir/asar e distPath no app empacotado
 
 ## Cancelado

@@ -75599,7 +75599,7 @@ async function startServer() {
     });
     app.use(vite.middlewares);
   } else {
-    const distPath = import_path.default.join(process.cwd(), "dist");
+    const distPath = __dirname;
     app.use(import_express.default.static(distPath));
     app.get("*", (_req, res) => {
       res.sendFile(import_path.default.join(distPath, "index.html"));

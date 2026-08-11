@@ -65,7 +65,8 @@ function createWindow() {
 
 app.whenReady().then(async () => {
   process.env.NODE_ENV = 'production';
-  process.chdir(__dirname);
+  const isPacked = __dirname.includes('app.asar');
+  if (!isPacked) process.chdir(__dirname);
 
   try {
     require(path.join(__dirname, 'dist', 'server.cjs'));
