@@ -8,3 +8,4 @@ coverage/
 *.zip
 .env*
 !.env.example
+.github/
