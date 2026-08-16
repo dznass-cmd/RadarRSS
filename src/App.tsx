@@ -1,0 +1,768 @@
+import React, { useState, useEffect, useCallback, useMemo, useRef } from 'react';
+import { Navbar } from './components/Navbar';
+import { TickerBar } from './components/TickerBar';
+import { DynamicBlockCard } from './components/DynamicBlockCard';
+import { ArticleReaderModal } from './components/ArticleReaderModal';
+import { CreateBlockModal } from './components/CreateBlockModal';
+import { ManageFeedsModal } from './components/ManageFeedsModal';
+import { AICuratorModal } from './components/AICuratorModal';
+import { SettingsModal } from './components/SettingsModal';
+import { GlobalFeedsModal } from './components/GlobalFeedsModal';
+import { ToastNotificationContainer } from './components/ToastNotificationContainer';
+import { DEFAULT_FEEDS } from './data/defaultFeeds';
+import { DEFAULT_BLOCKS } from './data/defaultBlocks';
+import { DynamicBlock, NewsItem, RssFeed, AppSettings, BlockLayout, ToastItem } from './types';
+import { getAccent } from './utils/theme';
+import { Bookmark, Sparkles, Plus, Radio, Layers, RefreshCw, Archive, Trash2, CheckCircle2 } from 'lucide-react';
+
+const STORAGE_KEYS = {
+  BLOCKS: 'radar_rss_blocks_v1',
+  FEEDS: 'radar_rss_feeds_v1',
+  BOOKMARKS: 'radar_rss_bookmarks_v1',
+  SETTINGS: 'radar_rss_settings_v1',
+  ARCHIVED: 'radar_rss_archived_ids_v1',
+};
+
+export default function App() {
+  // --- Persistent States ---
+  const [blocks, setBlocks] = useState<DynamicBlock[]>(() => {
+    const saved = localStorage.getItem(STORAGE_KEYS.BLOCKS);
+    return saved ? JSON.parse(saved) : DEFAULT_BLOCKS;
+  });
+
+  const [feeds, setFeeds] = useState<RssFeed[]>(() => {
+    const saved = localStorage.getItem(STORAGE_KEYS.FEEDS);
+    if (!saved) return DEFAULT_FEEDS;
+    try {
+      const parsed: RssFeed[] = JSON.parse(saved);
+      const mapped = parsed.map((feed) => {
+        if (feed.url.includes('feeds.folha.uol.com.br')) {
+          return { ...feed, id: 'cnn_brasil', title: 'CNN Brasil', url: 'https://www.cnnbrasil.com.br/feed/' };
+        }
+        if (feed.url.includes('omelete.com.br') || feed.url.includes('jovemnerd.com.br') || feed.id === 'omelete') {
+          return { ...feed, id: 'b9', title: 'B9 Cultura e Mídia', url: 'https://www.b9.com.br/feed/', category: 'entertainment', icon: '🎬' };
+        }
+        return feed;
+      });
+
+      // Deduplicate by ID
+      const seen = new Set<string>();
+      return mapped.filter((f) => {
+        if (seen.has(f.id)) return false;
+        seen.add(f.id);
+        return true;
+      });
+    } catch {
+      return DEFAULT_FEEDS;
+    }
+  });
+
+  const [bookmarkedArticles, setBookmarkedArticles] = useState<NewsItem[]>(() => {
+    const saved = localStorage.getItem(STORAGE_KEYS.BOOKMARKS);
+    return saved ? JSON.parse(saved) : [];
+  });
+
+  const [archivedArticleIds, setArchivedArticleIds] = useState<Set<string>>(() => {
+    const saved = localStorage.getItem(STORAGE_KEYS.ARCHIVED);
+    if (!saved) return new Set();
+    try {
+      return new Set(JSON.parse(saved));
+    } catch {
+      return new Set();
+    }
+  });
+
+  const [settings, setSettings] = useState<AppSettings>(() => {
+    const saved = localStorage.getItem(STORAGE_KEYS.SETTINGS);
+    return saved ? JSON.parse(saved) : {
+      theme: 'dark',
+      globalRefreshSec: 60,
+      soundAlerts: true,
+      browserNotifications: true,
+      breakingKeywords: ['Urgente', 'Bomba', 'Atenção', 'Breaking', 'Exclusivo', 'Última Hora'],
+      layoutCols: 2,
+    };
+  });
+
+  // --- Runtime States ---
+  const [allNewsItems, setAllNewsItems] = useState<NewsItem[]>([]);
+  const [isRefreshing, setIsRefreshing] = useState<boolean>(false);
+  const [lastUpdated, setLastUpdated] = useState<Date | null>(null);
+  const [searchQuery, setSearchQuery] = useState<string>('');
+  const [showBookmarksOnly, setShowBookmarksOnly] = useState<boolean>(false);
+  const [showArchiveOnly, setShowArchiveOnly] = useState<boolean>(false);
+  const [toasts, setToasts] = useState<ToastItem[]>([]);
+
+  const addToast = useCallback((toastData: {
+    title: string;
+    message?: string;
+    imageUrl?: string;
+    article?: NewsItem;
+    type?: 'breaking' | 'info' | 'success' | 'warning';
+  }) => {
+    const newToast: ToastItem = {
+      id: 'toast-' + Date.now() + '-' + Math.random().toString(36).substr(2, 5),
+      timestamp: Date.now(),
+      ...toastData,
+    };
+    setToasts((prev) => [newToast, ...prev].slice(0, 5));
+  }, []);
+
+  const removeToast = useCallback((id: string) => {
+    setToasts((prev) => prev.filter((t) => t.id !== id));
+  }, []);
+
+  // Ref to track notified breaking news IDs to prevent duplicates
+  const notifiedIdsRef = useRef<Set<string>>(new Set());
+  const isInitialFetchRef = useRef<boolean>(true);
+
+  // Check if an item is breaking news
+  const checkIsBreaking = useCallback((item: NewsItem): boolean => {
+    if (item.isBreaking) return true;
+    const keywords = settings.breakingKeywords || ['Urgente', 'Bomba', 'Atenção', 'Breaking', 'Exclusivo', 'Última Hora'];
+    const text = `${item.title} ${item.contentSnippet}`.toLowerCase();
+    return keywords.some((kw) => kw.trim() && text.includes(kw.trim().toLowerCase()));
+  }, [settings.breakingKeywords]);
+
+  // Audio Chime generator using Web Audio API
+  const playAudioChime = useCallback(() => {
+    if (!settings.soundAlerts) return;
+    try {
+      const AudioCtx = window.AudioContext || (window as any).webkitAudioContext;
+      if (!AudioCtx) return;
+      const ctx = new AudioCtx();
+      if (ctx.state === 'suspended') {
+        ctx.resume();
+      }
+      const osc = ctx.createOscillator();
+      const gain = ctx.createGain();
+      osc.type = 'sine';
+      osc.frequency.setValueAtTime(587.33, ctx.currentTime); // D5
+      osc.frequency.exponentialRampToValueAtTime(880, ctx.currentTime + 0.15); // A5
+      gain.gain.setValueAtTime(0.08, ctx.currentTime);
+      gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.25);
+      osc.connect(gain);
+      gain.connect(ctx.destination);
+      osc.start();
+      osc.stop(ctx.currentTime + 0.25);
+    } catch (err) {
+      // Audio context policy ignored
+    }
+  }, [settings.soundAlerts]);
+
+  // Trigger notification (both Toast Banner & Native Browser Notification safely)
+  const triggerNativeNotification = useCallback((item: NewsItem) => {
+    // 1. Always show in-app toast for visual guarantee
+    addToast({
+      title: item.title,
+      message: `${item.sourceName} • ${item.contentSnippet || ''}`,
+      imageUrl: item.imageUrl,
+      article: item,
+      type: 'breaking',
+    });
+
+    // 2. Play audio alert sound if enabled
+    playAudioChime();
+
+    // 3. Try native browser notification safely if allowed and enabled
+    if (settings.browserNotifications && typeof window !== 'undefined' && 'Notification' in window && typeof Notification === 'function') {
+      try {
+        if (Notification.permission === 'granted') {
+          const notif = new Notification(`⚡ URGENTE: ${item.sourceName}`, {
+            body: item.title,
+            icon: item.imageUrl || 'https://images.unsplash.com/photo-1504711434969-e33886168f5c?auto=format&fit=crop&w=120&q=80',
+            tag: item.id,
+          });
+
+          notif.onclick = () => {
+            window.focus();
+            setSelectedArticle(item);
+            setArchivedArticleIds((prev) => new Set(prev).add(item.id));
+            notif.close();
+          };
+        }
+      } catch (err) {
+        console.warn('[Native Notification suppressed by browser/iframe]:', err);
+      }
+    }
+  }, [settings.browserNotifications, addToast, playAudioChime]);
+
+  // --- Modal States ---
+  const [selectedArticle, setSelectedArticle] = useState<NewsItem | null>(null);
+  const [isCreateBlockOpen, setIsCreateBlockOpen] = useState<boolean>(false);
+  const [editingBlock, setEditingBlock] = useState<DynamicBlock | null>(null);
+  const [isManageFeedsOpen, setIsManageFeedsOpen] = useState<boolean>(false);
+  const [isGlobalFeedsOpen, setIsGlobalFeedsOpen] = useState<boolean>(false);
+  const [isAICuratorOpen, setIsAICuratorOpen] = useState<boolean>(false);
+  const [isSettingsOpen, setIsSettingsOpen] = useState<boolean>(false);
+  const [generatingAiBlockId, setGeneratingAiBlockId] = useState<string | null>(null);
+
+  // Persistence Effects
+  useEffect(() => {
+    localStorage.setItem(STORAGE_KEYS.BLOCKS, JSON.stringify(blocks));
+  }, [blocks]);
+
+  useEffect(() => {
+    localStorage.setItem(STORAGE_KEYS.FEEDS, JSON.stringify(feeds));
+  }, [feeds]);
+
+  useEffect(() => {
+    localStorage.setItem(STORAGE_KEYS.BOOKMARKS, JSON.stringify(bookmarkedArticles));
+  }, [bookmarkedArticles]);
+
+  useEffect(() => {
+    localStorage.setItem(STORAGE_KEYS.ARCHIVED, JSON.stringify(Array.from(archivedArticleIds)));
+  }, [archivedArticleIds]);
+
+  useEffect(() => {
+    localStorage.setItem(STORAGE_KEYS.SETTINGS, JSON.stringify(settings));
+    // Apply HTML dark class
+    if (settings.theme === 'dark') {
+      document.documentElement.classList.add('dark');
+    } else {
+      document.documentElement.classList.remove('dark');
+    }
+    // Apply HTML accent color attribute
+    document.documentElement.setAttribute('data-accent', settings.accentColor || 'orange');
+  }, [settings]);
+
+  // Handle article selection and mark as archived/read automatically
+  const handleSelectArticle = useCallback((item: NewsItem) => {
+    setSelectedArticle(item);
+    setArchivedArticleIds((prev) => {
+      const next = new Set(prev);
+      next.add(item.id);
+      return next;
+    });
+  }, []);
+
+  const handleToggleArchiveItem = useCallback((item: NewsItem) => {
+    setArchivedArticleIds((prev) => {
+      const next = new Set(prev);
+      if (next.has(item.id)) {
+        next.delete(item.id);
+      } else {
+        next.add(item.id);
+      }
+      return next;
+    });
+  }, []);
+
+  // --- Fetch Feeds from Backend ---
+  const fetchAllFeeds = useCallback(async () => {
+    const activeFeeds = feeds.filter((f) => f.active);
+    if (activeFeeds.length === 0) return;
+
+    setIsRefreshing(true);
+    try {
+      const urls = activeFeeds.map((f) => f.url).join(',');
+      const res = await fetch(`/api/rss?urls=${encodeURIComponent(urls)}`);
+      const data = await res.json();
+
+      if (data.success && Array.isArray(data.items)) {
+        setAllNewsItems((prev) => {
+          // Detect if new items came in
+          if (prev.length > 0 && data.items.length > prev.length) {
+            playAudioChime();
+          }
+
+          // Check for Breaking News and trigger native browser notifications
+          data.items.forEach((item: NewsItem) => {
+            if (checkIsBreaking(item) && !notifiedIdsRef.current.has(item.id)) {
+              notifiedIdsRef.current.add(item.id);
+              
+              // Only trigger if not initial fetch or if news is recent (within last 2 hours)
+              const isRecent = (Date.now() - item.timestamp) < (2 * 60 * 60 * 1000);
+              if (!isInitialFetchRef.current || isRecent) {
+                triggerNativeNotification(item);
+              }
+            }
+          });
+
+          isInitialFetchRef.current = false;
+          return data.items;
+        });
+        setLastUpdated(new Date());
+      }
+    } catch (err) {
+      console.error('[Fetch Feeds Error]:', err);
+    } finally {
+      setIsRefreshing(false);
+    }
+  }, [feeds, playAudioChime, checkIsBreaking, triggerNativeNotification]);
+
+  // Initial Fetch
+  useEffect(() => {
+    fetchAllFeeds();
+  }, [fetchAllFeeds]);
+
+  // Bookmarks helper lookup
+  const bookmarkedIds = useMemo(() => {
+    return new Set(bookmarkedArticles.map((item) => item.id));
+  }, [bookmarkedArticles]);
+
+  const toggleBookmark = (item: NewsItem) => {
+    setBookmarkedArticles((prev) => {
+      if (prev.some((b) => b.id === item.id)) {
+        return prev.filter((b) => b.id !== item.id);
+      }
+      return [item, ...prev];
+    });
+  };
+
+  // Filter items per Dynamic Block
+  const getBlockNewsItems = useCallback((block: DynamicBlock): NewsItem[] => {
+    let list = allNewsItems;
+
+    // Archive / Active filter:
+    // If showArchiveOnly is true, show ONLY archived/clicked items.
+    // If showArchiveOnly is false, show ONLY non-archived items (so new items overlay on top).
+    if (showArchiveOnly) {
+      list = list.filter((it) => archivedArticleIds.has(it.id));
+    } else {
+      list = list.filter((it) => !archivedArticleIds.has(it.id));
+    }
+
+    // Search query filter overrides if active
+    if (searchQuery.trim()) {
+      const q = searchQuery.toLowerCase();
+      list = list.filter(
+        (it) =>
+          it.title.toLowerCase().includes(q) ||
+          it.contentSnippet.toLowerCase().includes(q) ||
+          it.sourceName.toLowerCase().includes(q)
+      );
+    }
+
+    // Category filter
+    if (block.categoryFilter && block.categoryFilter !== 'all') {
+      const matchingFeedUrls = new Set(
+        feeds
+          .filter((f) => f.category === block.categoryFilter && f.active)
+          .map((f) => f.url)
+      );
+      list = list.filter((it) => matchingFeedUrls.has(it.sourceId));
+    }
+
+    // Keyword Filter (supports regex OR pipe syntax: e.g. "IA|AI|Gemini")
+    if (block.filterKeyword) {
+      try {
+        const regex = new RegExp(block.filterKeyword, 'i');
+        list = list.filter(
+          (it) => regex.test(it.title) || regex.test(it.contentSnippet)
+        );
+      } catch (err) {
+        const kw = block.filterKeyword.toLowerCase();
+        list = list.filter(
+          (it) =>
+            it.title.toLowerCase().includes(kw) ||
+            it.contentSnippet.toLowerCase().includes(kw)
+        );
+      }
+    }
+
+    return list;
+  }, [allNewsItems, feeds, searchQuery, showArchiveOnly, archivedArticleIds]);
+
+  // Generate AI Summary for Block
+  const handleGenerateAISummaryForBlock = async (block: DynamicBlock) => {
+    const items = getBlockNewsItems(block);
+    if (items.length === 0) return;
+
+    setGeneratingAiBlockId(block.id);
+    try {
+      const res = await fetch('/api/gemini/summarize', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          items: items.slice(0, 8),
+          topic: block.title,
+        }),
+      });
+      const data = await res.json();
+      if (data.success) {
+        setBlocks((prev) =>
+          prev.map((b) =>
+            b.id === block.id ? { ...b, aiSummary: data.summary, aiSummaryDate: Date.now() } : b
+          )
+        );
+      } else {
+        alert(data.error || 'Erro ao gerar resumo da IA.');
+      }
+    } catch (err) {
+      console.error(err);
+      alert('Falha ao comunicar com a IA.');
+    } finally {
+      setGeneratingAiBlockId(null);
+    }
+  };
+
+  // Handlers for Block CRUD
+  const handleSaveBlock = (savedBlock: DynamicBlock) => {
+    setBlocks((prev) => {
+      const index = prev.findIndex((b) => b.id === savedBlock.id);
+      if (index >= 0) {
+        const copy = [...prev];
+        copy[index] = savedBlock;
+        return copy;
+      }
+      return [...prev, savedBlock];
+    });
+  };
+
+  const handleDeleteBlock = (blockId: string) => {
+    if (confirm('Tem certeza que deseja excluir este bloco dinâmico?')) {
+      setBlocks((prev) => prev.filter((b) => b.id !== blockId));
+    }
+  };
+
+  const handleUpdateBlockLayout = (blockId: string, layout: BlockLayout) => {
+    setBlocks((prev) =>
+      prev.map((b) => (b.id === blockId ? { ...b, layout } : b))
+    );
+  };
+
+  // Feed Handlers
+  const handleToggleFeed = (feedId: string) => {
+    setFeeds((prev) =>
+      prev.map((f) => (f.id === feedId ? { ...f, active: !f.active } : f))
+    );
+  };
+
+  const handleAddCustomFeed = (newFeed: RssFeed) => {
+    setFeeds((prev) => [newFeed, ...prev]);
+  };
+
+  const handleRemoveFeed = (feedId: string) => {
+    setFeeds((prev) => prev.filter((f) => f.id !== feedId));
+  };
+
+  // Export / Import Config
+  const handleExportConfig = () => {
+    const configData = {
+      blocks,
+      feeds,
+      settings,
+      exportedAt: new Date().toISOString(),
+    };
+    const blob = new Blob([JSON.stringify(configData, null, 2)], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `radar_rss_backup_${Date.now()}.json`;
+    a.click();
+    URL.revokeObjectURL(url);
+  };
+
+  const handleImportConfig = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    const reader = new FileReader();
+    reader.onload = (event) => {
+      try {
+        const parsed = JSON.parse(event.target?.result as string);
+        if (parsed.blocks && Array.isArray(parsed.blocks)) setBlocks(parsed.blocks);
+        if (parsed.feeds && Array.isArray(parsed.feeds)) setFeeds(parsed.feeds);
+        if (parsed.settings) setSettings(parsed.settings);
+        alert('Configurações importadas com sucesso!');
+      } catch (err) {
+        alert('Arquivo de backup JSON inválido.');
+      }
+    };
+    reader.readAsText(file);
+  };
+
+  // Reset to Defaults
+  const handleResetToDefaults = () => {
+    if (confirm('Deseja redefinir os blocos e feeds para o estado inicial padrão?')) {
+      setBlocks(DEFAULT_BLOCKS);
+      setFeeds(DEFAULT_FEEDS);
+      localStorage.removeItem(STORAGE_KEYS.BLOCKS);
+      localStorage.removeItem(STORAGE_KEYS.FEEDS);
+      setIsSettingsOpen(false);
+      fetchAllFeeds();
+    }
+  };
+
+  return (
+    <div className={`min-h-screen transition-colors duration-200 font-sans ${
+      settings.theme === 'dark' ? 'bg-zinc-950 text-zinc-100' : 'bg-zinc-100 text-zinc-900'
+    }`}>
+      
+      {/* Top Navbar */}
+      <Navbar
+        onRefreshAll={fetchAllFeeds}
+        isRefreshing={isRefreshing}
+        lastUpdated={lastUpdated}
+        autoRefreshSec={settings.globalRefreshSec}
+        onOpenCreateBlock={() => {
+          setEditingBlock(null);
+          setIsCreateBlockOpen(true);
+        }}
+        onOpenManageFeeds={() => setIsManageFeedsOpen(true)}
+        onOpenGlobalFeeds={() => setIsGlobalFeedsOpen(true)}
+        onOpenAICurator={() => setIsAICuratorOpen(true)}
+        onOpenSettings={() => setIsSettingsOpen(true)}
+        onToggleBookmarks={() => {
+          setShowBookmarksOnly(!showBookmarksOnly);
+          setShowArchiveOnly(false);
+        }}
+        showBookmarksOnly={showBookmarksOnly}
+        bookmarkCount={bookmarkedArticles.length}
+        onToggleArchive={() => {
+          setShowArchiveOnly(!showArchiveOnly);
+          setShowBookmarksOnly(false);
+        }}
+        showArchiveOnly={showArchiveOnly}
+        archivedCount={archivedArticleIds.size}
+        searchQuery={searchQuery}
+        onSearchChange={setSearchQuery}
+        settings={settings}
+        onUpdateSettings={setSettings}
+        totalArticlesCount={allNewsItems.length}
+        newArticlesCount={0}
+      />
+
+      {/* Breaking News Ticker Bar */}
+      <TickerBar
+        items={allNewsItems}
+        onSelectArticle={handleSelectArticle}
+        theme={settings.theme}
+        accentColor={settings.accentColor}
+      />
+
+      {/* Main Content Dashboard */}
+      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 space-y-6">
+        
+        {/* Archive View Header Banner */}
+        {showArchiveOnly && (
+          <div className="p-4 rounded-3xl bg-amber-500/10 border border-amber-500/40 flex flex-wrap items-center justify-between gap-4 shadow-lg">
+            <div className="flex items-center gap-3">
+              <Archive className="w-6 h-6 text-amber-500" />
+              <div>
+                <h2 className="font-extrabold text-base uppercase tracking-wider flex items-center gap-2">
+                  Notícias Arquivadas / Lidas ({archivedArticleIds.size})
+                  <span className="text-[10px] bg-amber-500/20 text-amber-400 font-mono px-2 py-0.5 rounded border border-amber-500/30">
+                    Notícias clicadas são auto-arquivadas
+                  </span>
+                </h2>
+                <p className="text-xs text-neutral-400">
+                  As notícias que você clica são guardadas aqui para manter seu feed principal limpo e focado em novidades.
+                </p>
+              </div>
+            </div>
+
+            <div className="flex items-center gap-2">
+              {archivedArticleIds.size > 0 && (
+                <button
+                  onClick={() => {
+                    if (confirm('Deseja limpar todo o histórico de notícias arquivadas?')) {
+                      setArchivedArticleIds(new Set());
+                    }
+                  }}
+                  className="px-3 py-2 rounded-2xl text-xs font-bold uppercase tracking-wider bg-red-500/20 border border-red-500/40 text-red-400 hover:bg-red-500/30 transition-colors flex items-center gap-1.5"
+                >
+                  <Trash2 className="w-3.5 h-3.5" />
+                  <span>Esvaziar Arquivo</span>
+                </button>
+              )}
+
+              <button
+                onClick={() => setShowArchiveOnly(false)}
+                className="px-4 py-2 rounded-2xl text-xs font-black uppercase tracking-wider bg-amber-500 text-black hover:bg-amber-400 transition-colors"
+              >
+                Voltar às Novidades
+              </button>
+            </div>
+          </div>
+        )}
+
+        {/* Bookmarks Only View Header */}
+        {showBookmarksOnly && (
+          <div className={`p-4 rounded-3xl ${getAccent(settings.accentColor).bgLight} border ${getAccent(settings.accentColor).borderLight} flex items-center justify-between gap-4 shadow-lg`}>
+            <div className="flex items-center gap-3">
+              <Bookmark className={`w-6 h-6 ${getAccent(settings.accentColor).text} ${getAccent(settings.accentColor).fill}`} />
+              <div>
+                <h2 className="font-extrabold text-base uppercase tracking-wider">Suas Matérias Salvas ({bookmarkedArticles.length})</h2>
+                <p className="text-xs text-neutral-400">Leitura offline e artigos marcados para ler mais tarde</p>
+              </div>
+            </div>
+            <button
+              onClick={() => setShowBookmarksOnly(false)}
+              className={`px-4 py-2 rounded-2xl text-xs font-black uppercase tracking-wider ${getAccent(settings.accentColor).bg} text-black ${getAccent(settings.accentColor).bgHover} transition-colors`}
+            >
+              Voltar ao Painel
+            </button>
+          </div>
+        )}
+
+        {/* Display Bookmarks List View if active */}
+        {showBookmarksOnly ? (
+          bookmarkedArticles.length === 0 ? (
+            <div className="text-center py-20 text-neutral-500 text-xs font-mono">
+              NENHUMA MATÉRIA SALVA NO SEU BANCO LOCAL. CLIQUE NO ÍCONE DE BOOKMARK PARA SALVAR NOTÍCIAS.
+            </div>
+          ) : (
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+              {bookmarkedArticles.map((item) => (
+                <div
+                  key={item.id}
+                  onClick={() => handleSelectArticle(item)}
+                  className={`p-5 rounded-3xl border flex flex-col justify-between group cursor-pointer transition-all ${
+                    settings.theme === 'dark' ? `bg-neutral-800 border-neutral-700 ${getAccent(settings.accentColor).borderHover}` : `bg-white border-neutral-200 ${getAccent(settings.accentColor).borderHover}`
+                  }`}
+                >
+                  <div>
+                    <span className={`text-[10px] font-black uppercase ${getAccent(settings.accentColor).text} mb-2 block tracking-wider`}>{item.sourceName}</span>
+                    <h3 className={`font-bold text-sm mb-2 group-${getAccent(settings.accentColor).textHover} transition-colors leading-snug`}>{item.title}</h3>
+                    <p className="text-xs text-neutral-400 line-clamp-3 leading-relaxed">{item.contentSnippet}</p>
+                  </div>
+                  <div className="pt-3 border-t border-neutral-700/50 mt-4 flex items-center justify-between text-[11px] font-mono text-neutral-400">
+                    <span>{item.pubDate}</span>
+                    <button
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        toggleBookmark(item);
+                      }}
+                      className={`${getAccent(settings.accentColor).text} hover:underline font-bold`}
+                    >
+                      Remover
+                    </button>
+                  </div>
+                </div>
+              ))}
+            </div>
+          )
+        ) : (
+          /* Dynamic Blocks Layout Grid */
+          <div className={`grid grid-cols-1 ${
+            settings.layoutCols === 1
+              ? 'lg:grid-cols-1'
+              : settings.layoutCols === 2
+              ? 'lg:grid-cols-2'
+              : 'lg:grid-cols-3'
+          } gap-6`}>
+            {blocks.map((block) => {
+              const blockItems = getBlockNewsItems(block);
+              return (
+                <DynamicBlockCard
+                  key={block.id}
+                  block={block}
+                  items={blockItems}
+                  isLoading={isRefreshing}
+                  onRefreshBlock={fetchAllFeeds}
+                  onSelectArticle={handleSelectArticle}
+                  onToggleBookmark={toggleBookmark}
+                  onEditBlock={() => {
+                    setEditingBlock(block);
+                    setIsCreateBlockOpen(true);
+                  }}
+                  onDeleteBlock={() => handleDeleteBlock(block.id)}
+                  onUpdateBlockLayout={(layout) => handleUpdateBlockLayout(block.id, layout)}
+                  onGenerateAISummary={() => handleGenerateAISummaryForBlock(block)}
+                  isGeneratingAI={generatingAiBlockId === block.id}
+                  theme={settings.theme}
+                  accentColor={settings.accentColor}
+                  bookmarkedIds={bookmarkedIds}
+                  archivedIds={archivedArticleIds}
+                  onToggleArchive={handleToggleArchiveItem}
+                />
+              );
+            })}
+          </div>
+        )}
+
+        {/* Bento Grid System Log Footer Bar */}
+        <footer className={`rounded-2xl p-3 border flex items-center gap-3 text-[11px] font-mono ${
+          settings.theme === 'dark'
+            ? 'bg-neutral-900/80 border-neutral-800 text-neutral-400'
+            : 'bg-neutral-200/60 border-neutral-300 text-neutral-700'
+        }`}>
+          <span className={`text-[9px] font-black ${getAccent(settings.accentColor).bg} text-black px-1.5 py-0.5 rounded tracking-widest`}>
+            RAW
+          </span>
+          <div className="overflow-hidden whitespace-nowrap text-ellipsis flex-1">
+            <span className={`${getAccent(settings.accentColor).text} font-bold`}>[RADAR LOG]</span> Sincronizando {feeds.filter(f => f.active).length} feeds ativas... <span className="text-emerald-400">Success</span> • {allNewsItems.length} artigos carregados • Latência: <span className={getAccent(settings.accentColor).textDark}>12ms</span> • Formato: <span className="text-white font-bold">Bento Grid Engine</span>
+          </div>
+        </footer>
+
+      </main>
+
+      {/* --- Modals --- */}
+
+      {/* Article Reader Modal */}
+      <ArticleReaderModal
+        article={selectedArticle}
+        onClose={() => setSelectedArticle(null)}
+        onToggleBookmark={toggleBookmark}
+        isBookmarked={selectedArticle ? bookmarkedIds.has(selectedArticle.id) : false}
+        theme={settings.theme}
+        accentColor={settings.accentColor}
+      />
+
+      {/* Create / Edit Dynamic Block Modal */}
+      <CreateBlockModal
+        isOpen={isCreateBlockOpen}
+        onClose={() => {
+          setIsCreateBlockOpen(false);
+          setEditingBlock(null);
+        }}
+        onSaveBlock={handleSaveBlock}
+        initialBlock={editingBlock}
+        availableFeeds={feeds}
+        theme={settings.theme}
+      />
+
+      {/* Manage Feeds Catalog Modal */}
+      <ManageFeedsModal
+        isOpen={isManageFeedsOpen}
+        onClose={() => setIsManageFeedsOpen(false)}
+        feeds={feeds}
+        onToggleFeed={handleToggleFeed}
+        onAddCustomFeed={handleAddCustomFeed}
+        onRemoveFeed={handleRemoveFeed}
+        onExportConfig={handleExportConfig}
+        onImportConfig={handleImportConfig}
+        theme={settings.theme}
+      />
+
+      {/* Gemini AI Smart Curator Modal */}
+      <AICuratorModal
+        isOpen={isAICuratorOpen}
+        onClose={() => setIsAICuratorOpen(false)}
+        onBlockCurated={handleSaveBlock}
+        theme={settings.theme}
+      />
+
+      {/* Global Feeds Recommendations Modal */}
+      <GlobalFeedsModal
+        isOpen={isGlobalFeedsOpen}
+        onClose={() => setIsGlobalFeedsOpen(false)}
+        activeFeeds={feeds}
+        onAddFeed={handleAddCustomFeed}
+        theme={settings.theme}
+      />
+
+      {/* Settings Modal */}
+      <SettingsModal
+        isOpen={isSettingsOpen}
+        onClose={() => setIsSettingsOpen(false)}
+        settings={settings}
+        onUpdateSettings={setSettings}
+        onResetToDefaults={handleResetToDefaults}
+        onTriggerToast={(toast) => addToast(toast)}
+      />
+
+      {/* Floating In-App Toast Notifications */}
+      <ToastNotificationContainer
+        toasts={toasts}
+        onDismiss={removeToast}
+        onSelectArticle={handleSelectArticle}
+        accentColor={settings.accentColor}
+        theme={settings.theme}
+      />
+
+    </div>
+  );
+}

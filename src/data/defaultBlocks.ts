@@ -1,0 +1,55 @@
+import { DynamicBlock } from '../types';
+
+export const DEFAULT_BLOCKS: DynamicBlock[] = [
+  {
+    id: 'block_breaking',
+    title: '⚡ Manchetes & Últimas Notícias',
+    categoryFilter: 'brazil',
+    layout: 'hero',
+    itemCount: 5,
+    autoRefreshSec: 60,
+    isPinned: true,
+    accentColor: 'from-amber-500 to-red-600',
+  },
+  {
+    id: 'block_tech',
+    title: '💻 Tecnologia & Ecossistema Dev',
+    categoryFilter: 'tech',
+    layout: 'grid',
+    itemCount: 6,
+    autoRefreshSec: 120,
+    isPinned: true,
+    accentColor: 'from-blue-600 to-cyan-500',
+  },
+  {
+    id: 'block_ai',
+    title: '🤖 Radar IA, Gemini & Inovação',
+    categoryFilter: 'ai',
+    filterKeyword: 'IA|AI|inteligência artificial|Gemini|ChatGPT|OpenAI|LLM|DeepMind',
+    layout: 'compact',
+    itemCount: 5,
+    autoRefreshSec: 120,
+    isPinned: false,
+    accentColor: 'from-purple-600 to-pink-500',
+  },
+  {
+    id: 'block_finance',
+    title: '📈 Economia, Mercado & Startups',
+    categoryFilter: 'finance',
+    layout: 'list',
+    itemCount: 5,
+    autoRefreshSec: 180,
+    isPinned: false,
+    accentColor: 'from-emerald-600 to-teal-500',
+  },
+  {
+    id: 'block_sports_media',
+    title: '⚽ Esportes & Cultura Geek',
+    categoryFilter: 'sports',
+    layout: 'ticker',
+    itemCount: 8,
+    autoRefreshSec: 300,
+    isPinned: false,
+    accentColor: 'from-indigo-600 to-violet-500',
+  }
+];

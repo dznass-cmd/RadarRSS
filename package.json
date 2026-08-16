@@ -1,0 +1,88 @@
+{
+  "name": "radar-rss",
+  "description": "Leitor de notícias RSS em tempo real com blocos dinâmicos, feeds brasileiros e internacionais, resumos de IA e alertas de breaking news.",
+  "author": "Freebuff",
+  "private": true,
+  "version": "2.0.4",
+  "type": "module",
+  "main": "electron/main.cjs",
+  "scripts": {
+    "dev": "tsx server.ts",
+    "build": "vite build && node scripts/build-server.mjs",
+    "start": "node dist/server.cjs",
+    "make-icon": "node scripts/make-icon.js",
+    "build:win": "npm run build && npm run make-icon && electron-builder --win",
+    "publish:win": "npm run build && npm run make-icon && electron-builder --win --publish always",
+    "desktop": "npm run build && electron .",
+    "clean": "rm -rf dist server.js release",
+    "lint": "tsc --noEmit"
+  },
+  "build": {
+    "appId": "com.dznasscmd.radarrss",
+    "productName": "Radar RSS",
+    "asar": false,
+    "directories": {
+      "output": "release"
+    },
+    "files": [
+      "dist/**",
+      "electron/**",
+      "build/icon.ico",
+      "node_modules/**",
+      "package.json"
+    ],
+    "win": {
+      "icon": "build/icon.ico",
+      "target": [
+        "nsis",
+        "portable"
+      ]
+    },
+    "nsis": {
+      "oneClick": false,
+      "allowToChangeInstallationDirectory": true,
+      "createDesktopShortcut": true,
+      "createStartMenuShortcut": true,
+      "shortcutName": "Radar RSS"
+    },
+    "publish": [
+      {
+        "provider": "github",
+        "owner": "dznass-cmd",
+        "repo": "RadarRSS",
+        "releaseType": "release"
+      }
+    ]
+  },
+  "dependencies": {
+    "@google/genai": "^2.4.0",
+    "dotenv": "^17.2.3",
+    "electron-updater": "^6.8.9",
+    "express": "^4.21.2",
+    "lucide-react": "^0.546.0",
+    "motion": "^12.23.24",
+    "react": "^19.0.1",
+    "react-dom": "^19.0.1",
+    "rss-parser": "^3.13.0"
+  },
+  "devDependencies": {
+    "@tailwindcss/vite": "^4.1.14",
+    "@types/express": "^4.17.21",
+    "@types/node": "^22.14.0",
+    "@vitejs/plugin-react": "^5.0.4",
+    "autoprefixer": "^10.4.21",
+    "electron": "^43.4.0",
+    "electron-builder": "^26.15.3",
+    "esbuild": "^0.25.0",
+    "tailwindcss": "^4.1.14",
+    "tsx": "^4.21.0",
+    "typescript": "~5.8.2",
+    "vite": "^6.2.3"
+  },
+  "allowScripts": {
+    "esbuild@0.25.12": true,
+    "esbuild@0.28.2": true,
+    "protobufjs@7.6.5": true,
+    "electron@43.4.0": true
+  }
+}

@@ -1,0 +1,198 @@
+import { AccentColor } from '../types';
+
+export interface AccentTheme {
+  name: AccentColor;
+  text: string;
+  textHover: string;
+  textDark: string;
+  textLight: string;
+  bg: string;
+  bgHover: string;
+  bgLight: string;
+  bgLight20: string;
+  bgLight30: string;
+  border: string;
+  borderLight: string;
+  borderHover: string;
+  ring: string;
+  ringLight: string;
+  glow: string;
+  fill: string;
+  gradientFrom: string;
+  gradientTo: string;
+}
+
+export const ACCENT_MAP: Record<AccentColor, AccentTheme> = {
+  orange: {
+    name: 'orange',
+    text: 'text-orange-500',
+    textHover: 'hover:text-orange-400',
+    textDark: 'text-orange-400',
+    textLight: 'text-orange-600',
+    bg: 'bg-orange-500',
+    bgHover: 'hover:bg-orange-600',
+    bgLight: 'bg-orange-500/10',
+    bgLight20: 'bg-orange-500/20',
+    bgLight30: 'bg-orange-500/30',
+    border: 'border-orange-500',
+    borderLight: 'border-orange-500/30',
+    borderHover: 'hover:border-orange-500/50',
+    ring: 'ring-orange-500',
+    ringLight: 'focus:ring-orange-500/50',
+    glow: 'shadow-orange-500/20',
+    fill: 'fill-orange-500 text-orange-500',
+    gradientFrom: 'from-orange-500',
+    gradientTo: 'to-amber-600',
+  },
+  emerald: {
+    name: 'emerald',
+    text: 'text-emerald-500',
+    textHover: 'hover:text-emerald-400',
+    textDark: 'text-emerald-400',
+    textLight: 'text-emerald-600',
+    bg: 'bg-emerald-500',
+    bgHover: 'hover:bg-emerald-600',
+    bgLight: 'bg-emerald-500/10',
+    bgLight20: 'bg-emerald-500/20',
+    bgLight30: 'bg-emerald-500/30',
+    border: 'border-emerald-500',
+    borderLight: 'border-emerald-500/30',
+    borderHover: 'hover:border-emerald-500/50',
+    ring: 'ring-emerald-500',
+    ringLight: 'focus:ring-emerald-500/50',
+    glow: 'shadow-emerald-500/20',
+    fill: 'fill-emerald-500 text-emerald-500',
+    gradientFrom: 'from-emerald-500',
+    gradientTo: 'to-teal-600',
+  },
+  cyan: {
+    name: 'cyan',
+    text: 'text-cyan-500',
+    textHover: 'hover:text-cyan-400',
+    textDark: 'text-cyan-400',
+    textLight: 'text-cyan-600',
+    bg: 'bg-cyan-500',
+    bgHover: 'hover:bg-cyan-600',
+    bgLight: 'bg-cyan-500/10',
+    bgLight20: 'bg-cyan-500/20',
+    bgLight30: 'bg-cyan-500/30',
+    border: 'border-cyan-500',
+    borderLight: 'border-cyan-500/30',
+    borderHover: 'hover:border-cyan-500/50',
+    ring: 'ring-cyan-500',
+    ringLight: 'focus:ring-cyan-500/50',
+    glow: 'shadow-cyan-500/20',
+    fill: 'fill-cyan-500 text-cyan-500',
+    gradientFrom: 'from-cyan-500',
+    gradientTo: 'to-blue-600',
+  },
+  purple: {
+    name: 'purple',
+    text: 'text-purple-500',
+    textHover: 'hover:text-purple-400',
+    textDark: 'text-purple-400',
+    textLight: 'text-purple-600',
+    bg: 'bg-purple-500',
+    bgHover: 'hover:bg-purple-600',
+    bgLight: 'bg-purple-500/10',
+    bgLight20: 'bg-purple-500/20',
+    bgLight30: 'bg-purple-500/30',
+    border: 'border-purple-500',
+    borderLight: 'border-purple-500/30',
+    borderHover: 'hover:border-purple-500/50',
+    ring: 'ring-purple-500',
+    ringLight: 'focus:ring-purple-500/50',
+    glow: 'shadow-purple-500/20',
+    fill: 'fill-purple-500 text-purple-500',
+    gradientFrom: 'from-purple-500',
+    gradientTo: 'to-indigo-600',
+  },
+  red: {
+    name: 'red',
+    text: 'text-red-500',
+    textHover: 'hover:text-red-400',
+    textDark: 'text-red-400',
+    textLight: 'text-red-600',
+    bg: 'bg-red-500',
+    bgHover: 'hover:bg-red-600',
+    bgLight: 'bg-red-500/10',
+    bgLight20: 'bg-red-500/20',
+    bgLight30: 'bg-red-500/30',
+    border: 'border-red-500',
+    borderLight: 'border-red-500/30',
+    borderHover: 'hover:border-red-500/50',
+    ring: 'ring-red-500',
+    ringLight: 'focus:ring-red-500/50',
+    glow: 'shadow-red-500/20',
+    fill: 'fill-red-500 text-red-500',
+    gradientFrom: 'from-red-500',
+    gradientTo: 'to-rose-600',
+  },
+  amber: {
+    name: 'amber',
+    text: 'text-amber-500',
+    textHover: 'hover:text-amber-400',
+    textDark: 'text-amber-400',
+    textLight: 'text-amber-600',
+    bg: 'bg-amber-500',
+    bgHover: 'hover:bg-amber-600',
+    bgLight: 'bg-amber-500/10',
+    bgLight20: 'bg-amber-500/20',
+    bgLight30: 'bg-amber-500/30',
+    border: 'border-amber-500',
+    borderLight: 'border-amber-500/30',
+    borderHover: 'hover:border-amber-500/50',
+    ring: 'ring-amber-500',
+    ringLight: 'focus:ring-amber-500/50',
+    glow: 'shadow-amber-500/20',
+    fill: 'fill-amber-500 text-amber-500',
+    gradientFrom: 'from-amber-500',
+    gradientTo: 'to-yellow-600',
+  },
+  blue: {
+    name: 'blue',
+    text: 'text-blue-500',
+    textHover: 'hover:text-blue-400',
+    textDark: 'text-blue-400',
+    textLight: 'text-blue-600',
+    bg: 'bg-blue-500',
+    bgHover: 'hover:bg-blue-600',
+    bgLight: 'bg-blue-500/10',
+    bgLight20: 'bg-blue-500/20',
+    bgLight30: 'bg-blue-500/30',
+    border: 'border-blue-500',
+    borderLight: 'border-blue-500/30',
+    borderHover: 'hover:border-blue-500/50',
+    ring: 'ring-blue-500',
+    ringLight: 'focus:ring-blue-500/50',
+    glow: 'shadow-blue-500/20',
+    fill: 'fill-blue-500 text-blue-500',
+    gradientFrom: 'from-blue-500',
+    gradientTo: 'to-cyan-600',
+  },
+  pink: {
+    name: 'pink',
+    text: 'text-pink-500',
+    textHover: 'hover:text-pink-400',
+    textDark: 'text-pink-400',
+    textLight: 'text-pink-600',
+    bg: 'bg-pink-500',
+    bgHover: 'hover:bg-pink-600',
+    bgLight: 'bg-pink-500/10',
+    bgLight20: 'bg-pink-500/20',
+    bgLight30: 'bg-pink-500/30',
+    border: 'border-pink-500',
+    borderLight: 'border-pink-500/30',
+    borderHover: 'hover:border-pink-500/50',
+    ring: 'ring-pink-500',
+    ringLight: 'focus:ring-pink-500/50',
+    glow: 'shadow-pink-500/20',
+    fill: 'fill-pink-500 text-pink-500',
+    gradientFrom: 'from-pink-500',
+    gradientTo: 'to-rose-600',
+  },
+};
+
+export function getAccent(color?: AccentColor): AccentTheme {
+  return ACCENT_MAP[color || 'orange'] || ACCENT_MAP.orange;
+}
