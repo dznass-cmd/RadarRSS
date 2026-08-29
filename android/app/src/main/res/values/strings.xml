@@ -1,0 +1,7 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="app_name">Radar RSS</string>
+    <string name="title_activity_main">Radar RSS</string>
+    <string name="package_name">com.dznasscmd.radarrss</string>
+    <string name="custom_url_scheme">com.dznasscmd.radarrss</string>
+</resources>

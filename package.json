@@ -15,7 +15,10 @@
     "publish:win": "npm run build && npm run make-icon && electron-builder --win --publish always",
     "desktop": "npm run build && electron .",
     "clean": "rm -rf dist server.js release",
-    "lint": "tsc --noEmit"
+    "lint": "tsc --noEmit",
+    "cap:sync": "npx cap sync android",
+    "build:android": "npm run build && npx cap sync android",
+    "open:android": "npx cap open android"
   },
   "build": {
     "appId": "com.dznasscmd.radarrss",
@@ -54,6 +57,12 @@
     ]
   },
   "dependencies": {
+    "@capacitor/android": "^8.5.0",
+    "@capacitor/app": "^8.1.1",
+    "@capacitor/core": "^8.5.0",
+    "@capacitor/haptics": "^8.0.2",
+    "@capacitor/preferences": "^8.0.1",
+    "@capacitor/status-bar": "^8.0.3",
     "@google/genai": "^2.4.0",
     "dotenv": "^17.2.3",
     "electron-updater": "^6.8.9",
@@ -65,6 +74,7 @@
     "rss-parser": "^3.13.0"
   },
   "devDependencies": {
+    "@capacitor/cli": "^8.5.0",
     "@tailwindcss/vite": "^4.1.14",
     "@types/express": "^4.17.21",
     "@types/node": "^22.14.0",

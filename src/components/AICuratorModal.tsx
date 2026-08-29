@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { X, Sparkles, Loader2, CheckCircle2, ArrowRight } from 'lucide-react';
 import { DynamicBlock } from '../types';
+import { curateBlockWithAi } from '../services/apiAdapter';
 
 interface AICuratorModalProps {
   isOpen: boolean;
@@ -36,12 +37,7 @@ export const AICuratorModal: React.FC<AICuratorModalProps> = ({
     setErrorMsg(null);
 
     try {
-      const res = await fetch('/api/gemini/curate', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ userPrompt: finalPrompt }),
-      });
-      const data = await res.json();
+      const data = await curateBlockWithAi(finalPrompt);
 
       if (data.success && data.blockConfig) {
         const config = data.blockConfig;

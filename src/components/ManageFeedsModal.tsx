@@ -13,6 +13,7 @@ import {
   Loader2
 } from 'lucide-react';
 import { RssFeed } from '../types';
+import { validateRssFeed } from '../services/apiAdapter';
 
 interface ManageFeedsModalProps {
   isOpen: boolean;
@@ -53,12 +54,7 @@ export const ManageFeedsModal: React.FC<ManageFeedsModalProps> = ({
     setValidationError(null);
 
     try {
-      const res = await fetch('/api/rss/validate', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ url: customUrl.trim() }),
-      });
-      const data = await res.json();
+      const data = await validateRssFeed(customUrl.trim());
 
       if (data.success) {
         const feedToAdd: RssFeed = {

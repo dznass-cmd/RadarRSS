@@ -15,11 +15,14 @@ import {
   Plus,
   Minus,
   Maximize2,
-  Minimize2
+  Minimize2,
+  RefreshCw,
+  Eye
 } from 'lucide-react';
 import { NewsItem, AccentColor } from '../types';
 import { getAccent } from '../utils/theme';
 import { SafeImage } from './SafeImage';
+import { summarizeBlockWithAi, translateWithAi } from '../services/apiAdapter';
 
 interface ArticleReaderModalProps {
   article: NewsItem | null;
@@ -92,23 +95,15 @@ export const ArticleReaderModal: React.FC<ArticleReaderModalProps> = ({
   const handleGenerateAiSummary = async () => {
     try {
       setIsGeneratingAi(true);
-      const res = await fetch('/api/gemini/summarize', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          items: [article],
-          topic: article.title,
-        }),
-      });
-      const data = await res.json();
-      if (data.success) {
+      const data = await summarizeBlockWithAi([article], article.title);
+      if (data.success && data.summary) {
         setAiSummary(data.summary);
       } else {
         alert(data.error || 'Erro ao gerar resumo');
       }
     } catch (err: any) {
       console.error(err);
-      alert('Erro ao se conectar ao servidor da IA');
+      alert('Erro ao se conectar ao serviço da IA');
     } finally {
       setIsGeneratingAi(false);
     }
@@ -118,19 +113,11 @@ export const ArticleReaderModal: React.FC<ArticleReaderModalProps> = ({
   const handleTranslate = async () => {
     try {
       setIsTranslating(true);
-      const res = await fetch('/api/gemini/translate', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          title: article.title,
-          content: article.contentSnippet,
-        }),
-      });
-      const data = await res.json();
-      if (data.success) {
+      const data = await translateWithAi(article.title, article.contentSnippet);
+      if (data.success && data.translation) {
         setTranslatedText(data.translation);
       } else {
-        alert('Erro ao traduzir notícia.');
+        alert(data.error || 'Erro ao traduzir notícia.');
       }
     } catch (err) {
       console.error(err);

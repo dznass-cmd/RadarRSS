@@ -14,6 +14,9 @@ import { DEFAULT_BLOCKS } from './data/defaultBlocks';
 import { DynamicBlock, NewsItem, RssFeed, AppSettings, BlockLayout, ToastItem } from './types';
 import { getAccent } from './utils/theme';
 import { Bookmark, Sparkles, Plus, Radio, Layers, RefreshCw, Archive, Trash2, CheckCircle2 } from 'lucide-react';
+import { fetchRssFeeds, isNativePlatform } from './services/apiAdapter';
+import { App as CapApp } from '@capacitor/app';
+import { StatusBar, Style } from '@capacitor/status-bar';
 
 const STORAGE_KEYS = {
   BLOCKS: 'radar_rss_blocks_v1',
@@ -249,16 +252,15 @@ export default function App() {
     });
   }, []);
 
-  // --- Fetch Feeds from Backend ---
+  // --- Fetch Feeds from Universal Adapter (Desktop & Android) ---
   const fetchAllFeeds = useCallback(async () => {
     const activeFeeds = feeds.filter((f) => f.active);
     if (activeFeeds.length === 0) return;
 
     setIsRefreshing(true);
     try {
-      const urls = activeFeeds.map((f) => f.url).join(',');
-      const res = await fetch(`/api/rss?urls=${encodeURIComponent(urls)}`);
-      const data = await res.json();
+      const urls = activeFeeds.map((f) => f.url);
+      const data = await fetchRssFeeds(urls);
 
       if (data.success && Array.isArray(data.items)) {
         setAllNewsItems((prev) => {
@@ -267,7 +269,7 @@ export default function App() {
             playAudioChime();
           }
 
-          // Check for Breaking News and trigger native browser notifications
+          // Check for Breaking News and trigger native notifications
           data.items.forEach((item: NewsItem) => {
             if (checkIsBreaking(item) && !notifiedIdsRef.current.has(item.id)) {
               notifiedIdsRef.current.add(item.id);
@@ -296,6 +298,52 @@ export default function App() {
   useEffect(() => {
     fetchAllFeeds();
   }, [fetchAllFeeds]);
+
+  // Native Mobile Android Lifecycle (Back Button & Status Bar)
+  useEffect(() => {
+    if (isNativePlatform()) {
+      StatusBar.setBackgroundColor({ color: settings.theme === 'dark' ? '#0a0b0e' : '#f4f4f5' }).catch(() => {});
+      StatusBar.setStyle({ style: settings.theme === 'dark' ? Style.Dark : Style.Light }).catch(() => {});
+
+      const backListener = CapApp.addListener('backButton', ({ canGoBack }) => {
+        if (selectedArticle) {
+          setSelectedArticle(null);
+        } else if (isManageFeedsOpen) {
+          setIsManageFeedsOpen(false);
+        } else if (isCreateBlockOpen) {
+          setIsCreateBlockOpen(false);
+        } else if (isGlobalFeedsOpen) {
+          setIsGlobalFeedsOpen(false);
+        } else if (isAICuratorOpen) {
+          setIsAICuratorOpen(false);
+        } else if (isSettingsOpen) {
+          setIsSettingsOpen(false);
+        } else if (showBookmarksOnly) {
+          setShowBookmarksOnly(false);
+        } else if (showArchiveOnly) {
+          setShowArchiveOnly(false);
+        } else if (canGoBack) {
+          window.history.back();
+        } else {
+          CapApp.exitApp();
+        }
+      });
+
+      return () => {
+        backListener.then((handle) => handle.remove());
+      };
+    }
+  }, [
+    selectedArticle,
+    isManageFeedsOpen,
+    isCreateBlockOpen,
+    isGlobalFeedsOpen,
+    isAICuratorOpen,
+    isSettingsOpen,
+    showBookmarksOnly,
+    showArchiveOnly,
+    settings.theme,
+  ]);
 
   // Bookmarks helper lookup
   const bookmarkedIds = useMemo(() => {

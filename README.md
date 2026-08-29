@@ -7,14 +7,15 @@
 [![React](https://img.shields.io/badge/React-19-61DAFB?logo=react&logoColor=black&style=flat-square)](https://react.dev)
 [![TypeScript](https://img.shields.io/badge/TypeScript-5.8-3178C6?logo=typescript&logoColor=white&style=flat-square)](https://www.typescriptlang.org)
 [![Electron](https://img.shields.io/badge/Electron-Desktop-47848F?logo=electron&logoColor=white&style=flat-square)](https://www.electronjs.org)
+[![Android](https://img.shields.io/badge/Android-APK%20Native-3DDC84?logo=android&logoColor=white&style=flat-square)](https://github.com/dznass-cmd/RadarRSS/releases)
 [![Gemini](https://img.shields.io/badge/Google%20Gemini-AI%20Powered-8E75B2?logo=google&logoColor=white&style=flat-square)](https://ai.google.dev)
 [![Tailwind CSS](https://img.shields.io/badge/Tailwind-CSS%20v4-38B2AC?logo=tailwind-css&logoColor=white&style=flat-square)](https://tailwindcss.com)
 
 <br />
 
-**Agregador de notícias dinâmico e inteligente em tempo real com curadoria por Inteligência Artificial (Google Gemini) e aplicativo desktop nativo para Windows.**
+**Agregador de notícias dinâmico e inteligente em tempo real com curadoria por Inteligência Artificial (Google Gemini), aplicativo desktop para Windows e aplicativo nativo para Android.**
 
-[📥 Baixar Aplicativo](#-download--instalação-windows) • [✨ Recursos](#-principais-recursos) • [🚀 Como Rodar](#-como-rodar-localmente) • [🤖 Configurar IA](#-configuração-de-ia-google-gemini) • [🔄 Atualizações](#-atualizações-automáticas)
+[📥 Baixar Aplicativo](#-download--instalação-windows--android) • [✨ Recursos](#-principais-recursos) • [🚀 Como Rodar](#-como-rodar-localmente) • [🤖 Configurar IA](#-configuração-de-ia-google-gemini) • [🔄 Atualizações](#-atualizações-automáticas)
 
 <br /><br />
 
@@ -57,14 +58,15 @@ Utilizando o poder dos modelos de **Inteligência Artificial do Google Gemini**,
 
 ---
 
-## 📥 Download & Instalação (Windows)
+## 📥 Download & Instalação (Windows & Android)
 
 Você pode baixar a versão mais recente diretamente na seção de [Releases](https://github.com/dznass-cmd/RadarRSS/releases):
 
-| Versão | Descrição | Link |
-|---|---|:---:|
-| 💿 **Instalador Oficial** | Recomendado. Cria atalhos e **recebe atualizações automáticas** | [Baixar Setup (.exe)](https://github.com/dznass-cmd/RadarRSS/releases/latest) |
-| 💼 **Portátil** | Executável único. Roda diretamente sem necessidade de instalação | [Baixar Portátil (.exe)](https://github.com/dznass-cmd/RadarRSS/releases/latest) |
+| Plataforma | Versão | Descrição | Link |
+|---|---|---|:---:|
+| 🪟 Windows | 💿 **Instalador Oficial** | Recomendado. Cria atalhos e **recebe atualizações automáticas** | [Baixar Setup (.exe)](https://github.com/dznass-cmd/RadarRSS/releases/latest) |
+| 🪟 Windows | 💼 **Portátil** | Executável único. Roda diretamente sem necessidade de instalação | [Baixar Portátil (.exe)](https://github.com/dznass-cmd/RadarRSS/releases/latest) |
+| 📱 Android | 📦 **APK Nativo** | Aplicativo nativo para smartphones e tablets Android | [Baixar APK (.apk)](https://github.com/dznass-cmd/RadarRSS/releases/latest) |
 
 ---
 
@@ -73,6 +75,7 @@ Você pode baixar a versão mais recente diretamente na seção de [Releases](ht
 ### Pré-requisitos
 * [Node.js](https://nodejs.org) (versão 18 ou superior)
 * `npm` ou gerenciador de pacotes equivalente
+* [Android Studio](https://developer.android.com/studio) (Opcional, apenas se for compilar o APK localmente)
 
 ### Passo a passo
 
@@ -102,6 +105,12 @@ Você pode baixar a versão mais recente diretamente na seção de [Releases](ht
 5. **Para rodar em janela desktop (Electron em modo dev):**
    ```bash
    npm run desktop
+   ```
+
+6. **Para compilar e sincronizar com o Android (Capacitor):**
+   ```bash
+   npm run build:android
+   npm run open:android
    ```
 
 ---
