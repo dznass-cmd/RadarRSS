@@ -16,6 +16,12 @@
 
 [📥 Baixar Aplicativo](#-download--instalação-windows) • [✨ Recursos](#-principais-recursos) • [🚀 Como Rodar](#-como-rodar-localmente) • [🤖 Configurar IA](#-configuração-de-ia-google-gemini) • [🔄 Atualizações](#-atualizações-automáticas)
 
+<br /><br />
+
+<p align="center">
+  <img src="images/dashboard_preview.jpg" alt="Radar RSS Dashboard Preview" width="100%" style="border-radius: 12px; box-shadow: 0 8px 30px rgba(0,0,0,0.5);" />
+</p>
+
 </div>
 
 ---
@@ -42,6 +48,12 @@ Utilizando o poder dos modelos de **Inteligência Artificial do Google Gemini**,
   - Tema escuro e claro com paletas de acentuação visual (âmbar, esmeralda, ciano, violeta, etc.).
   - Layouts de blocos customizáveis (grade, lista compacta, cartões destacados).
   - Modal de leitura focado (*Focus Mode*) para leitura sem distrações.
+
+<br />
+
+<p align="center">
+  <img src="images/article_reader_preview.jpg" alt="Radar RSS Article Reader with AI" width="90%" style="border-radius: 12px; box-shadow: 0 8px 30px rgba(0,0,0,0.5);" />
+</p>
 
 ---
 
