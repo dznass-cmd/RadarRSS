@@ -73,6 +73,7 @@
     "electron": "^43.4.0",
     "electron-builder": "^26.15.3",
     "esbuild": "^0.25.0",
+    "puppeteer-core": "^25.9.0",
     "tailwindcss": "^4.1.14",
     "tsx": "^4.21.0",
     "typescript": "~5.8.2",
