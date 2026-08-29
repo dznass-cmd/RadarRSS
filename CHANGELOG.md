@@ -5,6 +5,16 @@ Todas as alteracoes notaveis neste projeto serao documentadas neste arquivo.
 O formato e baseado em [Keep a Changelog](https://keepachangelog.com/pt-BR/1.0.0/),
 e este projeto adere ao [Semantic Versioning](https://semver.org/lang/pt-BR/).
 
+## [0.0.2] (Beta) - 2026-08-29
+
+### Adicionado
+- **Ícones Nativos de Alta Definição:** Gerados ícones rasterizados PNG em todas as densidades (`mipmap-mdpi`, `hdpi`, `xhdpi`, `xxhdpi`, `xxxhdpi` e `512px`) com o design oficial **Global Signal Matrix**.
+- **Exibição do Ícone no APK e Instalador:** Agora o ícone aparece perfeitamente na visualização do arquivo `.apk` e no diálogo de instalação do Android.
+- **Assinatura Release Oficial:** APK assinado com keystore criptográfica de produção e esquemas v2 e v3, eliminando avisos de risco do Play Protect.
+- **Melhorias Mobile:** Gesto *Pull-to-Refresh* com vibração tátil, abas de categoria com rolagem horizontal e menu gaveta responsivo.
+
+---
+
 ## [0.0.1] (Beta) - 2026-08-29
 
 ### Adicionado
