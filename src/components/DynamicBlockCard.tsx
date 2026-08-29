@@ -24,6 +24,7 @@ import {
 } from 'lucide-react';
 import { DynamicBlock, NewsItem, BlockLayout, AccentColor } from '../types';
 import { getAccent } from '../utils/theme';
+import { SafeImage } from './SafeImage';
 
 interface DynamicBlockCardProps {
   block: DynamicBlock;
@@ -256,13 +257,13 @@ export const DynamicBlockCard: React.FC<DynamicBlockCardProps> = ({
                   <div>
                     {displayItems[0].imageUrl ? (
                       <div className="relative aspect-video rounded-xl overflow-hidden mb-3 bg-neutral-950">
-                        <img 
+                        <SafeImage 
                           src={displayItems[0].imageUrl} 
                           alt={displayItems[0].title}
                           className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
-                          onError={(e) => { (e.target as HTMLElement).style.display = 'none'; }}
+                          sourceName={displayItems[0].sourceName}
                         />
-                        <div className={`absolute top-2 left-2 px-2 py-0.5 rounded ${acc.bg} text-black font-black text-[10px] uppercase tracking-wider`}>
+                        <div className={`absolute top-2 left-2 px-2 py-0.5 rounded ${acc.bg} text-black font-black text-[10px] uppercase tracking-wider z-10`}>
                           {displayItems[0].sourceName}
                         </div>
                       </div>
@@ -363,11 +364,11 @@ export const DynamicBlockCard: React.FC<DynamicBlockCardProps> = ({
                     <div>
                       {item.imageUrl && (
                         <div className="aspect-video w-full rounded-xl overflow-hidden bg-neutral-950 mb-2.5">
-                          <img 
+                          <SafeImage 
                             src={item.imageUrl} 
                             alt={item.title} 
                             className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
-                            onError={(e) => { (e.target as HTMLElement).style.display = 'none'; }}
+                            sourceName={item.sourceName}
                           />
                         </div>
                       )}
@@ -434,11 +435,11 @@ export const DynamicBlockCard: React.FC<DynamicBlockCardProps> = ({
                   >
                     {item.imageUrl && (
                       <div className="w-16 h-16 rounded-lg overflow-hidden bg-zinc-950 shrink-0 hidden sm:block">
-                        <img 
+                        <SafeImage 
                           src={item.imageUrl} 
                           alt="" 
                           className="w-full h-full object-cover group-hover:scale-105 transition-transform"
-                          onError={(e) => { (e.target as HTMLElement).style.display = 'none'; }}
+                          fallbackType="square"
                         />
                       </div>
                     )}

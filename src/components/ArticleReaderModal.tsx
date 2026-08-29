@@ -19,6 +19,7 @@ import {
 } from 'lucide-react';
 import { NewsItem, AccentColor } from '../types';
 import { getAccent } from '../utils/theme';
+import { SafeImage } from './SafeImage';
 
 interface ArticleReaderModalProps {
   article: NewsItem | null;
@@ -301,11 +302,11 @@ export const ArticleReaderModal: React.FC<ArticleReaderModalProps> = ({
           {/* Article Image Banner */}
           {!isFocusMode && article.imageUrl && (
             <div className="w-full aspect-video rounded-2xl overflow-hidden bg-neutral-950 border border-neutral-800">
-              <img
+              <SafeImage
                 src={article.imageUrl}
                 alt={article.title}
                 className="w-full h-full object-cover"
-                onError={(e) => { (e.target as HTMLElement).style.display = 'none'; }}
+                sourceName={article.sourceName}
               />
             </div>
           )}

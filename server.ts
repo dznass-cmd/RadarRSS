@@ -13,8 +13,10 @@ const rssParser = new Parser({
     item: [
       ['media:content', 'mediaContent', { keepArray: true }],
       ['media:thumbnail', 'mediaThumbnail', { keepArray: true }],
+      ['media:group', 'mediaGroup'],
       ['enclosure', 'enclosure'],
       ['content:encoded', 'contentEncoded'],
+      ['image', 'image'],
     ],
   },
   timeout: 8000,
@@ -29,30 +31,92 @@ const feedCache = new Map<string, CacheEntry>();
 const CACHE_TTL_MS = 60 * 1000;
 
 // Utility to extract image URL from item
-function extractImageUrl(item: any): string | undefined {
-  if (item.enclosure && item.enclosure.url && item.enclosure.type?.includes('image')) {
-    return item.enclosure.url;
-  }
-  if (item.mediaContent && item.mediaContent.length > 0) {
-    const img = item.mediaContent.find((m: any) => m.$?.url || m.url);
-    if (img) return img.$?.url || img.url;
-  }
-  if (item.mediaThumbnail && item.mediaThumbnail.length > 0) {
-    const img = item.mediaThumbnail[0];
-    if (img) return img.$?.url || img.url;
-  }
+function extractImageUrl(item: any, baseUrl?: string): string | undefined {
+  let src: string | undefined = undefined;
 
-  // Regex scan contentEncoded / content / description for <img> tag
-  const htmlToScan = item.contentEncoded || item.content || item.description || '';
-  const imgMatch = htmlToScan.match(/<img[^>]+src=["']([^"']+)["']/i);
-  if (imgMatch && imgMatch[1]) {
-    const src = imgMatch[1];
-    // Filter out tiny tracker icons or pixels
-    if (!src.includes('pixel') && !src.includes('tracker') && !src.includes('1x1')) {
-      return src;
+  // 1. Check enclosure
+  if (item.enclosure && item.enclosure.url) {
+    const type = item.enclosure.type || '';
+    const isImage = type.includes('image') || /\.(jpg|jpeg|gif|png|webp|bmp|svg)/i.test(item.enclosure.url);
+    if (isImage) {
+      src = item.enclosure.url;
     }
   }
-  return undefined;
+
+  // 2. Check mediaContent
+  if (!src && item.mediaContent && item.mediaContent.length > 0) {
+    const img = item.mediaContent.find((m: any) => m.$?.url || m.url || m.href);
+    if (img) src = img.$?.url || img.url || img.href;
+  }
+
+  // 3. Check mediaThumbnail
+  if (!src && item.mediaThumbnail && item.mediaThumbnail.length > 0) {
+    const img = item.mediaThumbnail[0];
+    if (img) src = img.$?.url || img.url || img.href;
+  }
+
+  // 4. Check mediaGroup
+  if (!src && item.mediaGroup) {
+    const group = item.mediaGroup;
+    const content = group['media:content'] || group.mediaContent;
+    if (content) {
+      const arr = Array.isArray(content) ? content : [content];
+      const img = arr.find((m: any) => m.$?.url || m.url || m.href);
+      if (img) src = img.$?.url || img.url || img.href;
+    }
+    
+    if (!src) {
+      const thumbnail = group['media:thumbnail'] || group.mediaThumbnail;
+      if (thumbnail) {
+        const arr = Array.isArray(thumbnail) ? thumbnail : [thumbnail];
+        const img = arr.find((m: any) => m.$?.url || m.url || m.href);
+        if (img) src = img.$?.url || img.url || img.href;
+      }
+    }
+  }
+
+  // 5. Check item.image
+  if (!src && item.image) {
+    if (typeof item.image === 'string') {
+      src = item.image;
+    } else if (typeof item.image === 'object') {
+      src = item.image.url || item.image.$?.url || item.image.href;
+    }
+  }
+
+  // 6. Regex scan description / content / contentEncoded for <img>
+  if (!src) {
+    const htmlToScan = item.contentEncoded || item.content || item.description || '';
+    const imgMatch = htmlToScan.match(/<img[^>]+src=["']([^"']+)["']/i);
+    if (imgMatch && imgMatch[1]) {
+      src = imgMatch[1];
+    }
+  }
+
+  if (!src) return undefined;
+
+  src = src.trim();
+
+  // Filter out tracking pixels / web beacons
+  if (src.includes('pixel') || src.includes('tracker') || src.includes('1x1') || src.includes('statcounter') || src.includes('doubleclick')) {
+    return undefined;
+  }
+
+  // Handle protocol-relative URL
+  if (src.startsWith('//')) {
+    src = `https:${src}`;
+  }
+
+  // Handle relative URL
+  if (src.startsWith('/') && baseUrl) {
+    try {
+      src = new URL(src, baseUrl).toString();
+    } catch (e) {
+      // Ignore URL parsing errors
+    }
+  }
+
+  return src;
 }
 
 // Simple heuristic sentiment analyzer
@@ -97,7 +161,7 @@ app.get('/api/rss', async (req: Request, res: Response) => {
           const parsedItems = (feed.items || []).map((item: any, idx: number) => {
             const rawSnippet = (item.contentSnippet || item.summary || item.content || '').replace(/<[^>]*>?/gm, '').trim();
             const cleanSnippet = rawSnippet.slice(0, 300) + (rawSnippet.length > 300 ? '...' : '');
-            const imageUrl = extractImageUrl(item);
+            const imageUrl = extractImageUrl(item, feed.link || url);
             const pubTime = item.isoDate ? new Date(item.isoDate).getTime() : (item.pubDate ? new Date(item.pubDate).getTime() : Date.now());
 
             const baseGuid = (typeof item.guid === 'string' && item.guid.trim()) ? item.guid.trim() : (item.link || url);
