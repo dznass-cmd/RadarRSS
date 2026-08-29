@@ -56,18 +56,18 @@ $apkSource = "android\app\build\outputs\apk\release\app-release.apk"
 
 if (Test-Path $apkSource) {
     New-Item -ItemType Directory -Force -Path "release" | Out-Null
-    Copy-Item $apkSource -Destination "release\Radar-RSS-0.0.1.apk" -Force
+    Copy-Item $apkSource -Destination "release\Radar-RSS-0.0.2.apk" -Force
     
     $userPicturesDir = "$env:USERPROFILE\Pictures\RadarRSS"
     New-Item -ItemType Directory -Force -Path $userPicturesDir | Out-Null
-    Copy-Item $apkSource -Destination "$userPicturesDir\Radar-RSS-0.0.1.apk" -Force
+    Copy-Item $apkSource -Destination "$userPicturesDir\Radar-RSS-0.0.2.apk" -Force
 
     Write-Host "=== Verificando assinatura do APK ==="
     $apksigner = "$sdkRoot\build-tools\34.0.0\apksigner.bat"
-    & cmd /c "`"$apksigner`" verify --verbose `"release\Radar-RSS-0.0.1.apk`""
+    & cmd /c "`"$apksigner`" verify --verbose `"release\Radar-RSS-0.0.2.apk`""
 
-    Write-Host "SUCESSO! APK Release assinado gerado em release\Radar-RSS-0.0.1.apk"
-    Get-Item "release\Radar-RSS-0.0.1.apk" | Select-Object Name, Length, LastWriteTime
+    Write-Host "SUCESSO! APK Release assinado gerado em release\Radar-RSS-0.0.2.apk"
+    Get-Item "release\Radar-RSS-0.0.2.apk" | Select-Object Name, Length, LastWriteTime
 } else {
     Write-Host "Aviso: APK Release nao encontrado no caminho padrao."
 }
