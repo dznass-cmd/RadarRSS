@@ -91,6 +91,7 @@ export default function App() {
   const [searchQuery, setSearchQuery] = useState<string>('');
   const [showBookmarksOnly, setShowBookmarksOnly] = useState<boolean>(false);
   const [showArchiveOnly, setShowArchiveOnly] = useState<boolean>(false);
+  const [selectedCategory, setSelectedCategory] = useState<string>('all');
   const [toasts, setToasts] = useState<ToastItem[]>([]);
 
   const addToast = useCallback((toastData: {
@@ -485,11 +486,27 @@ export default function App() {
     }
   };
 
+  // Filter visible blocks when category tab is selected
+  const visibleBlocks = useMemo(() => {
+    if (selectedCategory === 'all') return blocks;
+    if (selectedCategory === 'tech') return blocks.filter((b) => b.categoryFilter === 'tech' || b.categoryFilter === 'ai' || b.id.includes('tech') || b.id.includes('ai'));
+    if (selectedCategory === 'finance') return blocks.filter((b) => b.categoryFilter === 'finance' || b.id.includes('finance'));
+    if (selectedCategory === 'games') return blocks.filter((b) => b.categoryFilter === 'sports' || b.categoryFilter === 'entertainment' || b.id.includes('sports'));
+    return blocks.filter((b) => b.categoryFilter === selectedCategory || b.id.includes(selectedCategory));
+  }, [blocks, selectedCategory]);
+
   return (
-    <div className={`min-h-screen transition-colors duration-200 font-sans ${
-      settings.theme === 'dark' ? 'bg-zinc-950 text-zinc-100' : 'bg-zinc-100 text-zinc-900'
+    <div className={`min-h-screen transition-colors duration-200 font-sans relative ${
+      settings.theme === 'dark' ? 'bg-[#0a0b0e] text-neutral-100' : 'bg-neutral-100 text-neutral-900'
     }`}>
       
+      {/* Ambient background glow in dark mode */}
+      {settings.theme === 'dark' && (
+        <div className="pointer-events-none fixed inset-0 z-0 overflow-hidden opacity-30">
+          <div className="absolute -top-40 left-1/2 -translate-x-1/2 w-[1000px] h-[500px] bg-gradient-to-b from-amber-500/10 via-amber-500/5 to-transparent blur-3xl" />
+        </div>
+      )}
+
       {/* Top Navbar */}
       <Navbar
         onRefreshAll={fetchAllFeeds}
@@ -522,6 +539,8 @@ export default function App() {
         onUpdateSettings={setSettings}
         totalArticlesCount={allNewsItems.length}
         newArticlesCount={0}
+        selectedCategory={selectedCategory}
+        onSelectCategory={setSelectedCategory}
       />
 
       {/* Breaking News Ticker Bar */}
@@ -643,7 +662,7 @@ export default function App() {
               ? 'lg:grid-cols-2'
               : 'lg:grid-cols-3'
           } gap-6`}>
-            {blocks.map((block) => {
+            {visibleBlocks.map((block) => {
               const blockItems = getBlockNewsItems(block);
               return (
                 <DynamicBlockCard

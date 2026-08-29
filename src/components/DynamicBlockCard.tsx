@@ -68,11 +68,26 @@ export const DynamicBlockCard: React.FC<DynamicBlockCardProps> = ({
 
   const displayItems = items.slice(0, block.itemCount);
 
+  // Helper for source badge icon and colors
+  const getSourceBadge = (sourceName: string) => {
+    const s = sourceName.toLowerCase();
+    if (s.includes('g1')) return { bg: 'bg-red-600', text: 'text-white', dot: 'bg-red-500', name: 'G1' };
+    if (s.includes('techcrunch')) return { bg: 'bg-emerald-600', text: 'text-white', dot: 'bg-emerald-400', name: 'TechCrunch' };
+    if (s.includes('verge')) return { bg: 'bg-purple-600', text: 'text-white', dot: 'bg-purple-400', name: 'Verge' };
+    if (s.includes('guardian')) return { bg: 'bg-blue-700', text: 'text-white', dot: 'bg-blue-400', name: 'The Guardian' };
+    if (s.includes('folha')) return { bg: 'bg-neutral-700', text: 'text-white', dot: 'bg-neutral-300', name: 'Folha de S.Paulo' };
+    if (s.includes('cnn')) return { bg: 'bg-red-700', text: 'text-white', dot: 'bg-red-400', name: 'CNN Brasil' };
+    if (s.includes('bbc')) return { bg: 'bg-red-800', text: 'text-white', dot: 'bg-red-300', name: 'BBC News' };
+    if (s.includes('meta')) return { bg: 'bg-blue-600', text: 'text-white', dot: 'bg-blue-300', name: 'Meta' };
+    if (s.includes('nexo')) return { bg: 'bg-sky-700', text: 'text-white', dot: 'bg-sky-300', name: 'Nexo' };
+    return { bg: 'bg-neutral-700', text: 'text-white', dot: 'bg-amber-400', name: sourceName };
+  };
+
   // Helper for sentiment badge
   const renderSentiment = (sentiment?: string) => {
     if (sentiment === 'positive') {
       return (
-        <span className="inline-flex items-center gap-1 text-[10px] font-semibold text-emerald-500 bg-emerald-500/10 px-1.5 py-0.5 rounded-md" title="Sentimento Positivo">
+        <span className="inline-flex items-center gap-1 text-[10px] font-semibold text-emerald-400 bg-emerald-500/10 px-1.5 py-0.5 rounded-md" title="Sentimento Positivo">
           <Smile className="w-3 h-3" />
           <span>Positivo</span>
         </span>
@@ -80,7 +95,7 @@ export const DynamicBlockCard: React.FC<DynamicBlockCardProps> = ({
     }
     if (sentiment === 'negative') {
       return (
-        <span className="inline-flex items-center gap-1 text-[10px] font-semibold text-red-500 bg-red-500/10 px-1.5 py-0.5 rounded-md" title="Sentimento Negativo / Alerta">
+        <span className="inline-flex items-center gap-1 text-[10px] font-semibold text-red-400 bg-red-500/10 px-1.5 py-0.5 rounded-md" title="Sentimento Negativo / Alerta">
           <Frown className="w-3 h-3" />
           <span>Alerta</span>
         </span>
@@ -101,10 +116,10 @@ export const DynamicBlockCard: React.FC<DynamicBlockCardProps> = ({
   };
 
   return (
-    <div className={`rounded-3xl border transition-all duration-300 overflow-hidden flex flex-col h-full shadow-2xl ${
+    <div className={`rounded-3xl border transition-all duration-300 overflow-hidden flex flex-col h-full shadow-xl ${
       theme === 'dark'
-        ? `bg-neutral-800/90 border-neutral-700/80 text-neutral-100 ${acc.borderHover}`
-        : `bg-white border-neutral-200 text-neutral-900 ${acc.borderHover} shadow-lg`
+        ? `bg-[#0e1017]/95 border-neutral-800/90 text-neutral-100 ${acc.borderHover}`
+        : `bg-white border-neutral-200 text-neutral-900 ${acc.borderHover} shadow-md`
     }`}>
       
       {/* Block Header */}
@@ -250,173 +265,233 @@ export const DynamicBlockCard: React.FC<DynamicBlockCardProps> = ({
             {block.layout === 'hero' && (
               <div className="grid grid-cols-1 md:grid-cols-12 gap-4">
                 {/* Featured Big Item */}
-                <div 
-                  onClick={() => onSelectArticle(displayItems[0])}
-                  className={`md:col-span-7 group cursor-pointer rounded-2xl overflow-hidden border ${acc.borderLight} bg-neutral-900/80 ${acc.borderHover} transition-all p-4 flex flex-col justify-between`}
-                >
-                  <div>
-                    {displayItems[0].imageUrl ? (
-                      <div className="relative aspect-video rounded-xl overflow-hidden mb-3 bg-neutral-950">
-                        <SafeImage 
-                          src={displayItems[0].imageUrl} 
-                          alt={displayItems[0].title}
-                          className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
-                          sourceName={displayItems[0].sourceName}
-                        />
-                        <div className={`absolute top-2 left-2 px-2 py-0.5 rounded ${acc.bg} text-black font-black text-[10px] uppercase tracking-wider z-10`}>
-                          {displayItems[0].sourceName}
+                {(() => {
+                  const source = getSourceBadge(displayItems[0].sourceName);
+                  return (
+                    <div 
+                      onClick={() => onSelectArticle(displayItems[0])}
+                      className={`md:col-span-7 group cursor-pointer rounded-2xl overflow-hidden border ${
+                        theme === 'dark'
+                          ? 'border-amber-500/80 bg-[#131520] shadow-[0_0_25px_rgba(245,158,11,0.15)] hover:border-amber-400'
+                          : 'border-amber-500/80 bg-white shadow-lg hover:border-amber-500'
+                      } transition-all p-4 flex flex-col justify-between`}
+                    >
+                      <div>
+                        {displayItems[0].imageUrl ? (
+                          <div className="relative aspect-video rounded-xl overflow-hidden mb-3 bg-neutral-950">
+                            <SafeImage 
+                              src={displayItems[0].imageUrl} 
+                              alt={displayItems[0].title}
+                              className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                              sourceName={displayItems[0].sourceName}
+                            />
+                            <div className="absolute top-2.5 left-2.5 flex items-center gap-1.5 px-2 py-0.5 rounded-md bg-neutral-950/80 border border-neutral-700/60 backdrop-blur-md z-10">
+                              <span className={`w-3.5 h-3.5 rounded-full ${source.bg} flex items-center justify-center text-[8px] font-black text-white`}>
+                                {source.name.charAt(0)}
+                              </span>
+                              <span className="text-[10px] font-bold text-neutral-100 uppercase tracking-wider">
+                                {source.name}
+                              </span>
+                            </div>
+                          </div>
+                        ) : (
+                          <div className="flex items-center justify-between mb-2">
+                            <div className="flex items-center gap-1.5">
+                              <span className={`w-4 h-4 rounded-full ${source.bg} flex items-center justify-center text-[8px] font-black text-white`}>
+                                {source.name.charAt(0)}
+                              </span>
+                              <span className="text-[11px] font-bold text-neutral-200 uppercase tracking-wider">
+                                {source.name}
+                              </span>
+                            </div>
+                            {renderSentiment(displayItems[0].sentiment)}
+                          </div>
+                        )}
+                        <h3 className="font-extrabold text-base leading-snug text-neutral-100 group-hover:text-amber-400 transition-colors mb-2">
+                          {displayItems[0].title}
+                        </h3>
+                        <p className="text-xs text-neutral-400 line-clamp-2 leading-relaxed mb-2">
+                          {displayItems[0].contentSnippet}
+                        </p>
+
+                        {/* Resumo IA Banner */}
+                        <div className="mt-2 pt-2 border-t border-neutral-800/60 flex items-center gap-2">
+                          <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-emerald-950/90 border border-emerald-500/50 text-emerald-400 text-[10px] font-extrabold tracking-wide shrink-0">
+                            Resumo IA
+                          </span>
+                          <span className="text-[11px] text-neutral-300 truncate">
+                            {displayItems[0].contentSnippet}
+                          </span>
                         </div>
                       </div>
-                    ) : (
-                      <div className="flex items-center justify-between mb-2">
-                        <span className={`px-2 py-0.5 rounded ${acc.bg} text-black font-black text-[10px] uppercase tracking-wider`}>
-                          {displayItems[0].sourceName}
-                        </span>
-                        {renderSentiment(displayItems[0].sentiment)}
-                      </div>
-                    )}
-                    <h3 className={`font-extrabold text-base leading-snug group-${acc.textHover} transition-colors mb-2`}>
-                      {displayItems[0].title}
-                    </h3>
-                    <p className="text-xs text-neutral-400 line-clamp-3 leading-relaxed mb-3">
-                      {displayItems[0].contentSnippet}
-                    </p>
-                  </div>
 
-                    <div className="flex items-center justify-between text-[11px] text-neutral-400 pt-2 border-t border-neutral-700/50">
-                      <span className="flex items-center gap-1 font-mono text-[10px]">
-                        <Clock className="w-3 h-3 text-neutral-500" />
-                        {getRelativeTime(displayItems[0].timestamp)}
-                        {archivedIds.has(displayItems[0].id) && (
-                          <span className="ml-1 text-[9px] font-black text-amber-400 bg-amber-500/20 px-1.5 py-0.2 rounded border border-amber-500/30">
-                            LIDA / ARQUIVADA
-                          </span>
-                        )}
-                      </span>
-                      <div className="flex items-center gap-2">
-                        {onToggleArchive && (
+                      <div className="flex items-center justify-between text-[11px] text-neutral-400 pt-3 mt-2 border-t border-neutral-800/50">
+                        <span className="flex items-center gap-1 font-mono text-[10px]">
+                          <Clock className="w-3 h-3 text-neutral-500" />
+                          {getRelativeTime(displayItems[0].timestamp)}
+                          {archivedIds.has(displayItems[0].id) && (
+                            <span className="ml-1 text-[9px] font-black text-amber-400 bg-amber-500/20 px-1.5 py-0.2 rounded border border-amber-500/30">
+                              LIDA
+                            </span>
+                          )}
+                        </span>
+                        <div className="flex items-center gap-2">
+                          {onToggleArchive && (
+                            <button
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                onToggleArchive(displayItems[0]);
+                              }}
+                              title={archivedIds.has(displayItems[0].id) ? "Desarquivar notícia" : "Arquivar notícia"}
+                              className="p-1 hover:text-amber-400 transition-colors"
+                            >
+                              <X className={`w-3.5 h-3.5 ${archivedIds.has(displayItems[0].id) ? 'text-amber-400' : 'text-neutral-500'}`} />
+                            </button>
+                          )}
                           <button
                             onClick={(e) => {
                               e.stopPropagation();
-                              onToggleArchive(displayItems[0]);
+                              onToggleBookmark(displayItems[0]);
                             }}
-                            title={archivedIds.has(displayItems[0].id) ? "Desarquivar notícia" : "Arquivar notícia"}
-                            className="p-1 hover:text-amber-400 transition-colors"
+                            className={`p-1 ${acc.textHover} transition-colors`}
                           >
-                            <X className={`w-3.5 h-3.5 ${archivedIds.has(displayItems[0].id) ? 'text-amber-400' : 'text-neutral-500'}`} />
+                            <Bookmark className={`w-3.5 h-3.5 ${bookmarkedIds.has(displayItems[0].id) ? `${acc.fill}` : ''}`} />
                           </button>
-                        )}
-                        <button
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            onToggleBookmark(displayItems[0]);
-                          }}
-                          className={`p-1 ${acc.textHover} transition-colors`}
-                        >
-                          <Bookmark className={`w-3.5 h-3.5 ${bookmarkedIds.has(displayItems[0].id) ? `${acc.fill}` : ''}`} />
-                        </button>
+                        </div>
                       </div>
                     </div>
-                </div>
+                  );
+                })()}
 
                 {/* Secondary List Column */}
                 <div className="md:col-span-5 flex flex-col gap-2.5 justify-between">
-                  {displayItems.slice(1).map((item) => (
-                    <div
-                      key={item.id}
-                      onClick={() => onSelectArticle(item)}
-                      className={`p-3 rounded-2xl border transition-all cursor-pointer group flex flex-col justify-between ${
-                        theme === 'dark'
-                          ? `bg-neutral-900/60 border-neutral-700/80 ${acc.borderHover}`
-                          : `bg-neutral-50 border-neutral-200 ${acc.borderHover}`
-                      }`}
-                    >
-                      <div className="flex items-start justify-between gap-2 mb-1">
-                        <span className={`text-[10px] font-black uppercase ${acc.text} tracking-wider`}>
-                          {item.sourceName}
-                        </span>
-                        <span className="text-[10px] font-mono text-neutral-400">
-                          {getRelativeTime(item.timestamp)}
-                        </span>
+                  {displayItems.slice(1).map((item) => {
+                    const source = getSourceBadge(item.sourceName);
+                    return (
+                      <div
+                        key={item.id}
+                        onClick={() => onSelectArticle(item)}
+                        className={`p-3 rounded-2xl border transition-all cursor-pointer group flex flex-col justify-between ${
+                          theme === 'dark'
+                            ? 'bg-[#131520]/80 border-neutral-800/80 hover:border-amber-500/60 hover:shadow-md'
+                            : 'bg-neutral-50 border-neutral-200 hover:border-amber-500/60'
+                        }`}
+                      >
+                        <div className="flex items-start justify-between gap-2 mb-1">
+                          <div className="flex items-center gap-1.5">
+                            <span className={`w-3 h-3 rounded-full ${source.bg} flex items-center justify-center text-[7px] font-black text-white`}>
+                              {source.name.charAt(0)}
+                            </span>
+                            <span className="text-[10px] font-bold text-neutral-300 group-hover:text-amber-400 uppercase tracking-wider">
+                              {source.name}
+                            </span>
+                          </div>
+                          <span className="text-[10px] font-mono text-neutral-400">
+                            {getRelativeTime(item.timestamp)}
+                          </span>
+                        </div>
+                        <h4 className="font-bold text-xs leading-snug group-hover:text-amber-400 text-neutral-100 line-clamp-2">
+                          {item.title}
+                        </h4>
                       </div>
-                      <h4 className={`font-bold text-xs leading-snug group-${acc.textHover} line-clamp-2`}>
-                        {item.title}
-                      </h4>
-                    </div>
-                  ))}
+                    );
+                  })}
                 </div>
               </div>
             )}
 
             {/* GRID LAYOUT */}
             {block.layout === 'grid' && (
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
-                {displayItems.map((item) => (
-                  <div
-                    key={item.id}
-                    onClick={() => onSelectArticle(item)}
-                    className={`rounded-2xl border p-3.5 flex flex-col justify-between group cursor-pointer transition-all ${
-                      theme === 'dark'
-                        ? `bg-neutral-900/70 border-neutral-700/80 ${acc.borderHover}`
-                        : `bg-neutral-50/90 border-neutral-200 ${acc.borderHover}`
-                    }`}
-                  >
-                    <div>
-                      {item.imageUrl && (
-                        <div className="aspect-video w-full rounded-xl overflow-hidden bg-neutral-950 mb-2.5">
-                          <SafeImage 
-                            src={item.imageUrl} 
-                            alt={item.title} 
-                            className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
-                            sourceName={item.sourceName}
-                          />
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3.5">
+                {displayItems.map((item, idx) => {
+                  const source = getSourceBadge(item.sourceName);
+                  const isFirst = idx === 0;
+                  return (
+                    <div
+                      key={item.id}
+                      onClick={() => onSelectArticle(item)}
+                      className={`rounded-2xl border p-3.5 flex flex-col justify-between group cursor-pointer transition-all duration-200 ${
+                        theme === 'dark'
+                          ? isFirst
+                            ? 'bg-[#141520] border-amber-500/80 shadow-[0_0_20px_rgba(245,158,11,0.15)] hover:border-amber-400'
+                            : 'bg-[#13141c]/90 border-neutral-800/80 hover:border-amber-500/60 hover:shadow-[0_0_20px_rgba(245,158,11,0.1)]'
+                          : isFirst
+                            ? 'bg-white border-amber-500/80 shadow-md'
+                            : 'bg-white border-neutral-200 hover:border-amber-500/60 shadow-xs'
+                      }`}
+                    >
+                      <div>
+                        {item.imageUrl && (
+                          <div className="aspect-video w-full rounded-xl overflow-hidden bg-neutral-950 mb-2.5">
+                            <SafeImage 
+                              src={item.imageUrl} 
+                              alt={item.title} 
+                              className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                              sourceName={item.sourceName}
+                            />
+                          </div>
+                        )}
+                        <div className="flex items-center justify-between gap-2 mb-1.5">
+                          <div className="flex items-center gap-1.5">
+                            <span className={`w-3.5 h-3.5 rounded-full ${source.bg} flex items-center justify-center text-[8px] font-black text-white shrink-0`}>
+                              {source.name.charAt(0)}
+                            </span>
+                            <span className="text-[11px] font-bold text-neutral-300 group-hover:text-amber-400 transition-colors">
+                              {source.name}
+                            </span>
+                          </div>
+                          {renderSentiment(item.sentiment)}
                         </div>
-                      )}
-                      <div className="flex items-center justify-between gap-2 mb-1.5">
-                        <span className={`text-[10px] font-black ${acc.text} uppercase tracking-widest`}>
-                          {item.sourceName}
-                        </span>
-                        {renderSentiment(item.sentiment)}
-                      </div>
-                      <h4 className={`font-bold text-xs sm:text-sm leading-snug group-${acc.textHover} transition-colors line-clamp-2 mb-1.5`}>
-                        {item.title}
-                      </h4>
-                      <p className="text-[11px] text-neutral-400 line-clamp-2 mb-3">
-                        {item.contentSnippet}
-                      </p>
-                    </div>
+                        <h4 className="font-bold text-xs sm:text-sm leading-snug group-hover:text-amber-400 text-neutral-100 transition-colors line-clamp-2 mb-1.5">
+                          {item.title}
+                        </h4>
+                        <p className="text-[11px] text-neutral-400 line-clamp-2 mb-2 leading-relaxed">
+                          {item.contentSnippet}
+                        </p>
 
-                    <div className="flex items-center justify-between text-[10px] font-mono text-neutral-400 pt-2 border-t border-neutral-700/40">
-                      <span className="flex items-center gap-1">
-                        <Clock className="w-3 h-3 text-neutral-500" />
-                        {getRelativeTime(item.timestamp)}
-                      </span>
-                      <div className="flex items-center gap-1.5">
-                        {onToggleArchive && (
+                        {/* Resumo IA pill */}
+                        <div className="mt-2 pt-2 border-t border-neutral-800/60 flex items-center gap-2">
+                          <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-emerald-950/90 border border-emerald-500/50 text-emerald-400 text-[10px] font-black tracking-wide shrink-0">
+                            Resumo IA
+                          </span>
+                          <span className="text-[11px] text-neutral-300 truncate">
+                            {item.contentSnippet}
+                          </span>
+                        </div>
+                      </div>
+
+                      <div className="flex items-center justify-between text-[10px] font-mono text-neutral-400 pt-2.5 mt-2 border-t border-neutral-800/40">
+                        <span className="flex items-center gap-1">
+                          <Clock className="w-3 h-3 text-neutral-500" />
+                          {getRelativeTime(item.timestamp)}
+                        </span>
+                        <div className="flex items-center gap-1.5">
+                          {onToggleArchive && (
+                            <button
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                onToggleArchive(item);
+                              }}
+                              title={archivedIds.has(item.id) ? "Desarquivar notícia" : "Arquivar notícia"}
+                              className="p-1 hover:text-amber-400 transition-colors"
+                            >
+                              <X className={`w-3.5 h-3.5 ${archivedIds.has(item.id) ? 'text-amber-400' : 'text-neutral-500'}`} />
+                            </button>
+                          )}
                           <button
                             onClick={(e) => {
                               e.stopPropagation();
-                              onToggleArchive(item);
+                              onToggleBookmark(item);
                             }}
-                            title={archivedIds.has(item.id) ? "Desarquivar notícia" : "Arquivar notícia"}
-                            className="p-1 hover:text-amber-400 transition-colors"
+                            className={`p-1 ${acc.textHover} transition-colors`}
                           >
-                            <X className={`w-3.5 h-3.5 ${archivedIds.has(item.id) ? 'text-amber-400' : 'text-neutral-500'}`} />
+                            <Bookmark className={`w-3.5 h-3.5 ${bookmarkedIds.has(item.id) ? `${acc.fill}` : ''}`} />
                           </button>
-                        )}
-                        <button
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            onToggleBookmark(item);
-                          }}
-                          className={`p-1 ${acc.textHover} transition-colors`}
-                        >
-                          <Bookmark className={`w-3.5 h-3.5 ${bookmarkedIds.has(item.id) ? `${acc.fill}` : ''}`} />
-                        </button>
+                        </div>
                       </div>
                     </div>
-                  </div>
-                ))}
+                  );
+                })}
               </div>
             )}
 

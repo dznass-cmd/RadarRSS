@@ -146,14 +146,5 @@ export const DEFAULT_FEEDS: RssFeed[] = [
     icon: '🎬',
     active: true,
     status: 'ok',
-  },
-  {
-    id: 'b9',
-    title: 'B9 Cultura e Mídia',
-    url: 'https://www.b9.com.br/feed/',
-    category: 'entertainment',
-    icon: '🎬',
-    active: true,
-    status: 'ok',
   }
 ];

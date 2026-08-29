@@ -14,42 +14,39 @@ export const TickerBar: React.FC<TickerBarProps> = ({ items, onSelectArticle, th
   if (!items || items.length === 0) return null;
 
   const acc = getAccent(accentColor);
-  // Take top 10 newest articles
-  const breakingItems = items.slice(0, 10);
+  // Take top 12 newest articles
+  const breakingItems = items.slice(0, 12);
 
   return (
-    <div className={`w-full border-b overflow-hidden text-xs py-2.5 px-4 transition-colors ${
-      theme === 'dark'
-        ? 'bg-neutral-900/90 border-neutral-800 text-neutral-300'
-        : 'bg-neutral-100 border-neutral-300 text-neutral-800'
-    }`}>
-      <div className="max-w-7xl mx-auto flex items-center gap-3">
+    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-4">
+      <div className={`w-full overflow-hidden text-xs py-2.5 px-4 rounded-2xl border transition-all shadow-md flex items-center gap-3 ${
+        theme === 'dark'
+          ? 'bg-gradient-to-r from-amber-950/40 via-[#19150d] to-amber-950/40 border-amber-500/40 text-neutral-200'
+          : 'bg-amber-50 border-amber-300 text-amber-950'
+      }`}>
         
-        {/* Label Badge */}
-        <div className={`flex items-center gap-1.5 font-black text-black uppercase tracking-widest shrink-0 ${acc.bg} px-2.5 py-1 rounded-md text-[10px]`}>
-          <Flame className="w-3.5 h-3.5 text-black animate-pulse" />
-          <span>BREAKING LIVE</span>
+        {/* Left Label Prefix */}
+        <div className="flex items-center gap-1.5 shrink-0 text-amber-400 font-extrabold tracking-wider uppercase text-xs">
+          <span className="text-amber-400 font-black">⚡ BREAKING:</span>
         </div>
 
-        {/* Horizontal Ticker Items Container */}
-        <div className="flex-1 overflow-x-auto no-scrollbar whitespace-nowrap flex items-center gap-6 py-0.5">
-          {breakingItems.map((item) => (
+        {/* Horizontal Scrolling Headlines */}
+        <div className="flex-1 overflow-x-auto no-scrollbar whitespace-nowrap flex items-center gap-5 py-0.5">
+          {breakingItems.map((item, idx) => (
             <button
               key={item.id}
               onClick={() => onSelectArticle(item)}
-              className={`inline-flex items-center gap-2 group cursor-pointer text-left transition-colors ${acc.textHover} shrink-0`}
+              className="inline-flex items-center gap-2 group cursor-pointer text-left transition-colors shrink-0"
             >
-              <span className={`font-bold uppercase tracking-wide ${acc.text} text-[10px]`}>
-                [{item.sourceName}]
-              </span>
-              <span className={`font-semibold text-xs max-w-xs sm:max-w-md truncate group-${acc.textHover}`}>
+              <span className="font-semibold text-xs text-neutral-100 group-hover:text-amber-400 transition-colors max-w-sm sm:max-w-md truncate">
                 {item.title}
               </span>
-              <span className="text-[10px] font-mono text-neutral-400 flex items-center gap-1">
-                <Clock className="w-3 h-3 text-neutral-500" />
-                {new Date(item.timestamp).toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' })}
+              <span className="text-[11px] font-bold text-amber-400/90 font-mono">
+                [{item.sourceName}]
               </span>
-              <ChevronRight className={`w-3 h-3 text-neutral-500 group-hover:translate-x-0.5 group-${acc.textHover} transition-all`} />
+              {idx < breakingItems.length - 1 && (
+                <span className="text-amber-500/60 font-bold ml-3 text-sm select-none">•</span>
+              )}
             </button>
           ))}
         </div>

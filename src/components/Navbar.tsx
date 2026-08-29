@@ -40,7 +40,16 @@ interface NavbarProps {
   onUpdateSettings: (newSettings: AppSettings) => void;
   totalArticlesCount: number;
   newArticlesCount: number;
+  selectedCategory?: string;
+  onSelectCategory?: (cat: string) => void;
 }
+
+const CATEGORY_TABS = [
+  { id: 'all', label: 'Manchetes' },
+  { id: 'tech', label: 'Tecnologia' },
+  { id: 'finance', label: 'Economia' },
+  { id: 'games', label: 'Games' },
+];
 
 export const Navbar: React.FC<NavbarProps> = ({
   onRefreshAll,
@@ -64,6 +73,8 @@ export const Navbar: React.FC<NavbarProps> = ({
   onUpdateSettings,
   totalArticlesCount,
   newArticlesCount,
+  selectedCategory = 'all',
+  onSelectCategory,
 }) => {
   const [countdown, setCountdown] = useState<number>(autoRefreshSec);
   const acc = getAccent(settings.accentColor);
@@ -98,59 +109,73 @@ export const Navbar: React.FC<NavbarProps> = ({
   return (
     <header className={`sticky top-0 z-40 border-b transition-colors duration-200 ${
       settings.theme === 'dark'
-        ? 'bg-zinc-950/90 border-zinc-800 text-zinc-100 backdrop-blur-md'
-        : 'bg-white/90 border-zinc-200 text-zinc-900 backdrop-blur-md shadow-xs'
+        ? 'bg-[#0e0f14]/90 border-neutral-800/80 text-neutral-100 backdrop-blur-xl'
+        : 'bg-white/90 border-neutral-200 text-neutral-900 backdrop-blur-xl shadow-xs'
     }`}>
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex items-center justify-between h-16 gap-4">
+        <div className="flex items-center justify-between h-16 gap-3">
           
-          {/* Logo & Live Badge */}
-          <div className="flex items-center gap-3">
-            <div className={`flex items-center justify-center w-10 h-10 rounded-2xl ${acc.bg} text-black shadow-lg font-black`}>
+          {/* Left: Logo & Live Indicator */}
+          <div className="flex items-center gap-3 shrink-0">
+            <div className={`flex items-center justify-center w-9 h-9 rounded-xl ${acc.bg} text-black shadow-md font-black`}>
               <Rss className="w-5 h-5 animate-pulse" />
             </div>
-            <div>
-              <div className="flex items-center gap-2">
-                <h1 className="font-black text-xl tracking-tighter uppercase text-white">
-                  Radar RSS<span className={acc.text}>.</span>
-                </h1>
-                <span className={`inline-flex items-center gap-1.5 px-2 py-0.5 rounded-md text-[10px] font-black uppercase tracking-widest ${acc.bgLight} ${acc.textDark} border ${acc.borderLight}`}>
-                  <span className={`w-1.5 h-1.5 rounded-full ${acc.bg} animate-pulse`} />
-                  LIVE STREAM
-                </span>
-              </div>
-              <p className="text-[10px] font-bold uppercase tracking-wider text-neutral-400">
-                Real-Time Intelligence • {totalArticlesCount} Matérias
-              </p>
+            <div className="flex items-center gap-2">
+              <span className="font-black text-lg sm:text-xl tracking-tight uppercase text-neutral-100 flex items-center">
+                RADAR<span className="text-amber-400 ml-1">RSS</span>
+              </span>
             </div>
           </div>
 
-          {/* Search Bar */}
-          <div className="hidden md:flex flex-1 max-w-md mx-4 relative">
-            <Search className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-neutral-400" />
+          {/* Center-Left: Search Bar */}
+          <div className="hidden sm:flex flex-1 max-w-xs md:max-w-sm relative">
+            <Search className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-neutral-500" />
             <input
               type="text"
               value={searchQuery ?? ''}
               onChange={(e) => onSearchChange(e.target.value)}
-              placeholder="BUSCAR PALAVRAS-CHAVE, FONTES OU TÓPICOS..."
-              className={`w-full pl-9 pr-4 py-2 text-xs font-medium uppercase tracking-wide rounded-2xl border transition-all outline-none ${
+              placeholder="Search..."
+              className={`w-full pl-9 pr-8 py-1.5 text-xs font-medium rounded-xl border transition-all outline-none ${
                 settings.theme === 'dark'
-                  ? 'bg-neutral-900 border-neutral-700 text-neutral-100 placeholder-neutral-500'
-                  : 'bg-neutral-100 border-neutral-300 text-neutral-900 placeholder-neutral-400'
+                  ? 'bg-neutral-900/90 border-neutral-800 text-neutral-100 placeholder-neutral-500 focus:border-amber-500/50 focus:bg-neutral-900'
+                  : 'bg-neutral-100 border-neutral-300 text-neutral-900 placeholder-neutral-400 focus:border-amber-500/50'
               }`}
             />
             {searchQuery && (
               <button
                 onClick={() => onSearchChange('')}
-                className="absolute right-3 top-1/2 -translate-y-1/2 text-[10px] font-bold uppercase text-neutral-400 hover:text-white"
+                className="absolute right-2.5 top-1/2 -translate-y-1/2 text-[10px] font-bold text-neutral-400 hover:text-white"
               >
-                Limpar
+                ✕
               </button>
             )}
           </div>
 
-          {/* Actions & Refresh Timer */}
-          <div className="flex items-center gap-2">
+          {/* Center-Right: Category Tabs (from Preview) */}
+          <nav className="hidden lg:flex items-center gap-6">
+            {CATEGORY_TABS.map((tab) => {
+              const isActive = selectedCategory === tab.id;
+              return (
+                <button
+                  key={tab.id}
+                  onClick={() => onSelectCategory && onSelectCategory(tab.id)}
+                  className={`relative py-1 text-xs font-bold tracking-wide transition-colors cursor-pointer ${
+                    isActive
+                      ? 'text-amber-400'
+                      : 'text-neutral-400 hover:text-neutral-200'
+                  }`}
+                >
+                  {tab.label}
+                  {isActive && (
+                    <span className="absolute bottom-0 left-0 right-0 h-0.5 bg-amber-400 rounded-full shadow-[0_0_8px_rgba(251,191,36,0.8)]" />
+                  )}
+                </button>
+              );
+            })}
+          </nav>
+
+          {/* Right: Actions */}
+          <div className="flex items-center gap-1.5 sm:gap-2 shrink-0">
 
             {/* Auto Refresh Indicator / Manual Button */}
             <button
