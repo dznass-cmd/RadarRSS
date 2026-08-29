@@ -80,23 +80,23 @@ async function parseRssClientSide(url: string): Promise<NewsItem[]> {
   const xml = parser.parseFromString(text, 'text/xml');
 
   const channelTitle = xml.querySelector('channel > title')?.textContent ||
-                       xml.querySelector('feed > title')?.textContent ||
-                       new URL(url).hostname;
+    xml.querySelector('feed > title')?.textContent ||
+    new URL(url).hostname;
 
   const items = Array.from(xml.querySelectorAll('item, entry'));
 
   return items.map((item, idx) => {
     const title = item.querySelector('title')?.textContent?.trim() || 'Sem título';
     const link = item.querySelector('link')?.textContent?.trim() ||
-                 item.querySelector('link')?.getAttribute('href') ||
-                 url;
+      item.querySelector('link')?.getAttribute('href') ||
+      url;
     const rawSnippet = (item.querySelector('description')?.textContent ||
-                        item.querySelector('summary')?.textContent ||
-                        item.querySelector('content')?.textContent || '').replace(/<[^>]*>?/gm, '').trim();
+      item.querySelector('summary')?.textContent ||
+      item.querySelector('content')?.textContent || '').replace(/<[^>]*>?/gm, '').trim();
     const cleanSnippet = rawSnippet.slice(0, 300) + (rawSnippet.length > 300 ? '...' : '');
     const pubDateStr = item.querySelector('pubDate')?.textContent ||
-                       item.querySelector('published')?.textContent ||
-                       item.querySelector('updated')?.textContent;
+      item.querySelector('published')?.textContent ||
+      item.querySelector('updated')?.textContent;
     const timestamp = pubDateStr ? new Date(pubDateStr).getTime() : Date.now();
     const guid = item.querySelector('guid')?.textContent?.trim() || link;
     const imageUrl = extractImageFromXmlItem(item, url);

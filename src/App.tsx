@@ -274,7 +274,7 @@ export default function App() {
           data.items.forEach((item: NewsItem) => {
             if (checkIsBreaking(item) && !notifiedIdsRef.current.has(item.id)) {
               notifiedIdsRef.current.add(item.id);
-              
+
               // Only trigger if not initial fetch or if news is recent (within last 2 hours)
               const isRecent = (Date.now() - item.timestamp) < (2 * 60 * 60 * 1000);
               if (!isInitialFetchRef.current || isRecent) {
@@ -324,7 +324,7 @@ export default function App() {
           hasTriggeredHapticRef.current = true;
           try {
             Haptics.impact({ style: ImpactStyle.Light });
-          } catch (_) {}
+          } catch (_) { }
         }
       }
     };
@@ -363,8 +363,8 @@ export default function App() {
   // Native Mobile Android Lifecycle (Back Button & Status Bar)
   useEffect(() => {
     if (isNativePlatform()) {
-      StatusBar.setBackgroundColor({ color: settings.theme === 'dark' ? '#0a0b0e' : '#f4f4f5' }).catch(() => {});
-      StatusBar.setStyle({ style: settings.theme === 'dark' ? Style.Dark : Style.Light }).catch(() => {});
+      StatusBar.setBackgroundColor({ color: settings.theme === 'dark' ? '#0a0b0e' : '#f4f4f5' }).catch(() => { });
+      StatusBar.setStyle({ style: settings.theme === 'dark' ? Style.Dark : Style.Light }).catch(() => { });
 
       const backListener = CapApp.addListener('backButton', ({ canGoBack }) => {
         if (selectedArticle) {
@@ -616,10 +616,9 @@ export default function App() {
   };
 
   return (
-    <div className={`min-h-screen transition-colors duration-200 font-sans relative ${
-      settings.theme === 'dark' ? 'bg-[#0a0b0e] text-neutral-100' : 'bg-neutral-100 text-neutral-900'
-    }`}>
-      
+    <div className={`min-h-screen transition-colors duration-200 font-sans relative ${settings.theme === 'dark' ? 'bg-[#0a0b0e] text-neutral-100' : 'bg-neutral-100 text-neutral-900'
+      }`}>
+
       {/* Ambient background glow in dark mode */}
       {settings.theme === 'dark' && (
         <div className="pointer-events-none fixed inset-0 z-0 overflow-hidden opacity-30">
@@ -675,21 +674,21 @@ export default function App() {
 
       {/* Pull to Refresh Mobile Indicator */}
       {pullDistance > 0 && (
-        <div 
+        <div
           style={{ height: `${pullDistance}px`, opacity: Math.min(pullDistance / 45, 1) }}
           className="overflow-hidden flex items-center justify-center transition-all duration-75 pointer-events-none sticky top-16 z-30"
         >
           <div className="flex items-center gap-2 px-4 py-1.5 rounded-full bg-neutral-900/95 border border-amber-500/60 shadow-[0_0_20px_rgba(245,158,11,0.25)] text-amber-400 text-xs font-bold font-mono">
-            <RefreshCw 
-              className={`w-4 h-4 ${isPullRefreshing ? 'animate-spin' : ''}`} 
+            <RefreshCw
+              className={`w-4 h-4 ${isPullRefreshing ? 'animate-spin' : ''}`}
               style={{ transform: isPullRefreshing ? undefined : `rotate(${pullDistance * 5}deg)` }}
             />
             <span>
-              {isPullRefreshing 
-                ? 'Sincronizando Feeds...' 
-                : pullDistance >= 55 
-                ? 'Solte para Atualizar!' 
-                : 'Puxe para Atualizar'}
+              {isPullRefreshing
+                ? 'Sincronizando Feeds...'
+                : pullDistance >= 55
+                  ? 'Solte para Atualizar!'
+                  : 'Puxe para Atualizar'}
             </span>
           </div>
         </div>
@@ -697,7 +696,7 @@ export default function App() {
 
       {/* Main Content Dashboard */}
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 space-y-6">
-        
+
         {/* Archive View Header Banner */}
         {showArchiveOnly && (
           <div className="p-4 rounded-3xl bg-amber-500/10 border border-amber-500/40 flex flex-wrap items-center justify-between gap-4 shadow-lg">
@@ -772,9 +771,8 @@ export default function App() {
                 <div
                   key={item.id}
                   onClick={() => handleSelectArticle(item)}
-                  className={`p-5 rounded-3xl border flex flex-col justify-between group cursor-pointer transition-all ${
-                    settings.theme === 'dark' ? `bg-neutral-800 border-neutral-700 ${getAccent(settings.accentColor).borderHover}` : `bg-white border-neutral-200 ${getAccent(settings.accentColor).borderHover}`
-                  }`}
+                  className={`p-5 rounded-3xl border flex flex-col justify-between group cursor-pointer transition-all ${settings.theme === 'dark' ? `bg-neutral-800 border-neutral-700 ${getAccent(settings.accentColor).borderHover}` : `bg-white border-neutral-200 ${getAccent(settings.accentColor).borderHover}`
+                    }`}
                 >
                   <div>
                     <span className={`text-[10px] font-black uppercase ${getAccent(settings.accentColor).text} mb-2 block tracking-wider`}>{item.sourceName}</span>
@@ -799,13 +797,12 @@ export default function App() {
           )
         ) : (
           /* Dynamic Blocks Layout Grid */
-          <div className={`grid grid-cols-1 ${
-            settings.layoutCols === 1
+          <div className={`grid grid-cols-1 ${settings.layoutCols === 1
               ? 'lg:grid-cols-1'
               : settings.layoutCols === 2
-              ? 'lg:grid-cols-2'
-              : 'lg:grid-cols-3'
-          } gap-6`}>
+                ? 'lg:grid-cols-2'
+                : 'lg:grid-cols-3'
+            } gap-6`}>
             {visibleBlocks.map((block) => {
               const blockItems = getBlockNewsItems(block);
               return (
@@ -837,11 +834,10 @@ export default function App() {
         )}
 
         {/* Bento Grid System Log Footer Bar */}
-        <footer className={`rounded-2xl p-3 border flex items-center gap-3 text-[11px] font-mono ${
-          settings.theme === 'dark'
+        <footer className={`rounded-2xl p-3 border flex items-center gap-3 text-[11px] font-mono ${settings.theme === 'dark'
             ? 'bg-neutral-900/80 border-neutral-800 text-neutral-400'
             : 'bg-neutral-200/60 border-neutral-300 text-neutral-700'
-        }`}>
+          }`}>
           <span className={`text-[9px] font-black ${getAccent(settings.accentColor).bg} text-black px-1.5 py-0.5 rounded tracking-widest`}>
             RAW
           </span>

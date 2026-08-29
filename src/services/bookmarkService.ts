@@ -23,10 +23,10 @@ export function toggleArticleBookmark(item: NewsItem): boolean {
   try {
     const bookmarks = getSavedBookmarks();
     const existingIndex = bookmarks.findIndex(b => b.id === item.id || b.link === item.link);
-    
+
     let isSaved = false;
     let updated: NewsItem[];
-    
+
     if (existingIndex >= 0) {
       // Remove
       updated = bookmarks.filter((_, idx) => idx !== existingIndex);
@@ -37,7 +37,7 @@ export function toggleArticleBookmark(item: NewsItem): boolean {
       updated = [itemToSave, ...bookmarks];
       isSaved = true;
     }
-    
+
     localStorage.setItem(BOOKMARKS_KEY, JSON.stringify(updated));
     window.dispatchEvent(new CustomEvent('radarrss:bookmarks_updated', { detail: { bookmarks: updated, isSaved } }));
     return isSaved;

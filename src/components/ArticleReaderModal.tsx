@@ -176,14 +176,12 @@ export const ArticleReaderModal: React.FC<ArticleReaderModalProps> = ({
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-2 sm:p-4 bg-black/85 backdrop-blur-md">
-      <div className={`relative w-full ${isFocusMode ? 'max-w-3xl h-[95vh]' : 'max-w-2xl max-h-[90vh]'} rounded-3xl border shadow-2xl flex flex-col overflow-hidden transition-all duration-300 ${
-        theme === 'dark' ? 'bg-neutral-900 border-neutral-700 text-neutral-100' : 'bg-white border-neutral-300 text-neutral-900'
-      }`}>
+      <div className={`relative w-full ${isFocusMode ? 'max-w-3xl h-[95vh]' : 'max-w-2xl max-h-[90vh]'} rounded-3xl border shadow-2xl flex flex-col overflow-hidden transition-all duration-300 ${theme === 'dark' ? 'bg-neutral-900 border-neutral-700 text-neutral-100' : 'bg-white border-neutral-300 text-neutral-900'
+        }`}>
 
         {/* Top Header Bar */}
-        <div className={`p-4 border-b flex items-center justify-between gap-3 shrink-0 ${
-          theme === 'dark' ? 'bg-neutral-950/80 border-neutral-800' : 'bg-neutral-100 border-neutral-200'
-        }`}>
+        <div className={`p-4 border-b flex items-center justify-between gap-3 shrink-0 ${theme === 'dark' ? 'bg-neutral-950/80 border-neutral-800' : 'bg-neutral-100 border-neutral-200'
+          }`}>
           <div className="flex items-center gap-2">
             <span className={`px-2.5 py-1 rounded text-[10px] font-black uppercase ${acc.bg} text-black tracking-wider shrink-0`}>
               {article.sourceName}
@@ -195,16 +193,15 @@ export const ArticleReaderModal: React.FC<ArticleReaderModalProps> = ({
           </div>
 
           <div className="flex items-center gap-1.5 sm:gap-2">
-            
+
             {/* Focus Reader Toggle */}
             <button
               onClick={() => setIsFocusMode(!isFocusMode)}
               title={isFocusMode ? 'Sair do Modo Focado' : 'Ativar Modo Leitura Focado'}
-              className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl border text-xs font-black uppercase tracking-wider transition-all ${
-                isFocusMode
+              className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl border text-xs font-black uppercase tracking-wider transition-all ${isFocusMode
                   ? `${acc.bg} text-black ${acc.border} shadow-md`
                   : theme === 'dark' ? `bg-neutral-800 border-neutral-700 ${acc.textDark} hover:bg-neutral-700` : `bg-neutral-200 border-neutral-300 ${acc.textLight} hover:bg-neutral-300`
-              }`}
+                }`}
             >
               <BookOpen className="w-4 h-4" />
               <span className="hidden xs:inline">{isFocusMode ? 'Sair Foco' : 'Modo Foco'}</span>
@@ -212,9 +209,8 @@ export const ArticleReaderModal: React.FC<ArticleReaderModalProps> = ({
 
             {/* Font Size & Type Controls (visible in Focus Mode or toggleable) */}
             {isFocusMode && (
-              <div className={`flex items-center p-0.5 rounded-xl border ${
-                theme === 'dark' ? 'bg-neutral-900 border-neutral-700' : 'bg-neutral-200 border-neutral-300'
-              }`}>
+              <div className={`flex items-center p-0.5 rounded-xl border ${theme === 'dark' ? 'bg-neutral-900 border-neutral-700' : 'bg-neutral-200 border-neutral-300'
+                }`}>
                 <button
                   onClick={decreaseFontSize}
                   title="Diminuir fonte"
@@ -232,7 +228,7 @@ export const ArticleReaderModal: React.FC<ArticleReaderModalProps> = ({
                 >
                   <Plus className="w-3.5 h-3.5" />
                 </button>
-                
+
                 <div className="h-4 w-px bg-neutral-700 mx-1" />
 
                 <button
@@ -250,9 +246,8 @@ export const ArticleReaderModal: React.FC<ArticleReaderModalProps> = ({
                 <button
                   onClick={handleShare}
                   title="Copiar link"
-                  className={`p-2 rounded-xl border transition-colors ${
-                    copied ? 'bg-emerald-500/20 border-emerald-500 text-emerald-400' : theme === 'dark' ? 'hover:bg-neutral-800 border-neutral-700' : 'hover:bg-neutral-200 border-neutral-300'
-                  }`}
+                  className={`p-2 rounded-xl border transition-colors ${copied ? 'bg-emerald-500/20 border-emerald-500 text-emerald-400' : theme === 'dark' ? 'hover:bg-neutral-800 border-neutral-700' : 'hover:bg-neutral-200 border-neutral-300'
+                    }`}
                 >
                   {copied ? <Check className="w-4 h-4" /> : <Share2 className="w-4 h-4" />}
                 </button>
@@ -260,9 +255,8 @@ export const ArticleReaderModal: React.FC<ArticleReaderModalProps> = ({
                 <button
                   onClick={() => onToggleBookmark(article)}
                   title="Salvar notícia"
-                  className={`p-2 rounded-xl border transition-colors ${
-                    isBookmarked ? `${acc.bgLight} ${acc.borderLight} ${acc.textDark}` : theme === 'dark' ? 'hover:bg-neutral-800 border-neutral-700' : 'hover:bg-neutral-200 border-neutral-300'
-                  }`}
+                  className={`p-2 rounded-xl border transition-colors ${isBookmarked ? `${acc.bgLight} ${acc.borderLight} ${acc.textDark}` : theme === 'dark' ? 'hover:bg-neutral-800 border-neutral-700' : 'hover:bg-neutral-200 border-neutral-300'
+                    }`}
                 >
                   <Bookmark className={`w-4 h-4 ${isBookmarked ? `${acc.fill}` : ''}`} />
                 </button>
@@ -271,9 +265,8 @@ export const ArticleReaderModal: React.FC<ArticleReaderModalProps> = ({
 
             <button
               onClick={onClose}
-              className={`p-2 rounded-xl border transition-colors ${
-                theme === 'dark' ? 'hover:bg-neutral-800 border-neutral-700' : 'hover:bg-neutral-200 border-neutral-300'
-              }`}
+              className={`p-2 rounded-xl border transition-colors ${theme === 'dark' ? 'hover:bg-neutral-800 border-neutral-700' : 'hover:bg-neutral-200 border-neutral-300'
+                }`}
             >
               <X className="w-4 h-4" />
             </button>
@@ -282,7 +275,7 @@ export const ArticleReaderModal: React.FC<ArticleReaderModalProps> = ({
 
         {/* Scrollable Article Body */}
         <div className={`p-6 sm:p-10 overflow-y-auto space-y-6 flex-1 ${isFocusMode ? 'max-w-2xl mx-auto w-full' : ''}`}>
-          
+
           {/* Focus Mode Indicator Banner */}
           {isFocusMode && (
             <div className={`flex items-center justify-between text-[11px] font-mono ${acc.textDark} ${acc.bgLight} px-4 py-2 rounded-2xl border ${acc.borderLight}`}>
@@ -320,15 +313,14 @@ export const ArticleReaderModal: React.FC<ArticleReaderModalProps> = ({
 
           {/* Interactive AI & Audio Toolbar */}
           <div className="flex flex-wrap items-center gap-2 pt-2 border-t border-b border-neutral-800 py-3">
-            
+
             {/* Audio TTS Button */}
             <button
               onClick={handleToggleTts}
-              className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-black uppercase tracking-wider border transition-all ${
-                isPlayingTts
+              className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-black uppercase tracking-wider border transition-all ${isPlayingTts
                   ? `${acc.bg} text-black ${acc.border} animate-pulse`
                   : 'bg-neutral-800 border-neutral-700 text-neutral-200 hover:bg-neutral-700'
-              }`}
+                }`}
             >
               {isPlayingTts ? <VolumeX className="w-4 h-4 text-black" /> : <Volume2 className={`w-4 h-4 ${acc.textDark}`} />}
               <span>{isPlayingTts ? 'Parar Leitura' : 'Ouvir Notícia'}</span>
@@ -357,9 +349,8 @@ export const ArticleReaderModal: React.FC<ArticleReaderModalProps> = ({
 
           {/* AI Generated Summary Box */}
           {aiSummary && (
-            <div className={`p-4 rounded-2xl border text-xs leading-relaxed ${
-              theme === 'dark' ? `${acc.bgLight} ${acc.borderLight} text-neutral-200` : `${acc.bgLight} ${acc.borderLight} text-neutral-900`
-            }`}>
+            <div className={`p-4 rounded-2xl border text-xs leading-relaxed ${theme === 'dark' ? `${acc.bgLight} ${acc.borderLight} text-neutral-200` : `${acc.bgLight} ${acc.borderLight} text-neutral-900`
+              }`}>
               <div className={`flex items-center gap-2 font-black uppercase ${acc.textDark} mb-2 tracking-wider`}>
                 <Sparkles className="w-4 h-4" />
                 <span>Resumo Executivo da IA (Gemini):</span>
@@ -379,9 +370,8 @@ export const ArticleReaderModal: React.FC<ArticleReaderModalProps> = ({
           )}
 
           {/* Article Snippet / Description formatted with Focus font and size */}
-          <div className={`prose prose-invert max-w-none ${getFontSizeClass()} ${getFontFamilyClass()} ${
-            theme === 'dark' ? 'text-neutral-200' : 'text-neutral-800'
-          }`}>
+          <div className={`prose prose-invert max-w-none ${getFontSizeClass()} ${getFontFamilyClass()} ${theme === 'dark' ? 'text-neutral-200' : 'text-neutral-800'
+            }`}>
             {article.contentSnippet}
           </div>
 

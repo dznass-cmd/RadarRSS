@@ -13,9 +13,13 @@
 
 <br />
 
-**Agregador de notícias dinâmico e inteligente em tempo real com curadoria por Inteligência Artificial (Google Gemini), aplicativo desktop para Windows e aplicativo nativo para Android.**
+**Real-time intelligent dynamic RSS news aggregator with Google Gemini AI curation, Windows desktop application, and native Android app support.**
 
-[📥 Baixar Aplicativo](#-download--instalação-windows--android) • [✨ Recursos](#-principais-recursos) • [🚀 Como Rodar](#-como-rodar-localmente) • [🤖 Configurar IA](#-configuração-de-ia-google-gemini) • [🔄 Atualizações](#-atualizações-automáticas)
+**English** • [Português (Brasil)](README.pt-BR.md)
+
+<br />
+
+[📥 Download App](#-download--installation-windows--android) • [✨ Key Features](#-key-features) • [🚀 Getting Started](#-getting-started-locally) • [🤖 AI Configuration](#-ai-configuration-google-gemini) • [🔄 Auto-Updates](#-automatic-updates)
 
 <br /><br />
 
@@ -27,28 +31,29 @@
 
 ---
 
-## 📖 Sobre o Projeto
+## 📖 About the Project
 
-O **Radar RSS** monitora múltiplos portais de notícias em tempo real, organizando os feeds automaticamente por categorias inteligentes (como *Manchetes*, *Tecnologia*, *Economia*, *Mundo*, *Games*, entre outros).
+**Radar RSS** monitors multiple news portals and RSS feeds in real time, automatically organizing articles into modular, customizable category blocks (such as *Headlines*, *Technology*, *Finance & Business*, *World News*, *Gaming & Entertainment*, and custom topics).
 
-Utilizando o poder dos modelos de **Inteligência Artificial do Google Gemini**, o Radar RSS sintetiza resumos rápidos, extrai insights essenciais, classifica sentimentos e destaca acontecimentos de última hora (*breaking news*), poupando tempo e eliminando ruídos informativos.
+Powered by **Google Gemini Artificial Intelligence**, Radar RSS synthesizes executive bullet-point summaries, extracts key takeaways, evaluates urgency for instant breaking news alerts, and translates foreign feeds on the fly — eliminating clutter and saving you hours of reading time.
 
 ---
 
-## ✨ Principais Recursos
+## ✨ Key Features
 
-- ⚡ **Feed em Tempo Real:** Agregação rápida de múltiplos feeds RSS (nacionais e internacionais) com atualização contínua e sem bloqueio.
-- 🧠 **Curadoria Inteligente com Google Gemini:**
-  - Resumos automáticos em tópicos diretos e objetivos.
-  - Análise contextual e detecção de urgência (*Breaking News*).
-  - Tradução e sintetização instantânea de notícias internacionais.
-- 🖼️ **Exibição Inteligente de Imagens (`SafeImage`):** Extração robusta de mídias incorporadas (`media:content`, `enclosure`, tags HTML), resolução de links relativos, bloqueio de pixels rastreadores e fallback visual elegante em caso de indisponibilidade.
-- 🖥️ **Aplicativo Desktop Windows:** Janela nativa leve via Electron com atalhos, barra de título integrada e bandeja do sistema.
-- 🔄 **Atualizações Automáticas (Auto-Updater):** Atualização transparente em segundo plano através de GitHub Releases oficiais.
-- 🎨 **Interface Moderna & Flexível:**
-  - Tema escuro e claro com paletas de acentuação visual (âmbar, esmeralda, ciano, violeta, etc.).
-  - Layouts de blocos customizáveis (grade, lista compacta, cartões destacados).
-  - Modal de leitura focado (*Focus Mode*) para leitura sem distrações.
+- ⚡ **Real-Time Feed Aggregation:** High-throughput async ingestion of national and international RSS/Atom feeds with continuous background updates.
+- 🧠 **Smart AI Curation (Google Gemini):**
+  - Instant executive bullet summaries per topic or article.
+  - Contextual urgency evaluation with automatic **Breaking News** badges and sound alerts.
+  - Multi-language translation and synthesis for global articles.
+- 🖼️ **Smart Image Extraction (`SafeImage`):** Robust parsing for `media:content`, `media:thumbnail`, `enclosure`, and embedded HTML `<img>` elements with relative URL normalization, tracker pixel filtering (1x1 blocking), and graceful visual fallback placeholders.
+- 🖥️ **Windows Desktop App:** High-performance native Electron window with titlebar integration, keyboard shortcuts, and background tray support.
+- 📱 **Native Android Mobile App:** Seamless touch experience built with Capacitor, featuring pull-to-refresh gestures, haptic feedback, theme synchronization, and Text-to-Speech (TTS).
+- 🔄 **Seamless Auto-Updates:** Built-in background update engine powered by official GitHub Releases.
+- 🎨 **Modern & Adaptive UI:**
+  - Dark and Light mode themes with custom accent color palettes (Amber, Emerald, Cyan, Violet, Pink, etc.).
+  - Flexible block layouts: Hero Highlights, Responsive Grid, Compact Cards, and Editorial Lists.
+  - Distraction-free **Focus Reader Mode** with adjustable typography and font scaling.
 
 <br />
 
@@ -58,56 +63,56 @@ Utilizando o poder dos modelos de **Inteligência Artificial do Google Gemini**,
 
 ---
 
-## 📥 Download & Instalação (Windows & Android)
+## 📥 Download & Installation (Windows & Android)
 
-Você pode baixar a versão mais recente diretamente na seção de [Releases](https://github.com/dznass-cmd/RadarRSS/releases):
+You can download pre-compiled releases directly from the [GitHub Releases](https://github.com/dznass-cmd/RadarRSS/releases) page:
 
-| Plataforma | Versão | Descrição | Link |
+| Platform | Version | Description | Download Link |
 |---|---|---|:---:|
-| 🪟 Windows | 💿 **Instalador Oficial** | Recomendado. Cria atalhos e **recebe atualizações automáticas** | [Baixar Setup (.exe)](https://github.com/dznass-cmd/RadarRSS/releases/latest) |
-| 🪟 Windows | 💼 **Portátil** | Executável único. Roda diretamente sem necessidade de instalação | [Baixar Portátil (.exe)](https://github.com/dznass-cmd/RadarRSS/releases/latest) |
-| 📱 Android | 📦 **APK Nativo** | Aplicativo nativo para smartphones e tablets Android | [Baixar APK (.apk)](https://github.com/dznass-cmd/RadarRSS/releases/latest) |
+| 🪟 Windows | 💿 **Official Installer** | Recommended. Installs shortcuts and **receives silent auto-updates** | [Download Setup (.exe)](https://github.com/dznass-cmd/RadarRSS/releases/latest) |
+| 🪟 Windows | 💼 **Portable Edition** | Standalone single executable. Runs instantly without installation | [Download Portable (.exe)](https://github.com/dznass-cmd/RadarRSS/releases/latest) |
+| 📱 Android | 📦 **Native APK** | Signed native mobile app for Android smartphones and tablets | [Download APK (.apk)](https://github.com/dznass-cmd/RadarRSS/releases/latest) |
 
 ---
 
-## 🚀 Como Rodar Localmente
+## 🚀 Getting Started Locally
 
-### Pré-requisitos
-* [Node.js](https://nodejs.org) (versão 18 ou superior)
-* `npm` ou gerenciador de pacotes equivalente
-* [Android Studio](https://developer.android.com/studio) (Opcional, apenas se for compilar o APK localmente)
+### Prerequisites
+* [Node.js](https://nodejs.org) (v18.0.0 or higher)
+* `npm` or equivalent package manager
+* [Android Studio](https://developer.android.com/studio) / Android SDK (Optional, only needed if compiling the Android APK locally)
 
-### Passo a passo
+### Step-by-Step Setup
 
-1. **Clone o repositório:**
+1. **Clone the repository:**
    ```bash
    git clone https://github.com/dznass-cmd/RadarRSS.git
    cd RadarRSS
    ```
 
-2. **Instale as dependências:**
+2. **Install dependencies:**
    ```bash
    npm install
    ```
 
-3. **Configure a chave do Gemini (Opcional, para recursos de IA):**
-   Crie um arquivo `.env.local` na raiz:
+3. **Configure Google Gemini API Key (Optional for AI features):**
+   Create a `.env.local` file in the root directory:
    ```env
-   GEMINI_API_KEY=sua_chave_aqui
+   GEMINI_API_KEY=your_gemini_api_key_here
    ```
 
-4. **Inicie o ambiente de desenvolvimento:**
+4. **Start the local development server:**
    ```bash
    npm run dev
    ```
-   Acesse a interface no navegador em `http://localhost:3000`.
+   Open your browser at `http://localhost:3000`.
 
-5. **Para rodar em janela desktop (Electron em modo dev):**
+5. **Launch in Electron desktop mode:**
    ```bash
    npm run desktop
    ```
 
-6. **Para compilar e sincronizar com o Android (Capacitor):**
+6. **Build and synchronize with Android (Capacitor):**
    ```bash
    npm run build:android
    npm run open:android
@@ -115,54 +120,56 @@ Você pode baixar a versão mais recente diretamente na seção de [Releases](ht
 
 ---
 
-## 🤖 Configuração de IA (Google Gemini)
+## 🤖 AI Configuration (Google Gemini)
 
-Os recursos de IA utilizam o SDK `@google/genai` do Google:
+Radar RSS uses the modern official `@google/genai` SDK:
 
-1. Obtenha uma chave de API gratuita no [Google AI Studio](https://aistudio.google.com/).
-2. **Ambiente de Desenvolvimento:** adicione `GEMINI_API_KEY=sua_chave` no arquivo `.env.local`.
-3. **Versão Desktop / Produção:** crie um arquivo `.env` no mesmo diretório do executável `Radar RSS.exe` contendo `GEMINI_API_KEY=sua_chave`.
+1. Grab a free API key at [Google AI Studio](https://aistudio.google.com/).
+2. **Development:** Add `GEMINI_API_KEY=your_key` to `.env.local`.
+3. **Production / Desktop:** Place a `.env` file containing `GEMINI_API_KEY=your_key` in the same directory as `Radar RSS.exe`.
 
-> *Nota:* Sem a chave da API, todas as funções de leitura e agregação RSS continuam funcionando normalmente, com os resumos de IA desativados.
+> *Note:* If no API key is configured, all core RSS reading, live updating, custom feed management, and filtering features continue to work normally, with AI summary badges gracefully disabled.
 
 ---
 
-## 🛠️ Tecnologias Utilizadas
+## 🛠️ Architecture & Tech Stack
 
-| Camada | Tecnologia |
+| Layer | Technologies |
 |---|---|
 | **Frontend** | [React 19](https://react.dev), [TypeScript](https://www.typescriptlang.org), [Vite](https://vitejs.dev), [Tailwind CSS 4](https://tailwindcss.com) |
-| **Backend Local** | [Node.js](https://nodejs.org), [Express](https://expressjs.com), [rss-parser](https://www.npmjs.com/package/rss-parser) |
-| **Inteligência Artificial** | [Google Gemini API](https://ai.google.dev) (`@google/genai`) |
-| **Desktop & Empacotamento** | [Electron](https://www.electronjs.org), [electron-builder](https://www.electron.build) |
-| **Auto-Update & CI/CD** | [electron-updater](https://www.electron.build/auto-update), [GitHub Actions](https://github.com/features/actions) |
-| **Ícones & Animações** | [Lucide React](https://lucide.dev), [Motion](https://motion.dev) |
+| **Local Server** | [Node.js](https://nodejs.org), [Express](https://expressjs.com), [rss-parser](https://www.npmjs.com/package/rss-parser) |
+| **Artificial Intelligence** | [Google Gemini API](https://ai.google.dev) (`@google/genai`) |
+| **Mobile App** | [Capacitor](https://capacitorjs.com) (Native Android runtime) |
+| **Desktop Packaging** | [Electron](https://www.electronjs.org), [electron-builder](https://www.electron.build) |
+| **Auto-Updater & CI/CD** | [electron-updater](https://www.electron.build/auto-update), [GitHub Actions](https://github.com/features/actions) |
+| **Icons & Micro-interactions** | [Lucide React](https://lucide.dev), [Motion](https://motion.dev) |
 
 ---
 
-## 📦 Scripts Disponíveis
+## 📦 Available Scripts
 
-* `npm run dev` — Inicia o backend Express com Vite em modo hot-reload.
-* `npm run build` — Compila a interface React e empacota o servidor de produção em `dist/`.
-* `npm run desktop` — Compila e abre o app em janela nativa do Electron.
-* `npm run build:win` — Gera os executáveis Windows (instalador + portátil) na pasta `release/`.
-* `npm run publish:win` — Compila e publica a release no GitHub via `electron-builder`.
-* `npm run lint` — Valida a tipagem estática com TypeScript (`tsc --noEmit`).
-
----
-
-## 🔄 Atualizações Automáticas
-
-O instalador desktop do **Radar RSS** conta com verificação e download em segundo plano integrado via GitHub Releases:
-
-1. Ao abrir o aplicativo, ele consulta a API do GitHub Releases.
-2. Havendo uma nova versão disponível, o download ocorre em segundo plano sem travar o uso.
-3. Ao finalizar o download, uma notificação permite reiniciar e atualizar instantaneamente.
-
-Para publicar uma nova versão, basta atualizar a versão no `package.json` e criar uma tag `vX.Y.Z` — o **GitHub Actions** compilará e publicará a release automaticamente.
+* `npm run dev` — Starts the Express backend paired with Vite hot-module replacement.
+* `npm run build` — Compiles the React web application and bundles the server into `dist/`.
+* `npm run desktop` — Launches the application in an Electron desktop shell.
+* `npm run build:win` — Compiles Windows executables (NSIS installer + portable `.exe`) inside `release/`.
+* `npm run build:android` — Compiles web assets and synchronizes the native Android project.
+* `npm run publish:win` — Packages and publishes a release asset directly to GitHub.
+* `npm run lint` — Performs static type checking via TypeScript (`tsc --noEmit`).
 
 ---
 
-## 📄 Licença
+## 🔄 Automatic Updates
 
-Este projeto é distribuído sob a licença [MIT](LICENSE).
+The Windows desktop installer features background update verification via GitHub Releases:
+
+1. When launched, the application checks the GitHub Releases API for newer semantic version tags.
+2. If an update is detected, the installer downloads quietly in the background.
+3. Once ready, an update banner offers a single-click restart to apply the latest build.
+
+To publish a new version, simply increment `version` in `package.json` and push a `vX.Y.Z` tag — **GitHub Actions** will automatically compile and publish the Windows binaries.
+
+---
+
+## 📄 License
+
+This project is open-source and released under the [MIT License](LICENSE).
