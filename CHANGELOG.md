@@ -5,11 +5,13 @@ Todas as alteracoes notaveis neste projeto serao documentadas neste arquivo.
 O formato e baseado em [Keep a Changelog](https://keepachangelog.com/pt-BR/1.0.0/),
 e este projeto adere ao [Semantic Versioning](https://semver.org/lang/pt-BR/).
 
-## [2.0.5] (Beta) - 2026-08-29
+## [0.0.1] (Beta) - 2026-08-29
 
 ### Adicionado
-- Novo componente `SafeImage` com placeholder visual elegante e indicador de carregamento para imagens que falham ou demoram a carregar.
-- Identificação visual de versão Beta nas configurações.
+- Versão inicial Beta para **Windows** e **Android (APK Nativo)**.
+- Suporte a Capacitor com adaptadores de rede universais para parsing direto de feeds RSS.
+- Novo componente `SafeImage` com placeholder visual elegante e indicador de carregamento.
+- Identificação visual de versão Beta (`v0.0.1`) nas configurações e interface.
 
 ### Corrigido / Melhorado
 - Extração de imagens RSS aprimorada: suporte estendido para tags `media:content`, `media:thumbnail`, `enclosure` e tags `<img>` embutidas no conteúdo HTML.

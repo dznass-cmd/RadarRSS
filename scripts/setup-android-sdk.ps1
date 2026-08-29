@@ -39,10 +39,10 @@ Set-Location ..
 $apkSource = "android\app\build\outputs\apk\debug\app-debug.apk"
 if (Test-Path $apkSource) {
     New-Item -ItemType Directory -Force -Path "release" | Out-Null
-    Copy-Item $apkSource -Destination "release\Radar-RSS-2.0.5.apk" -Force
-    Copy-Item $apkSource -Destination "$env:USERPROFILE\Pictures\RadarRSS\Radar-RSS-2.0.5.apk" -Force
-    Write-Host "SUCESSO! APK gerado em release\Radar-RSS-2.0.5.apk"
-    Get-Item "release\Radar-RSS-2.0.5.apk" | Select-Object Name, Length, LastWriteTime
+    Copy-Item $apkSource -Destination "release\Radar-RSS-0.0.1.apk" -Force
+    Copy-Item $apkSource -Destination "$env:USERPROFILE\Pictures\RadarRSS\Radar-RSS-0.0.1.apk" -Force
+    Write-Host "SUCESSO! APK gerado em release\Radar-RSS-0.0.1.apk"
+    Get-Item "release\Radar-RSS-0.0.1.apk" | Select-Object Name, Length, LastWriteTime
 } else {
     Write-Host "Aviso: APK nao encontrado no caminho padrao."
 }

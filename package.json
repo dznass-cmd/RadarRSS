@@ -3,7 +3,7 @@
   "description": "Leitor de notícias RSS em tempo real com blocos dinâmicos, feeds brasileiros e internacionais, resumos de IA e alertas de breaking news.",
   "author": "Freebuff",
   "private": true,
-  "version": "2.0.5",
+  "version": "0.0.1",
   "type": "module",
   "main": "electron/main.cjs",
   "scripts": {
