@@ -5,6 +5,24 @@ Todas as alteracoes notaveis neste projeto serao documentadas neste arquivo.
 O formato e baseado em [Keep a Changelog](https://keepachangelog.com/pt-BR/1.0.0/),
 e este projeto adere ao [Semantic Versioning](https://semver.org/lang/pt-BR/).
 
+## [2.0.5] (Beta) - 2026-08-29
+
+### Adicionado
+- Novo componente `SafeImage` com placeholder visual elegante e indicador de carregamento para imagens que falham ou demoram a carregar.
+- Identificação visual de versão Beta nas configurações.
+
+### Corrigido / Melhorado
+- Extração de imagens RSS aprimorada: suporte estendido para tags `media:content`, `media:thumbnail`, `enclosure` e tags `<img>` embutidas no conteúdo HTML.
+- Tratamento automático de URLs relativas e relativas a protocolo (`//`).
+- Filtragem automática de pixels e beacons de rastreamento (1x1, trackers).
+
+---
+
+## [2.0.4] - 2026-08-16
+
+### Adicionado
+- Lançamento desktop oficial Windows com auto-updater via GitHub Releases.
+
 ---
 
 ## [2.0.2] - 2026-08-11
