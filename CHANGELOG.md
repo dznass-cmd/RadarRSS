@@ -40,53 +40,27 @@ e este projeto adere ao [Semantic Versioning](https://semver.org/lang/pt-BR/).
 
 ## [2.0.1] - 2026-08-02
 
-### Corrigido
-- README.md reescrito: apenas o app RSS Radar (agregador de noticias com IA)
-- Removidos `src/` (flac_tools), `scripts/` (Windows) e `requirements.txt`
-
 ### Adicionado
-- Topics do repo: rss, news, ai, electron, react, rss-aggregator, gemini
+- Integração com Google Gemini AI para resumos automatizados e curadoria.
+- Suporte a múltiplos tópicos e feeds nacionais/internacionais.
+- Suporte para empacotamento Windows via Electron.
 
 ---
 
 ## [2.0.0] - 2026-08-02
 
 ### Adicionado
-- Estrutura organizada: `src/`, `scripts/`, `config/`
-- Modulo `src/flac_tools.py` para gerenciamento de artwork FLAC
-- `requirements.txt` com dependencias declaradas
-
-### Alterado
-- README.md reescrito para refletir o projeto real
-- Scripts PowerShell/Batch movidos para `scripts/`
-- `.gitignore` atualizado com regras para AppImage e builds
-
-### Removido
-- Scripts Python duplicados da raiz
-- Scripts de automacao Telegram/AyuGram
-- Screenshots de automação Telegram
-- Scripts de risco (disable_windows_defender.ps1, Ghost Toolbox.cmd)
-
----
-
-## [1.0.5] - 2026-07-30
-
-### Adicionado
-- Monitoramento de multiplos portais em tempo real
-- Organizacao automatica por categorias
-- Suporte a feeds RSS padronizados
+- Nova interface gráfica moderna desenvolvida em React 19 + Vite + Tailwind CSS.
+- Backend local em Express para agregação e processamento de feeds RSS em tempo real.
+- Suporte a categorização dinâmica e temas visuais personalizáveis.
 
 ---
 
 ## [1.0.0] - 2026-07-30
 
 ### Adicionado
-- Projeto inicial no GitHub
-- Scripts de automacao Python
-- Scripts de configuracao PowerShell
-- Documentacao README.md
-- Configuracao .gitignore
-- Regras de disciplina (AGENTS.md)
+- Lançamento inicial do projeto Radar RSS.
+- Monitoramento de portais de notícias em tempo real e agregação básica de feeds.
 
 ---
 

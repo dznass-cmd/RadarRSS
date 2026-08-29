@@ -40,11 +40,11 @@ Radar Rss/
 
 | Item | Caminho |
 |---|---|
-| Código-fonte | `C:\Users\dznas\Documents\Radar Rss` |
-| Programa Windows (instalador) | `release\Radar RSS Setup 2.0.4.exe` |
-| Programa Windows (portátil) | `release\Radar RSS 2.0.4.exe` |
+| Código-fonte | Pasta raiz do projeto |
+| Programa Windows (instalador) | `release\Radar RSS Setup X.Y.Z.exe` |
+| Programa Windows (portátil) | `release\Radar RSS X.Y.Z.exe` |
 | Programa sem instalar (pasta) | `release\win-unpacked\Radar RSS.exe` |
-| Backup do código-fonte | `radar-rss-fonte-v2.0.4.zip` |
+| Backup do código-fonte | `radar-rss-fonte-vX.Y.Z.zip` |
 | Chave da API Gemini | `.env.local` (desenvolvimento) / `.env` ao lado do .exe (produção) |
 
 ---
