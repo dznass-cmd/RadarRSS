@@ -77,7 +77,7 @@ async function run() {
 
   for (const item of SIZES) {
     fs.mkdirSync(item.dir, { recursive: true });
-    
+
     // Square icon
     const squarePath = path.join(item.dir, 'ic_launcher.png');
     await renderSvgToPng(browser, SVG_SQUARE, item.size, squarePath);

@@ -104,14 +104,12 @@ export const CreateBlockModal: React.FC<CreateBlockModalProps> = ({
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm">
-      <div className={`w-full max-w-lg rounded-3xl border shadow-2xl overflow-hidden flex flex-col ${
-        theme === 'dark' ? 'bg-neutral-900 border-neutral-700 text-neutral-100' : 'bg-white border-neutral-300 text-neutral-900'
-      }`}>
-        
-        {/* Header */}
-        <div className={`p-5 border-b flex items-center justify-between ${
-          theme === 'dark' ? 'bg-neutral-950/80 border-neutral-800' : 'bg-neutral-100 border-neutral-200'
+      <div className={`w-full max-w-lg rounded-3xl border shadow-2xl overflow-hidden flex flex-col ${theme === 'dark' ? 'bg-neutral-900 border-neutral-700 text-neutral-100' : 'bg-white border-neutral-300 text-neutral-900'
         }`}>
+
+        {/* Header */}
+        <div className={`p-5 border-b flex items-center justify-between ${theme === 'dark' ? 'bg-neutral-950/80 border-neutral-800' : 'bg-neutral-100 border-neutral-200'
+          }`}>
           <h3 className="font-black text-sm uppercase tracking-wider flex items-center gap-2">
             <Layers className="w-5 h-5 text-orange-500" />
             {initialBlock ? 'Editar Bloco Dinâmico' : 'Criar Novo Bloco Dinâmico'}
@@ -123,7 +121,7 @@ export const CreateBlockModal: React.FC<CreateBlockModalProps> = ({
 
         {/* Form Body */}
         <form onSubmit={handleSubmit} className="p-6 space-y-4 overflow-y-auto max-h-[80vh]">
-          
+
           {/* Quick Presets */}
           {!initialBlock && (
             <div className="mb-4">
@@ -136,11 +134,10 @@ export const CreateBlockModal: React.FC<CreateBlockModalProps> = ({
                     key={idx}
                     type="button"
                     onClick={() => applyPreset(p)}
-                    className={`p-3 rounded-2xl border text-left text-xs font-extrabold transition-all ${
-                      theme === 'dark'
+                    className={`p-3 rounded-2xl border text-left text-xs font-extrabold transition-all ${theme === 'dark'
                         ? 'bg-neutral-950/60 border-neutral-800 hover:border-orange-500/50'
                         : 'bg-neutral-50 border-neutral-200 hover:border-orange-500/50'
-                    }`}
+                      }`}
                   >
                     {p.title}
                   </button>
@@ -160,11 +157,10 @@ export const CreateBlockModal: React.FC<CreateBlockModalProps> = ({
               value={title}
               onChange={(e) => setTitle(e.target.value)}
               placeholder="ex: 🤖 RADAR DE IA & INOVAÇÃO"
-              className={`w-full px-4 py-3 text-xs font-bold rounded-2xl border outline-none ${
-                theme === 'dark'
+              className={`w-full px-4 py-3 text-xs font-bold rounded-2xl border outline-none ${theme === 'dark'
                   ? 'bg-neutral-950 border-neutral-800 focus:border-orange-500'
                   : 'bg-neutral-50 border-neutral-200 focus:border-orange-500'
-              }`}
+                }`}
             />
           </div>
 
@@ -176,11 +172,10 @@ export const CreateBlockModal: React.FC<CreateBlockModalProps> = ({
             <select
               value={categoryFilter}
               onChange={(e) => setCategoryFilter(e.target.value)}
-              className={`w-full px-4 py-3 text-xs font-bold rounded-2xl border outline-none ${
-                theme === 'dark'
+              className={`w-full px-4 py-3 text-xs font-bold rounded-2xl border outline-none ${theme === 'dark'
                   ? 'bg-neutral-950 border-neutral-800 focus:border-orange-500'
                   : 'bg-neutral-50 border-neutral-200 focus:border-orange-500'
-              }`}
+                }`}
             >
               <option value="all">🌐 Todas as Categorias</option>
               <option value="tech">💻 Tecnologia & Dev</option>
@@ -205,11 +200,10 @@ export const CreateBlockModal: React.FC<CreateBlockModalProps> = ({
               value={filterKeyword}
               onChange={(e) => setFilterKeyword(e.target.value)}
               placeholder="ex: inteligência artificial|ChatGPT|Gemini"
-              className={`w-full px-4 py-3 text-xs font-mono rounded-2xl border outline-none ${
-                theme === 'dark'
+              className={`w-full px-4 py-3 text-xs font-mono rounded-2xl border outline-none ${theme === 'dark'
                   ? 'bg-neutral-950 border-neutral-800 focus:border-orange-500'
                   : 'bg-neutral-50 border-neutral-200 focus:border-orange-500'
-              }`}
+                }`}
             />
           </div>
 
@@ -232,13 +226,12 @@ export const CreateBlockModal: React.FC<CreateBlockModalProps> = ({
                     key={l.id}
                     type="button"
                     onClick={() => setLayout(l.id as BlockLayout)}
-                    className={`flex flex-col items-center justify-center p-3 rounded-2xl border text-[10px] font-black uppercase tracking-wider gap-1.5 transition-all ${
-                      active
+                    className={`flex flex-col items-center justify-center p-3 rounded-2xl border text-[10px] font-black uppercase tracking-wider gap-1.5 transition-all ${active
                         ? 'bg-orange-500 text-black border-orange-500'
                         : theme === 'dark'
-                        ? 'bg-neutral-950/60 border-neutral-800 text-neutral-400 hover:border-neutral-700'
-                        : 'bg-neutral-50 border-neutral-200 text-neutral-600 hover:border-neutral-300'
-                    }`}
+                          ? 'bg-neutral-950/60 border-neutral-800 text-neutral-400 hover:border-neutral-700'
+                          : 'bg-neutral-50 border-neutral-200 text-neutral-600 hover:border-neutral-300'
+                      }`}
                   >
                     <Icon className="w-5 h-5" />
                     <span>{l.label}</span>
@@ -257,11 +250,10 @@ export const CreateBlockModal: React.FC<CreateBlockModalProps> = ({
               <select
                 value={itemCount}
                 onChange={(e) => setItemCount(Number(e.target.value))}
-                className={`w-full px-4 py-3 text-xs font-bold rounded-2xl border outline-none ${
-                  theme === 'dark'
+                className={`w-full px-4 py-3 text-xs font-bold rounded-2xl border outline-none ${theme === 'dark'
                     ? 'bg-neutral-950 border-neutral-800 focus:border-orange-500'
                     : 'bg-neutral-50 border-neutral-200 focus:border-orange-500'
-                }`}
+                  }`}
               >
                 <option value={3}>3 matérias</option>
                 <option value={5}>5 matérias</option>
@@ -278,11 +270,10 @@ export const CreateBlockModal: React.FC<CreateBlockModalProps> = ({
               <select
                 value={autoRefreshSec}
                 onChange={(e) => setAutoRefreshSec(Number(e.target.value))}
-                className={`w-full px-4 py-3 text-xs font-bold rounded-2xl border outline-none ${
-                  theme === 'dark'
+                className={`w-full px-4 py-3 text-xs font-bold rounded-2xl border outline-none ${theme === 'dark'
                     ? 'bg-neutral-950 border-neutral-800 focus:border-orange-500'
                     : 'bg-neutral-50 border-neutral-200 focus:border-orange-500'
-                }`}
+                  }`}
               >
                 <option value={30}>30 segundos</option>
                 <option value={60}>1 minuto</option>

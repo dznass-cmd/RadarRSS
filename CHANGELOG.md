@@ -1,86 +1,86 @@
 # Changelog
 
-Todas as alteracoes notaveis neste projeto serao documentadas neste arquivo.
+All notable changes to this project will be documented in this file.
 
-O formato e baseado em [Keep a Changelog](https://keepachangelog.com/pt-BR/1.0.0/),
-e este projeto adere ao [Semantic Versioning](https://semver.org/lang/pt-BR/).
+The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
+and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [0.0.2] (Beta) - 2026-08-29
 
-### Adicionado
-- **Ícones Nativos de Alta Definição:** Gerados ícones rasterizados PNG em todas as densidades (`mipmap-mdpi`, `hdpi`, `xhdpi`, `xxhdpi`, `xxxhdpi` e `512px`) com o design oficial **Global Signal Matrix**.
-- **Exibição do Ícone no APK e Instalador:** Agora o ícone aparece perfeitamente na visualização do arquivo `.apk` e no diálogo de instalação do Android.
-- **Assinatura Release Oficial:** APK assinado com keystore criptográfica de produção e esquemas v2 e v3, eliminando avisos de risco do Play Protect.
-- **Melhorias Mobile:** Gesto *Pull-to-Refresh* com vibração tátil, abas de categoria com rolagem horizontal e menu gaveta responsivo.
+### Added
+- **Native High-Definition Icons:** Generated crisp raster PNG icons across all density buckets (`mipmap-mdpi`, `hdpi`, `xhdpi`, `xxhdpi`, `xxxhdpi`, and `512px` store asset) featuring the official **Global Signal Matrix** design.
+- **APK and Installer Icon Display:** Ensured custom branding appears seamlessly in Windows installers, desktop shortcuts, `.apk` file explorers, and the Android package installer modal.
+- **Official Release Signing:** Configured production cryptographic keystores with v2 and v3 signature schemes to eliminate Play Protect sideloading warnings.
+- **Mobile Enhancements:** Added pull-to-refresh gestures with haptic feedback, horizontally scrolling category navigation, and responsive drawer navigation.
 
 ---
 
 ## [0.0.1] (Beta) - 2026-08-29
 
-### Adicionado
-- Versão inicial Beta para **Windows** e **Android (APK Nativo)**.
-- Suporte a Capacitor com adaptadores de rede universais para parsing direto de feeds RSS.
-- Novo componente `SafeImage` com placeholder visual elegante e indicador de carregamento.
-- Identificação visual de versão Beta (`v0.0.1`) nas configurações e interface.
+### Added
+- Initial public beta release for **Windows Desktop** and **Android (Native APK)**.
+- Capacitor integration with universal network adapters for direct client-side RSS feed parsing.
+- New `SafeImage` component with loading indicators, graceful fallback placeholders, and relative URL resolvers.
+- Visual Beta badge (`v0.0.1`) displayed across settings and header navigation.
 
-### Corrigido / Melhorado
-- Extração de imagens RSS aprimorada: suporte estendido para tags `media:content`, `media:thumbnail`, `enclosure` e tags `<img>` embutidas no conteúdo HTML.
-- Tratamento automático de URLs relativas e relativas a protocolo (`//`).
-- Filtragem automática de pixels e beacons de rastreamento (1x1, trackers).
+### Fixed / Improved
+- Enhanced RSS media extraction: expanded support for `media:content`, `media:thumbnail`, `enclosure`, and embedded HTML `<img>` tags.
+- Automatic normalization of protocol-relative (`//`) and relative URLs.
+- Filtered out 1x1 tracking beacons and analytics pixels.
 
 ---
 
 ## [2.0.4] - 2026-08-16
 
-### Adicionado
-- Lançamento desktop oficial Windows com auto-updater via GitHub Releases.
+### Added
+- Official Windows desktop release with background auto-updates powered by GitHub Releases.
 
 ---
 
 ## [2.0.2] - 2026-08-11
 
-### Adicionado
-- Build Windows via electron-builder: `RSS Radar-2.0.1-portable-x64.exe` e `RSS Radar-2.0.1-setup-x64.exe`
-- Script `build:win` e config de build (portable + NSIS) no `package.json`
-- `electron` como devDependency e script `start` para rodar no Windows
+### Added
+- Windows builds configured with `electron-builder`: `RSS Radar-2.0.1-portable-x64.exe` and `RSS Radar-2.0.1-setup-x64.exe`.
+- Added `build:win` script and build configuration (NSIS + portable) in `package.json`.
+- Configured `electron` as a devDependency and added `desktop` dev script.
 
-### Corrigido
-- `process.chdir(__dirname)` falhava dentro do `app.asar` (ENOENT) — chdir agora só em dev
-- `distPath` resolvia `dist/dist` no bundle empacotado — usa `__dirname` (raiz do dist)
+### Fixed
+- Fixed `process.chdir(__dirname)` failure inside `app.asar` (ENOENT) by restricting directory switching to development environments.
+- Corrected `distPath` resolution in packaged bundles to properly locate application assets.
 
 ---
 
 ## [2.0.1] - 2026-08-02
 
-### Adicionado
-- Integração com Google Gemini AI para resumos automatizados e curadoria.
-- Suporte a múltiplos tópicos e feeds nacionais/internacionais.
-- Suporte para empacotamento Windows via Electron.
+### Added
+- Integrated Google Gemini AI for automated bullet-point executive summaries and news curation.
+- Support for customizable dynamic blocks and multi-category RSS feeds.
+- Electron packaging support for Windows.
 
 ---
 
 ## [2.0.0] - 2026-08-02
 
-### Adicionado
-- Nova interface gráfica moderna desenvolvida em React 19 + Vite + Tailwind CSS.
-- Backend local em Express para agregação e processamento de feeds RSS em tempo real.
-- Suporte a categorização dinâmica e temas visuais personalizáveis.
+### Added
+- Brand-new modern UI built with React 19, Vite, and Tailwind CSS.
+- Local Express backend for real-time async RSS parsing and caching.
+- Dynamic block customization and custom accent color themes.
 
 ---
 
 ## [1.0.0] - 2026-07-30
 
-### Adicionado
-- Lançamento inicial do projeto Radar RSS.
-- Monitoramento de portais de notícias em tempo real e agregação básica de feeds.
+### Added
+- Initial release of Radar RSS aggregator.
+- Real-time news monitoring across major international and regional portals.
 
 ---
 
-## [Legenda]
+## [Legend]
 
-- `ADICIONADO` para novas features
-- `ALTERADO` para alteracoes em features existentes
-- `DEPRECIADO` para features que serao removidas
-- `REMOVIDO` para features removidas
-- `CORRIGIDO` para correcoes de bugs
-- `SEGURANCA` para vulnerabilidades
+- `Added` for new features.
+- `Changed` for changes in existing functionality.
+- `Deprecated` for soon-to-be removed features.
+- `Removed` for now removed features.
+- `Fixed` for any bug fixes.
+- `Security` in case of vulnerabilities.

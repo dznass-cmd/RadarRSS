@@ -1,6 +1,6 @@
 {
   "name": "Radar RSS",
-  "description": "Leitor de notícias RSS em tempo real com blocos dinâmicos customizáveis, feeds brasileiros e internacionais, resumos de IA e alertas de breaking news.",
+  "description": "Real-time dynamic RSS news reader with customizable modular blocks, international and regional feeds, AI summaries, and breaking news alerts.",
   "requestFramePermissions": [],
   "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
 }
