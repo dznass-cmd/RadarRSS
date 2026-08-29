@@ -62,6 +62,7 @@
     "@capacitor/core": "^8.5.0",
     "@capacitor/haptics": "^8.0.2",
     "@capacitor/preferences": "^8.0.1",
+    "@capacitor/share": "^8.0.1",
     "@capacitor/status-bar": "^8.0.3",
     "@google/genai": "^2.4.0",
     "dotenv": "^17.2.3",

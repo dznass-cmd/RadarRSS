@@ -4,6 +4,7 @@ import {
   RefreshCw,
   Settings2,
   Bookmark,
+  Share2,
   Volume2,
   ExternalLink,
   Pin,
@@ -25,6 +26,7 @@ import {
 import { DynamicBlock, NewsItem, BlockLayout, AccentColor } from '../types';
 import { getAccent } from '../utils/theme';
 import { SafeImage } from './SafeImage';
+import { shareArticle } from '../services/shareService';
 
 interface DynamicBlockCardProps {
   block: DynamicBlock;
@@ -351,6 +353,20 @@ export const DynamicBlockCard: React.FC<DynamicBlockCardProps> = ({
                           <button
                             onClick={(e) => {
                               e.stopPropagation();
+                              shareArticle({
+                                title: displayItems[0].title,
+                                text: displayItems[0].contentSnippet,
+                                url: displayItems[0].link,
+                              });
+                            }}
+                            title="Compartilhar notícia"
+                            className="p-1 hover:text-amber-400 transition-colors"
+                          >
+                            <Share2 className="w-3.5 h-3.5" />
+                          </button>
+                          <button
+                            onClick={(e) => {
+                              e.stopPropagation();
                               onToggleBookmark(displayItems[0]);
                             }}
                             className={`p-1 ${acc.textHover} transition-colors`}
@@ -481,6 +497,20 @@ export const DynamicBlockCard: React.FC<DynamicBlockCardProps> = ({
                           <button
                             onClick={(e) => {
                               e.stopPropagation();
+                              shareArticle({
+                                title: item.title,
+                                text: item.contentSnippet,
+                                url: item.link,
+                              });
+                            }}
+                            title="Compartilhar notícia"
+                            className="p-1 hover:text-amber-400 transition-colors"
+                          >
+                            <Share2 className="w-3.5 h-3.5" />
+                          </button>
+                          <button
+                            onClick={(e) => {
+                              e.stopPropagation();
                               onToggleBookmark(item);
                             }}
                             className={`p-1 ${acc.textHover} transition-colors`}
@@ -536,15 +566,31 @@ export const DynamicBlockCard: React.FC<DynamicBlockCardProps> = ({
                       </p>
                     </div>
 
-                    <button
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        onToggleBookmark(item);
-                      }}
-                      className="p-1.5 hover:text-amber-500 shrink-0"
-                    >
-                      <Bookmark className={`w-4 h-4 ${bookmarkedIds.has(item.id) ? 'fill-amber-500 text-amber-500' : ''}`} />
-                    </button>
+                    <div className="flex items-center gap-1 shrink-0">
+                      <button
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          shareArticle({
+                            title: item.title,
+                            text: item.contentSnippet,
+                            url: item.link,
+                          });
+                        }}
+                        title="Compartilhar notícia"
+                        className="p-1.5 hover:text-amber-500 transition-colors"
+                      >
+                        <Share2 className="w-4 h-4" />
+                      </button>
+                      <button
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          onToggleBookmark(item);
+                        }}
+                        className="p-1.5 hover:text-amber-500 transition-colors"
+                      >
+                        <Bookmark className={`w-4 h-4 ${bookmarkedIds.has(item.id) ? 'fill-amber-500 text-amber-500' : ''}`} />
+                      </button>
+                    </div>
                   </div>
                 ))}
               </div>
@@ -569,14 +615,28 @@ export const DynamicBlockCard: React.FC<DynamicBlockCardProps> = ({
                       </h4>
                     </div>
 
-                    <div className="flex items-center gap-3 shrink-0 text-[10px] text-zinc-500">
+                    <div className="flex items-center gap-2 shrink-0 text-[10px] text-zinc-500">
                       <span>{getRelativeTime(item.timestamp)}</span>
+                      <button
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          shareArticle({
+                            title: item.title,
+                            text: item.contentSnippet,
+                            url: item.link,
+                          });
+                        }}
+                        title="Compartilhar notícia"
+                        className="hover:text-amber-500 transition-colors"
+                      >
+                        <Share2 className="w-3.5 h-3.5" />
+                      </button>
                       <button
                         onClick={(e) => {
                           e.stopPropagation();
                           onToggleBookmark(item);
                         }}
-                        className="hover:text-amber-500"
+                        className="hover:text-amber-500 transition-colors"
                       >
                         <Bookmark className={`w-3.5 h-3.5 ${bookmarkedIds.has(item.id) ? 'fill-amber-500 text-amber-500' : ''}`} />
                       </button>

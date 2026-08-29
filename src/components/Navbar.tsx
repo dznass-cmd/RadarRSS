@@ -49,6 +49,7 @@ const CATEGORY_TABS = [
   { id: 'tech', label: 'Tecnologia' },
   { id: 'finance', label: 'Economia' },
   { id: 'games', label: 'Games' },
+  { id: 'saved', label: '⭐ Salvos' },
 ];
 
 export const Navbar: React.FC<NavbarProps> = ({

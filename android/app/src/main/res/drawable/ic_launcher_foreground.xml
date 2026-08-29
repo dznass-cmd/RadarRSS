@@ -1,0 +1,24 @@
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="108dp"
+    android:height="108dp"
+    android:viewportWidth="108"
+    android:viewportHeight="108">
+    <!-- Center Glow / Radar Wave 3 -->
+    <path
+        android:fillColor="#00000000"
+        android:strokeColor="#F59E0B"
+        android:strokeWidth="5"
+        android:strokeLineCap="round"
+        android:pathData="M34,74 A40,40 0 0,1 74,34" />
+    <!-- Radar Wave 2 -->
+    <path
+        android:fillColor="#00000000"
+        android:strokeColor="#FBBF24"
+        android:strokeWidth="5.5"
+        android:strokeLineCap="round"
+        android:pathData="M34,74 A24,24 0 0,1 58,50" />
+    <!-- Radar Core Dot -->
+    <path
+        android:fillColor="#F59E0B"
+        android:pathData="M34,74 m-6,0 a6,6 0 1,1 12,0 a6,6 0 1,1 -12,0" />
+</vector>

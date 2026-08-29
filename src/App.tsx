@@ -17,6 +17,7 @@ import { Bookmark, Sparkles, Plus, Radio, Layers, RefreshCw, Archive, Trash2, Ch
 import { fetchRssFeeds, isNativePlatform } from './services/apiAdapter';
 import { App as CapApp } from '@capacitor/app';
 import { StatusBar, Style } from '@capacitor/status-bar';
+import { Haptics, ImpactStyle } from '@capacitor/haptics';
 
 const STORAGE_KEYS = {
   BLOCKS: 'radar_rss_blocks_v1',
@@ -294,6 +295,66 @@ export default function App() {
     }
   }, [feeds, playAudioChime, checkIsBreaking, triggerNativeNotification]);
 
+  // --- Mobile Pull-to-Refresh State & Gesture ---
+  const [pullDistance, setPullDistance] = useState<number>(0);
+  const [isPullRefreshing, setIsPullRefreshing] = useState<boolean>(false);
+  const touchStartYRef = useRef<number>(0);
+  const hasTriggeredHapticRef = useRef<boolean>(false);
+  const isPullingActiveRef = useRef<boolean>(false);
+
+  useEffect(() => {
+    const handleTouchStart = (e: TouchEvent) => {
+      if (window.scrollY <= 5 && !isRefreshing && !isPullRefreshing) {
+        touchStartYRef.current = e.touches[0].clientY;
+        hasTriggeredHapticRef.current = false;
+        isPullingActiveRef.current = true;
+      } else {
+        isPullingActiveRef.current = false;
+      }
+    };
+
+    const handleTouchMove = (e: TouchEvent) => {
+      if (!isPullingActiveRef.current || window.scrollY > 10) return;
+      const currentY = e.touches[0].clientY;
+      const diff = currentY - touchStartYRef.current;
+      if (diff > 0) {
+        const distance = Math.min(diff * 0.45, 80);
+        setPullDistance(distance);
+        if (distance >= 55 && !hasTriggeredHapticRef.current) {
+          hasTriggeredHapticRef.current = true;
+          try {
+            Haptics.impact({ style: ImpactStyle.Light });
+          } catch (_) {}
+        }
+      }
+    };
+
+    const handleTouchEnd = () => {
+      if (!isPullingActiveRef.current) return;
+      isPullingActiveRef.current = false;
+      if (pullDistance >= 55) {
+        setIsPullRefreshing(true);
+        setPullDistance(55);
+        fetchAllFeeds().finally(() => {
+          setIsPullRefreshing(false);
+          setPullDistance(0);
+        });
+      } else {
+        setPullDistance(0);
+      }
+    };
+
+    window.addEventListener('touchstart', handleTouchStart, { passive: true });
+    window.addEventListener('touchmove', handleTouchMove, { passive: true });
+    window.addEventListener('touchend', handleTouchEnd, { passive: true });
+
+    return () => {
+      window.removeEventListener('touchstart', handleTouchStart);
+      window.removeEventListener('touchmove', handleTouchMove);
+      window.removeEventListener('touchend', handleTouchEnd);
+    };
+  }, [fetchAllFeeds, isRefreshing, isPullRefreshing, pullDistance]);
+
   // Initial Fetch
   useEffect(() => {
     fetchAllFeeds();
@@ -543,6 +604,17 @@ export default function App() {
     return blocks.filter((b) => b.categoryFilter === selectedCategory || b.id.includes(selectedCategory));
   }, [blocks, selectedCategory]);
 
+  const handleSelectCategory = (cat: string) => {
+    setSelectedCategory(cat);
+    if (cat === 'saved') {
+      setShowBookmarksOnly(true);
+      setShowArchiveOnly(false);
+    } else {
+      setShowBookmarksOnly(false);
+      setShowArchiveOnly(false);
+    }
+  };
+
   return (
     <div className={`min-h-screen transition-colors duration-200 font-sans relative ${
       settings.theme === 'dark' ? 'bg-[#0a0b0e] text-neutral-100' : 'bg-neutral-100 text-neutral-900'
@@ -572,6 +644,8 @@ export default function App() {
         onToggleBookmarks={() => {
           setShowBookmarksOnly(!showBookmarksOnly);
           setShowArchiveOnly(false);
+          if (!showBookmarksOnly) setSelectedCategory('saved');
+          else setSelectedCategory('all');
         }}
         showBookmarksOnly={showBookmarksOnly}
         bookmarkCount={bookmarkedArticles.length}
@@ -588,7 +662,7 @@ export default function App() {
         totalArticlesCount={allNewsItems.length}
         newArticlesCount={0}
         selectedCategory={selectedCategory}
-        onSelectCategory={setSelectedCategory}
+        onSelectCategory={handleSelectCategory}
       />
 
       {/* Breaking News Ticker Bar */}
@@ -598,6 +672,28 @@ export default function App() {
         theme={settings.theme}
         accentColor={settings.accentColor}
       />
+
+      {/* Pull to Refresh Mobile Indicator */}
+      {pullDistance > 0 && (
+        <div 
+          style={{ height: `${pullDistance}px`, opacity: Math.min(pullDistance / 45, 1) }}
+          className="overflow-hidden flex items-center justify-center transition-all duration-75 pointer-events-none sticky top-16 z-30"
+        >
+          <div className="flex items-center gap-2 px-4 py-1.5 rounded-full bg-neutral-900/95 border border-amber-500/60 shadow-[0_0_20px_rgba(245,158,11,0.25)] text-amber-400 text-xs font-bold font-mono">
+            <RefreshCw 
+              className={`w-4 h-4 ${isPullRefreshing ? 'animate-spin' : ''}`} 
+              style={{ transform: isPullRefreshing ? undefined : `rotate(${pullDistance * 5}deg)` }}
+            />
+            <span>
+              {isPullRefreshing 
+                ? 'Sincronizando Feeds...' 
+                : pullDistance >= 55 
+                ? 'Solte para Atualizar!' 
+                : 'Puxe para Atualizar'}
+            </span>
+          </div>
+        </div>
+      )}
 
       {/* Main Content Dashboard */}
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 space-y-6">

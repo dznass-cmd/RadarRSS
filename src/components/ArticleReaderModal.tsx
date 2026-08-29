@@ -23,6 +23,7 @@ import { NewsItem, AccentColor } from '../types';
 import { getAccent } from '../utils/theme';
 import { SafeImage } from './SafeImage';
 import { summarizeBlockWithAi, translateWithAi } from '../services/apiAdapter';
+import { shareArticle } from '../services/shareService';
 
 interface ArticleReaderModalProps {
   article: NewsItem | null;
@@ -128,10 +129,17 @@ export const ArticleReaderModal: React.FC<ArticleReaderModalProps> = ({
   };
 
   // Share / Copy Link
-  const handleShare = () => {
-    navigator.clipboard.writeText(article.link);
-    setCopied(true);
-    setTimeout(() => setCopied(false), 2000);
+  const handleShare = async () => {
+    const res = await shareArticle({
+      title: article.title,
+      text: article.contentSnippet,
+      url: article.link,
+      dialogTitle: 'Compartilhar Notícia - Radar RSS',
+    });
+    if (res.method === 'clipboard') {
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2000);
+    }
   };
 
   const increaseFontSize = () => {
