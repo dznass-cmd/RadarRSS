@@ -110,7 +110,7 @@ O app instalado verifica atualizações sozinho ao abrir. Para lançar uma vers�
 
    ```json
    "publish": [
-     { "provider": "github", "owner": "dznass-cmd", "repo": "RadarRSS", "releaseType": "release" }
+     { "provider": "github", "owner": "dznass-cmd", "repo": "RadarRSS" }
    ]
    ```
 

@@ -49,8 +49,7 @@
       {
         "provider": "github",
         "owner": "dznass-cmd",
-        "repo": "RadarRSS",
-        "releaseType": "release"
+        "repo": "RadarRSS"
       }
     ]
   },
