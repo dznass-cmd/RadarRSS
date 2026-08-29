@@ -7,13 +7,13 @@ import {
   Settings,
   Sparkles,
   Search,
-  Radio,
-  Layers,
   Moon,
   Sun,
   ListPlus,
   Globe,
-  Archive
+  Archive,
+  Menu,
+  X
 } from 'lucide-react';
 import { AppSettings } from '../types';
 import { getAccent } from '../utils/theme';
@@ -78,6 +78,7 @@ export const Navbar: React.FC<NavbarProps> = ({
   onSelectCategory,
 }) => {
   const [countdown, setCountdown] = useState<number>(autoRefreshSec);
+  const [mobileMenuOpen, setMobileMenuOpen] = useState<boolean>(false);
   const acc = getAccent(settings.accentColor);
 
   // Countdown timer for next auto refresh
@@ -101,44 +102,47 @@ export const Navbar: React.FC<NavbarProps> = ({
   }, [autoRefreshSec, onRefreshAll]);
 
   const toggleTheme = () => {
-    onUpdateSettings({
-      ...settings,
-      theme: settings.theme === 'dark' ? 'light' : 'dark',
-    });
+    const next = settings.theme === 'dark' ? 'light' : 'dark';
+    onUpdateSettings({ ...settings, theme: next });
   };
 
   return (
     <header className={`sticky top-0 z-40 border-b transition-colors duration-200 ${
       settings.theme === 'dark'
-        ? 'bg-[#0e0f14]/90 border-neutral-800/80 text-neutral-100 backdrop-blur-xl'
-        : 'bg-white/90 border-neutral-200 text-neutral-900 backdrop-blur-xl shadow-xs'
+        ? 'bg-[#0a0b0e]/95 border-neutral-800/80 text-neutral-100 backdrop-blur-xl'
+        : 'bg-white/95 border-neutral-200 text-neutral-900 backdrop-blur-xl shadow-xs'
     }`}>
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex items-center justify-between h-16 gap-3">
+      <div className="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8">
+        
+        {/* Top Bar Row */}
+        <div className="flex items-center justify-between h-14 sm:h-16 gap-2 sm:gap-4">
           
-          {/* Left: Logo & Live Indicator */}
-          <div className="flex items-center gap-3 shrink-0">
-            <div className={`flex items-center justify-center w-9 h-9 rounded-xl ${acc.bg} text-black shadow-md font-black`}>
-              <Rss className="w-5 h-5 animate-pulse" />
+          {/* Brand Logo */}
+          <div className="flex items-center gap-2 sm:gap-3 shrink-0">
+            <div className={`flex items-center justify-center w-8 h-8 sm:w-9 sm:h-9 rounded-xl ${acc.bg} text-black shadow-md font-black`}>
+              <Rss className="w-4 h-4 sm:w-5 sm:h-5 animate-pulse" />
             </div>
-            <div className="flex items-center gap-2">
-              <span className="font-black text-lg sm:text-xl tracking-tight uppercase text-neutral-100 flex items-center">
+            <div className="flex items-center gap-1.5">
+              <span className="font-black text-base sm:text-xl tracking-tight uppercase text-neutral-100 flex items-center">
                 RADAR<span className="text-amber-400 ml-1">RSS</span>
+              </span>
+              <span className="text-[9px] font-black uppercase tracking-wider px-1.5 py-0.5 rounded bg-amber-500/20 text-amber-400 border border-amber-500/30 hidden xs:inline-block">
+                Beta
               </span>
             </div>
           </div>
 
-          {/* Center-Left: Search Bar */}
-          <div className="hidden sm:flex flex-1 max-w-xs md:max-w-sm relative">
+          {/* Desktop Search Bar */}
+          <div className="hidden md:flex flex-1 max-w-xs lg:max-w-sm relative">
             <Search className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-neutral-500" />
             <input
               type="text"
               value={searchQuery ?? ''}
               onChange={(e) => onSearchChange(e.target.value)}
-              placeholder="Search..."
+              placeholder="Buscar notícias..."
               className={`w-full pl-9 pr-8 py-1.5 text-xs font-medium rounded-xl border transition-all outline-none ${
                 settings.theme === 'dark'
-                  ? 'bg-neutral-900/90 border-neutral-800 text-neutral-100 placeholder-neutral-500 focus:border-amber-500/50 focus:bg-neutral-900'
+                  ? 'bg-neutral-900/90 border-neutral-800 text-neutral-100 placeholder-neutral-500 focus:border-amber-500/50'
                   : 'bg-neutral-100 border-neutral-300 text-neutral-900 placeholder-neutral-400 focus:border-amber-500/50'
               }`}
             />
@@ -152,8 +156,8 @@ export const Navbar: React.FC<NavbarProps> = ({
             )}
           </div>
 
-          {/* Center-Right: Category Tabs (from Preview) */}
-          <nav className="hidden lg:flex items-center gap-6">
+          {/* Desktop Category Tabs */}
+          <nav className="hidden lg:flex items-center gap-5">
             {CATEGORY_TABS.map((tab) => {
               const isActive = selectedCategory === tab.id;
               return (
@@ -176,58 +180,43 @@ export const Navbar: React.FC<NavbarProps> = ({
           </nav>
 
           {/* Right: Actions */}
-          <div className="flex items-center gap-1.5 sm:gap-2 shrink-0">
+          <div className="flex items-center gap-1 sm:gap-2 shrink-0">
 
-            {/* Auto Refresh Indicator / Manual Button */}
+            {/* Refresh Button */}
             <button
               onClick={onRefreshAll}
               disabled={isRefreshing}
-              title={`Sincronizando em ${countdown}s. Clique para atualizar agora.`}
-              className={`flex items-center gap-2 px-3 py-1.5 rounded-2xl text-xs font-mono font-bold border transition-all ${
+              title={`Sincronizando em ${countdown}s. Toque para atualizar.`}
+              className={`flex items-center gap-1.5 px-2.5 sm:px-3 py-1.5 rounded-2xl text-xs font-mono font-bold border transition-all ${
                 isRefreshing
                   ? `${acc.bgLight} ${acc.borderLight} ${acc.textDark}`
                   : settings.theme === 'dark'
-                  ? 'bg-neutral-900 border-neutral-700 text-neutral-300 hover:border-neutral-500'
+                  ? 'bg-neutral-900 border-neutral-800 text-neutral-300 hover:border-neutral-600'
                   : 'bg-neutral-100 border-neutral-300 text-neutral-700 hover:border-neutral-400'
               }`}
             >
               <RefreshCw className={`w-3.5 h-3.5 ${isRefreshing ? `animate-spin ${acc.text}` : ''}`} />
-              <span className="hidden sm:inline">
-                {isRefreshing ? 'REFRESHING...' : `${countdown}S`}
-              </span>
+              <span className="text-[11px]">{isRefreshing ? '...' : `${countdown}s`}</span>
             </button>
 
-            {/* Global RSS Recommendations Button */}
-            <button
-              onClick={onOpenGlobalFeeds}
-              className={`flex items-center gap-1.5 px-3 py-1.5 rounded-2xl text-xs font-black uppercase tracking-wider border transition-all ${
-                settings.theme === 'dark'
-                  ? `bg-neutral-900 border-neutral-700 ${acc.textDark} hover:bg-neutral-800`
-                  : `bg-neutral-100 border-neutral-300 ${acc.textLight} hover:bg-neutral-200`
-              }`}
-              title="Recomendações Globais de RSS por País"
-            >
-              <Globe className="w-3.5 h-3.5 animate-pulse" />
-              <span className="hidden lg:inline">RSS Mundiais</span>
-            </button>
-
-            {/* AI Curator Button */}
+            {/* AI Curator Button (Hidden on very small mobile, shown in menu) */}
             <button
               onClick={onOpenAICurator}
-              className={`flex items-center gap-1.5 px-3 py-1.5 rounded-2xl text-xs font-black uppercase tracking-wider bg-gradient-to-r ${acc.gradientFrom} ${acc.gradientTo} text-black shadow-md transition-all`}
+              className={`hidden sm:flex items-center gap-1.5 px-3 py-1.5 rounded-2xl text-xs font-black uppercase tracking-wider bg-gradient-to-r ${acc.gradientFrom} ${acc.gradientTo} text-black shadow-md transition-all`}
               title="Solicitar à IA para criar um bloco sob medida"
             >
               <Sparkles className="w-3.5 h-3.5" />
-              <span className="hidden sm:inline">Curadoria IA</span>
+              <span className="hidden md:inline">Curadoria IA</span>
             </button>
 
             {/* Add Dynamic Block Button */}
             <button
               onClick={onOpenCreateBlock}
-              className={`flex items-center gap-1.5 px-3 py-1.5 rounded-2xl text-xs font-black uppercase tracking-wider ${acc.bg} ${acc.bgHover} text-black transition-all shadow-md`}
+              className={`flex items-center gap-1 px-2.5 sm:px-3 py-1.5 rounded-2xl text-xs font-black uppercase tracking-wider ${acc.bg} ${acc.bgHover} text-black transition-all shadow-md`}
+              title="Criar novo bloco de notícias"
             >
-              <Plus className="w-4 h-4 stroke-[3]" />
-              <span className="hidden sm:inline">+ Novo Bloco</span>
+              <Plus className="w-3.5 h-3.5 stroke-[3]" />
+              <span className="hidden sm:inline">Novo Bloco</span>
             </button>
 
             {/* Feeds Manager */}
@@ -236,34 +225,14 @@ export const Navbar: React.FC<NavbarProps> = ({
               title="Gerenciar Feeds RSS"
               className={`p-2 rounded-2xl border transition-all ${
                 settings.theme === 'dark'
-                  ? 'bg-neutral-900 border-neutral-700 text-neutral-300 hover:bg-neutral-800'
+                  ? 'bg-neutral-900 border-neutral-800 text-neutral-300 hover:bg-neutral-800'
                   : 'bg-neutral-100 border-neutral-300 text-neutral-700 hover:bg-neutral-200'
               }`}
             >
               <ListPlus className="w-4 h-4" />
             </button>
 
-            {/* Archive Toggle (Clicked news) */}
-            <button
-              onClick={onToggleArchive}
-              title="Notícias Arquivadas (Clicadas)"
-              className={`relative p-2 rounded-2xl border transition-all ${
-                showArchiveOnly
-                  ? 'bg-amber-500/10 border-amber-500/50 text-amber-400'
-                  : settings.theme === 'dark'
-                  ? 'bg-neutral-900 border-neutral-700 text-neutral-300 hover:bg-neutral-800'
-                  : 'bg-neutral-100 border-neutral-300 text-neutral-700 hover:bg-neutral-200'
-              }`}
-            >
-              <Archive className="w-4 h-4" />
-              {archivedCount > 0 && (
-                <span className="absolute -top-1 -right-1 flex h-4 w-4 items-center justify-center rounded-full bg-amber-500 text-[10px] font-black text-black">
-                  {archivedCount}
-                </span>
-              )}
-            </button>
-
-            {/* Bookmarks Toggle */}
+            {/* Bookmarks Quick Toggle */}
             <button
               onClick={onToggleBookmarks}
               title="Ver Matérias Salvas"
@@ -271,29 +240,16 @@ export const Navbar: React.FC<NavbarProps> = ({
                 showBookmarksOnly
                   ? `${acc.bgLight} ${acc.borderLight} ${acc.textDark}`
                   : settings.theme === 'dark'
-                  ? 'bg-neutral-900 border-neutral-700 text-neutral-300 hover:bg-neutral-800'
+                  ? 'bg-neutral-900 border-neutral-800 text-neutral-300 hover:bg-neutral-800'
                   : 'bg-neutral-100 border-neutral-300 text-neutral-700 hover:bg-neutral-200'
               }`}
             >
-              <Bookmark className="w-4 h-4" />
+              <Bookmark className={`w-4 h-4 ${showBookmarksOnly ? acc.fill : ''}`} />
               {bookmarkCount > 0 && (
-                <span className={`absolute -top-1 -right-1 flex h-4 w-4 items-center justify-center rounded-full ${acc.bg} text-[10px] font-black text-black`}>
+                <span className={`absolute -top-1 -right-1 flex h-4 w-4 items-center justify-center rounded-full ${acc.bg} text-[9px] font-black text-black`}>
                   {bookmarkCount}
                 </span>
               )}
-            </button>
-
-            {/* Theme Toggle */}
-            <button
-              onClick={toggleTheme}
-              title="Alternar Tema Claro/Escuro"
-              className={`p-2 rounded-2xl border transition-all ${
-                settings.theme === 'dark'
-                  ? 'bg-neutral-900 border-neutral-700 text-orange-400 hover:bg-neutral-800'
-                  : 'bg-neutral-100 border-neutral-300 text-neutral-700 hover:bg-neutral-200'
-              }`}
-            >
-              {settings.theme === 'dark' ? <Sun className="w-4 h-4" /> : <Moon className="w-4 h-4" />}
             </button>
 
             {/* Settings */}
@@ -302,32 +258,115 @@ export const Navbar: React.FC<NavbarProps> = ({
               title="Configurações do Painel"
               className={`p-2 rounded-2xl border transition-all ${
                 settings.theme === 'dark'
-                  ? 'bg-neutral-900 border-neutral-700 text-neutral-300 hover:bg-neutral-800'
+                  ? 'bg-neutral-900 border-neutral-800 text-neutral-300 hover:bg-neutral-800'
                   : 'bg-neutral-100 border-neutral-300 text-neutral-700 hover:bg-neutral-200'
               }`}
             >
               <Settings className="w-4 h-4" />
             </button>
+
+            {/* Mobile Menu Toggle */}
+            <button
+              onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+              className="p-2 rounded-2xl border border-neutral-800 bg-neutral-900 text-neutral-300 lg:hidden"
+              title="Mais opções"
+            >
+              {mobileMenuOpen ? <X className="w-4 h-4" /> : <Menu className="w-4 h-4" />}
+            </button>
           </div>
         </div>
 
-        {/* Mobile Search Bar */}
-        <div className="md:hidden pb-3 pt-1">
+        {/* Mobile Horizontal Category Pills Bar */}
+        <div className="flex lg:hidden items-center gap-2 overflow-x-auto no-scrollbar py-2 border-t border-neutral-800/40">
+          {CATEGORY_TABS.map((tab) => {
+            const isActive = selectedCategory === tab.id;
+            return (
+              <button
+                key={tab.id}
+                onClick={() => onSelectCategory && onSelectCategory(tab.id)}
+                className={`px-3 py-1 rounded-xl text-xs font-bold whitespace-nowrap transition-all ${
+                  isActive
+                    ? 'bg-amber-500 text-black shadow-sm'
+                    : 'bg-neutral-900/90 text-neutral-400 border border-neutral-800/80 hover:text-white'
+                }`}
+              >
+                {tab.label}
+              </button>
+            );
+          })}
+        </div>
+
+        {/* Mobile Search Bar (if not in desktop) */}
+        <div className="md:hidden pb-2.5 pt-0.5">
           <div className="relative">
-            <Search className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-zinc-400" />
+            <Search className="w-3.5 h-3.5 absolute left-3 top-1/2 -translate-y-1/2 text-neutral-500" />
             <input
               type="text"
               value={searchQuery}
               onChange={(e) => onSearchChange(e.target.value)}
               placeholder="Buscar em todas as notícias..."
-              className={`w-full pl-9 pr-4 py-1.5 text-xs rounded-xl border transition-all outline-none ${
+              className={`w-full pl-8 pr-7 py-1 text-xs rounded-xl border transition-all outline-none ${
                 settings.theme === 'dark'
-                  ? 'bg-zinc-900 border-zinc-800 text-zinc-100 placeholder-zinc-500'
-                  : 'bg-zinc-100 border-zinc-200 text-zinc-900 placeholder-zinc-400'
+                  ? 'bg-neutral-900 border-neutral-800 text-neutral-100 placeholder-neutral-500'
+                  : 'bg-neutral-100 border-neutral-200 text-neutral-900 placeholder-neutral-400'
               }`}
             />
+            {searchQuery && (
+              <button
+                onClick={() => onSearchChange('')}
+                className="absolute right-2.5 top-1/2 -translate-y-1/2 text-[10px] text-neutral-400"
+              >
+                ✕
+              </button>
+            )}
           </div>
         </div>
+
+        {/* Mobile Extra Drawer Menu */}
+        {mobileMenuOpen && (
+          <div className="lg:hidden p-3 border-t border-neutral-800 bg-[#0d0e12] rounded-b-2xl mb-2 flex flex-wrap gap-2 text-xs">
+            <button
+              onClick={() => {
+                onOpenAICurator();
+                setMobileMenuOpen(false);
+              }}
+              className="flex items-center gap-1.5 px-3 py-2 rounded-xl bg-amber-500/20 text-amber-400 border border-amber-500/40 font-bold"
+            >
+              <Sparkles className="w-3.5 h-3.5" />
+              <span>Curadoria IA</span>
+            </button>
+
+            <button
+              onClick={() => {
+                onOpenGlobalFeeds();
+                setMobileMenuOpen(false);
+              }}
+              className="flex items-center gap-1.5 px-3 py-2 rounded-xl bg-neutral-900 text-neutral-300 border border-neutral-800 font-bold"
+            >
+              <Globe className="w-3.5 h-3.5" />
+              <span>RSS Mundiais</span>
+            </button>
+
+            <button
+              onClick={() => {
+                onToggleArchive();
+                setMobileMenuOpen(false);
+              }}
+              className="flex items-center gap-1.5 px-3 py-2 rounded-xl bg-neutral-900 text-neutral-300 border border-neutral-800 font-bold"
+            >
+              <Archive className="w-3.5 h-3.5" />
+              <span>Lidas ({archivedCount})</span>
+            </button>
+
+            <button
+              onClick={toggleTheme}
+              className="flex items-center gap-1.5 px-3 py-2 rounded-xl bg-neutral-900 text-neutral-300 border border-neutral-800 font-bold"
+            >
+              {settings.theme === 'dark' ? <Sun className="w-3.5 h-3.5 text-amber-400" /> : <Moon className="w-3.5 h-3.5" />}
+              <span>{settings.theme === 'dark' ? 'Tema Claro' : 'Tema Escuro'}</span>
+            </button>
+          </div>
+        )}
 
       </div>
     </header>
