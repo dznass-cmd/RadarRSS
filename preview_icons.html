@@ -1,0 +1,332 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Opções de Ícone para o APK - Radar RSS</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      background: #07080b;
+      color: #f3f4f6;
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 40px 20px;
+    }
+    header {
+      text-align: center;
+      margin-bottom: 40px;
+      max-width: 600px;
+    }
+    h1 {
+      font-size: 28px;
+      font-weight: 900;
+      letter-spacing: -0.5px;
+      margin-bottom: 10px;
+      color: #fff;
+    }
+    h1 span {
+      color: #f59e0b;
+    }
+    p {
+      color: #9ca3af;
+      font-size: 14px;
+      line-height: 1.5;
+    }
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 30px;
+      width: 100%;
+      max-width: 1200px;
+      margin-bottom: 40px;
+    }
+    .card {
+      background: #10121a;
+      border: 1px solid #1f2333;
+      border-radius: 24px;
+      padding: 24px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      text-align: center;
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      position: relative;
+      overflow: hidden;
+    }
+    .card:hover {
+      transform: translateY(-6px);
+      border-color: #f59e0b;
+      box-shadow: 0 16px 32px -8px rgba(245, 158, 11, 0.2);
+    }
+    .badge {
+      position: absolute;
+      top: 16px;
+      left: 16px;
+      background: rgba(245, 158, 11, 0.15);
+      color: #f59e0b;
+      border: 1px solid rgba(245, 158, 11, 0.3);
+      font-size: 11px;
+      font-weight: 800;
+      padding: 4px 10px;
+      border-radius: 20px;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+    .icon-container {
+      width: 140px;
+      height: 140px;
+      margin: 30px 0 20px;
+      border-radius: 32px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 12px 28px rgba(0,0,0,0.5);
+      position: relative;
+    }
+    .card-title {
+      font-size: 18px;
+      font-weight: 800;
+      color: #fff;
+      margin-bottom: 8px;
+    }
+    .card-desc {
+      font-size: 13px;
+      color: #9ca3af;
+      line-height: 1.4;
+      margin-bottom: 20px;
+      flex: 1;
+    }
+    .preview-tag {
+      background: #181b26;
+      border: 1px solid #282d42;
+      color: #d1d5db;
+      font-size: 12px;
+      font-weight: 600;
+      padding: 8px 16px;
+      border-radius: 12px;
+      width: 100%;
+    }
+    /* Mobile phone mock */
+    .phone-preview-section {
+      background: #10121a;
+      border: 1px solid #1f2333;
+      border-radius: 24px;
+      padding: 30px;
+      max-width: 600px;
+      width: 100%;
+      text-align: center;
+    }
+    .phone-mock {
+      display: flex;
+      justify-content: center;
+      gap: 24px;
+      margin-top: 20px;
+      flex-wrap: wrap;
+    }
+    .app-icon-item {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 8px;
+    }
+    .app-icon-mini {
+      width: 60px;
+      height: 60px;
+      border-radius: 16px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.4);
+    }
+    .app-icon-name {
+      font-size: 11px;
+      font-weight: 600;
+      color: #9ca3af;
+    }
+  </style>
+</head>
+<body>
+
+  <header>
+    <h1>Opções de Ícone para o <span>Radar RSS</span></h1>
+    <p>Escolha qual conceito visual você prefere para o aplicativo Android e telas iniciais.</p>
+  </header>
+
+  <div class="grid">
+    
+    <!-- OPÇÃO 1 -->
+    <div class="card">
+      <div class="badge">Opção 1</div>
+      <div class="icon-container" style="background: #0a0b0e; border: 1px solid #262938;">
+        <svg width="90" height="90" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <circle cx="50" cy="50" r="44" stroke="#f59e0b" stroke-width="1.5" stroke-dasharray="3 3" opacity="0.3"/>
+          <path d="M28 72 A 44 44 0 0 1 72 28" stroke="url(#gold1)" stroke-width="6.5" stroke-linecap="round"/>
+          <path d="M28 72 A 26 26 0 0 1 54 46" stroke="url(#gold2)" stroke-width="6.5" stroke-linecap="round"/>
+          <circle cx="28" cy="72" r="7" fill="#fbbf24"/>
+          <defs>
+            <linearGradient id="gold1" x1="28" y1="28" x2="72" y2="72" gradientUnits="userSpaceOnUse">
+              <stop stop-color="#fbbf24"/>
+              <stop offset="1" stop-color="#f59e0b"/>
+            </linearGradient>
+            <linearGradient id="gold2" x1="28" y1="46" x2="54" y2="72" gradientUnits="userSpaceOnUse">
+              <stop stop-color="#fde68a"/>
+              <stop offset="1" stop-color="#d97706"/>
+            </linearGradient>
+          </defs>
+        </svg>
+      </div>
+      <h3 class="card-title">1. Golden Pulse Minimal</h3>
+      <p class="card-desc">Símbolo clássico RSS e Radar com anel orbital pontilhado, gradiente âmbar ouro e acabamento minimalista escuro.</p>
+      <div class="preview-tag">Estilo: Minimalista & Elegante</div>
+    </div>
+
+    <!-- OPÇÃO 2 -->
+    <div class="card">
+      <div class="badge">Opção 2</div>
+      <div class="icon-container" style="background: radial-gradient(circle at 30% 30%, #1e1b2e 0%, #090a0f 100%); border: 1px solid #3b2d54;">
+        <svg width="90" height="90" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <!-- Radar Grid Lines -->
+          <circle cx="50" cy="50" r="38" stroke="#a855f7" stroke-width="1" opacity="0.25"/>
+          <circle cx="50" cy="50" r="22" stroke="#a855f7" stroke-width="1" opacity="0.25"/>
+          <line x1="50" y1="12" x2="50" y2="88" stroke="#a855f7" stroke-width="1" opacity="0.15"/>
+          <line x1="12" y1="50" x2="88" y2="50" stroke="#a855f7" stroke-width="1" opacity="0.15"/>
+          <!-- Scanner Beam -->
+          <path d="M50 50 L85 25 A 40 40 0 0 0 50 10 Z" fill="url(#beamGrad)" opacity="0.6"/>
+          <!-- Central RSS Antenna Waves -->
+          <path d="M38 62 A 28 28 0 0 1 66 34" stroke="#fbbf24" stroke-width="5" stroke-linecap="round"/>
+          <path d="M38 62 A 16 16 0 0 1 54 46" stroke="#f59e0b" stroke-width="5" stroke-linecap="round"/>
+          <circle cx="38" cy="62" r="5" fill="#fef08a"/>
+          <defs>
+            <linearGradient id="beamGrad" x1="50" y1="50" x2="85" y2="25" gradientUnits="userSpaceOnUse">
+              <stop stop-color="#f59e0b" stop-opacity="0.8"/>
+              <stop offset="1" stop-color="#a855f7" stop-opacity="0"/>
+            </linearGradient>
+          </defs>
+        </svg>
+      </div>
+      <h3 class="card-title">2. Cyber Radar Scanner</h3>
+      <p class="card-desc">Visual futurista com feixe de varredura em tempo real, grade de frequências e sinal de notícias ativo.</p>
+      <div class="preview-tag">Estilo: Futurista / Cyber / Tech</div>
+    </div>
+
+    <!-- OPÇÃO 3 -->
+    <div class="card">
+      <div class="badge">Opção 3</div>
+      <div class="icon-container" style="background: linear-gradient(145deg, #181924, #08090d); border: 1px solid rgba(245,158,11,0.35); box-shadow: inset 0 1px 1px rgba(255,255,255,0.15), 0 12px 24px rgba(0,0,0,0.6);">
+        <svg width="90" height="90" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <!-- Glowing Dish Dish Antenna -->
+          <path d="M25 75 C25 45 45 25 75 25" stroke="url(#luxGold3)" stroke-width="8" stroke-linecap="round"/>
+          <path d="M25 75 C25 55 55 25 58 42" stroke="url(#luxGold2)" stroke-width="8" stroke-linecap="round"/>
+          <circle cx="25" cy="75" r="8.5" fill="url(#centerGlow)"/>
+          <circle cx="75" cy="25" r="3" fill="#ffffff"/>
+          <defs>
+            <linearGradient id="luxGold3" x1="25" y1="75" x2="75" y2="25" gradientUnits="userSpaceOnUse">
+              <stop stop-color="#f59e0b"/>
+              <stop offset="0.5" stop-color="#fbbf24"/>
+              <stop offset="1" stop-color="#fffbeb"/>
+            </linearGradient>
+            <linearGradient id="luxGold2" x1="25" y1="75" x2="58" y2="42" gradientUnits="userSpaceOnUse">
+              <stop stop-color="#d97706"/>
+              <stop offset="1" stop-color="#fbbf24"/>
+            </linearGradient>
+            <radialGradient id="centerGlow" cx="0.5" cy="0.5" r="0.5">
+              <stop stop-color="#ffffff"/>
+              <stop offset="0.6" stop-color="#fbbf24"/>
+              <stop offset="1" stop-color="#d97706"/>
+            </radialGradient>
+          </defs>
+        </svg>
+      </div>
+      <h3 class="card-title">3. Obsidian Gold Luxury</h3>
+      <p class="card-desc">Ondas sólidas em ouro polido chanfrado com brilho de alta intensidade sobre fundo preto obsidiana fosco.</p>
+      <div class="preview-tag">Estilo: Premium / Luxo / Apple Glass</div>
+    </div>
+
+    <!-- OPÇÃO 4 -->
+    <div class="card">
+      <div class="badge">Opção 4</div>
+      <div class="icon-container" style="background: #0f131a; border: 1px solid #1e2838;">
+        <svg width="90" height="90" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <!-- Circular concentric radar rings with offset RSS signal -->
+          <circle cx="50" cy="50" r="40" stroke="#f59e0b" stroke-width="2" opacity="0.2"/>
+          <circle cx="50" cy="50" r="28" stroke="#f59e0b" stroke-width="2" opacity="0.35"/>
+          <circle cx="50" cy="50" r="16" stroke="#f59e0b" stroke-width="2" opacity="0.5"/>
+          
+          <!-- Crosshairs -->
+          <line x1="50" y1="6" x2="50" y2="94" stroke="#f59e0b" stroke-width="1.5" stroke-dasharray="2 4" opacity="0.3"/>
+          <line x1="6" y1="50" x2="94" y2="50" stroke="#f59e0b" stroke-width="1.5" stroke-dasharray="2 4" opacity="0.3"/>
+          
+          <!-- Central Pulse Point -->
+          <circle cx="50" cy="50" r="6" fill="#f59e0b"/>
+          <circle cx="50" cy="50" r="10" stroke="#fbbf24" stroke-width="2" opacity="0.8"/>
+          
+          <!-- Blip News Signals on Radar -->
+          <circle cx="68" cy="34" r="4.5" fill="#10b981"/>
+          <circle cx="32" cy="38" r="3.5" fill="#38bdf8"/>
+          <circle cx="66" cy="66" r="3.5" fill="#f43f5e"/>
+        </svg>
+      </div>
+      <h3 class="card-title">4. Global Signal Matrix</h3>
+      <p class="card-desc">Mira de radar centralizada com pontos de detecção coloridos (verde, ciano, rosa) simulando notícias de todo o mundo sendo captadas.</p>
+      <div class="preview-tag">Estilo: Radar Técnico / Inteligência</div>
+    </div>
+
+  </div>
+
+  <!-- Android Home Screen Mock Preview -->
+  <div class="phone-preview-section">
+    <h3 style="font-size: 16px; font-weight: 800; color: #fff; margin-bottom: 6px;">Como aparecerá na tela do celular:</h3>
+    <p style="font-size: 12px; color: #9ca3af;">Prévia dos 4 modelos aplicados como ícone de app no Android</p>
+    
+    <div class="phone-mock">
+      <div class="app-icon-item">
+        <div class="app-icon-mini" style="background: #0a0b0e; border: 1px solid #262938; display:flex; align-items:center; justify-content:center;">
+          <svg width="38" height="38" viewBox="0 0 100 100" fill="none">
+            <path d="M28 72 A 44 44 0 0 1 72 28" stroke="#fbbf24" stroke-width="8" stroke-linecap="round"/>
+            <path d="M28 72 A 26 26 0 0 1 54 46" stroke="#f59e0b" stroke-width="8" stroke-linecap="round"/>
+            <circle cx="28" cy="72" r="8" fill="#fbbf24"/>
+          </svg>
+        </div>
+        <span class="app-icon-name">Opção 1</span>
+      </div>
+
+      <div class="app-icon-item">
+        <div class="app-icon-mini" style="background: radial-gradient(circle, #1e1b2e 0%, #090a0f 100%); border: 1px solid #3b2d54; display:flex; align-items:center; justify-content:center;">
+          <svg width="38" height="38" viewBox="0 0 100 100" fill="none">
+            <path d="M50 50 L85 25 A 40 40 0 0 0 50 10 Z" fill="#f59e0b" opacity="0.6"/>
+            <path d="M38 62 A 28 28 0 0 1 66 34" stroke="#fbbf24" stroke-width="6" stroke-linecap="round"/>
+            <circle cx="38" cy="62" r="6" fill="#fef08a"/>
+          </svg>
+        </div>
+        <span class="app-icon-name">Opção 2</span>
+      </div>
+
+      <div class="app-icon-item">
+        <div class="app-icon-mini" style="background: #12141c; border: 1px solid #f59e0b; display:flex; align-items:center; justify-content:center;">
+          <svg width="38" height="38" viewBox="0 0 100 100" fill="none">
+            <path d="M25 75 C25 45 45 25 75 25" stroke="#fbbf24" stroke-width="10" stroke-linecap="round"/>
+            <path d="M25 75 C25 55 55 25 58 42" stroke="#f59e0b" stroke-width="10" stroke-linecap="round"/>
+            <circle cx="25" cy="75" r="9" fill="#ffffff"/>
+          </svg>
+        </div>
+        <span class="app-icon-name">Opção 3</span>
+      </div>
+
+      <div class="app-icon-item">
+        <div class="app-icon-mini" style="background: #0f131a; border: 1px solid #1e2838; display:flex; align-items:center; justify-content:center;">
+          <svg width="38" height="38" viewBox="0 0 100 100" fill="none">
+            <circle cx="50" cy="50" r="36" stroke="#f59e0b" stroke-width="2" opacity="0.4"/>
+            <circle cx="50" cy="50" r="20" stroke="#f59e0b" stroke-width="2" opacity="0.6"/>
+            <circle cx="50" cy="50" r="6" fill="#f59e0b"/>
+            <circle cx="68" cy="34" r="4" fill="#10b981"/>
+            <circle cx="32" cy="38" r="3" fill="#38bdf8"/>
+          </svg>
+        </div>
+        <span class="app-icon-name">Opção 4</span>
+      </div>
+    </div>
+  </div>
+
+</body>
+</html>
