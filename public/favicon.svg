@@ -1,0 +1,23 @@
+<svg width="128" height="128" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <rect width="100" height="100" rx="24" fill="#0F131A"/>
+  
+  <!-- Outer Ring -->
+  <circle cx="50" cy="50" r="38" stroke="#F59E0B" stroke-width="1.8" opacity="0.25"/>
+  <!-- Middle Ring -->
+  <circle cx="50" cy="50" r="26" stroke="#F59E0B" stroke-width="1.8" opacity="0.4"/>
+  <!-- Inner Ring -->
+  <circle cx="50" cy="50" r="15" stroke="#F59E0B" stroke-width="1.8" opacity="0.6"/>
+
+  <!-- Crosshairs -->
+  <line x1="50" y1="10" x2="50" y2="90" stroke="#F59E0B" stroke-width="1.5" stroke-dasharray="2 3" opacity="0.35"/>
+  <line x1="10" y1="50" x2="90" y2="50" stroke="#F59E0B" stroke-width="1.5" stroke-dasharray="2 3" opacity="0.35"/>
+
+  <!-- Center Pulse -->
+  <circle cx="50" cy="50" r="9" stroke="#FBBF24" stroke-width="2" opacity="0.9"/>
+  <circle cx="50" cy="50" r="5" fill="#F59E0B"/>
+
+  <!-- Live Blips -->
+  <circle cx="68" cy="34" r="4.5" fill="#10B981"/>
+  <circle cx="33" cy="38" r="3.5" fill="#38BDF8"/>
+  <circle cx="66" cy="66" r="3.5" fill="#F43F5E"/>
+</svg>

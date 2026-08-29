@@ -3,22 +3,72 @@
     android:height="108dp"
     android:viewportWidth="108"
     android:viewportHeight="108">
-    <!-- Center Glow / Radar Wave 3 -->
+    
+    <!-- Outer Radar Circle -->
     <path
         android:fillColor="#00000000"
         android:strokeColor="#F59E0B"
-        android:strokeWidth="5"
-        android:strokeLineCap="round"
-        android:pathData="M34,74 A40,40 0 0,1 74,34" />
-    <!-- Radar Wave 2 -->
+        android:strokeAlpha="0.25"
+        android:strokeWidth="1.5"
+        android:pathData="M54,18 A36,36 0 1,1 53.9,18" />
+
+    <!-- Middle Radar Circle -->
+    <path
+        android:fillColor="#00000000"
+        android:strokeColor="#F59E0B"
+        android:strokeAlpha="0.4"
+        android:strokeWidth="1.5"
+        android:pathData="M54,30 A24,24 0 1,1 53.9,30" />
+
+    <!-- Inner Radar Circle -->
+    <path
+        android:fillColor="#00000000"
+        android:strokeColor="#F59E0B"
+        android:strokeAlpha="0.55"
+        android:strokeWidth="1.5"
+        android:pathData="M54,40 A14,14 0 1,1 53.9,40" />
+
+    <!-- Vertical Crosshair -->
+    <path
+        android:fillColor="#00000000"
+        android:strokeColor="#F59E0B"
+        android:strokeAlpha="0.35"
+        android:strokeWidth="1.5"
+        android:pathData="M54,14 L54,94" />
+
+    <!-- Horizontal Crosshair -->
+    <path
+        android:fillColor="#00000000"
+        android:strokeColor="#F59E0B"
+        android:strokeAlpha="0.35"
+        android:strokeWidth="1.5"
+        android:pathData="M14,54 L94,54" />
+
+    <!-- Center Pulse Ring -->
     <path
         android:fillColor="#00000000"
         android:strokeColor="#FBBF24"
-        android:strokeWidth="5.5"
-        android:strokeLineCap="round"
-        android:pathData="M34,74 A24,24 0 0,1 58,50" />
-    <!-- Radar Core Dot -->
+        android:strokeAlpha="0.85"
+        android:strokeWidth="2"
+        android:pathData="M54,45 A9,9 0 1,1 53.9,45" />
+
+    <!-- Central Transmitter Dot -->
     <path
         android:fillColor="#F59E0B"
-        android:pathData="M34,74 m-6,0 a6,6 0 1,1 12,0 a6,6 0 1,1 -12,0" />
+        android:pathData="M54,54 m-5,0 a5,5 0 1,1 10,0 a5,5 0 1,1 -10,0" />
+
+    <!-- Detected Signal Blip 1: Economy/Global (Emerald Green) -->
+    <path
+        android:fillColor="#10B981"
+        android:pathData="M72,38 m-4.5,0 a4.5,4.5 0 1,1 9,0 a4.5,4.5 0 1,1 -9,0" />
+
+    <!-- Detected Signal Blip 2: Tech/AI (Cyan Blue) -->
+    <path
+        android:fillColor="#38BDF8"
+        android:pathData="M36,40 m-3.5,0 a3.5,3.5 0 1,1 7,0 a3.5,3.5 0 1,1 -7,0" />
+
+    <!-- Detected Signal Blip 3: Breaking News (Rose Red) -->
+    <path
+        android:fillColor="#F43F5E"
+        android:pathData="M70,70 m-3.5,0 a3.5,3.5 0 1,1 7,0 a3.5,3.5 0 1,1 -7,0" />
 </vector>
