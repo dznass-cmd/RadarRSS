@@ -26,23 +26,48 @@ $env:ANDROID_SDK_ROOT = $sdkRoot
 Write-Host "=== 2. Instalando platforms;android-34 e build-tools;34.0.0... ==="
 & cmd /c "`"$sdkManager`" `"platform-tools`" `"platforms;android-34`" `"build-tools;34.0.0`""
 
-Write-Host "=== 3. Configurando local.properties no projeto Android... ==="
+Write-Host "=== 3. Garantindo Keystore de Release Oficial... ==="
+$keystorePath = "android\app\radar-rss-release.keystore"
+$keytool = "C:\Program Files\Microsoft\jdk-21.0.12.101-hotspot\bin\keytool.exe"
+
+if (-not (Test-Path $keystorePath)) {
+    & $keytool -genkeypair -v `
+      -keystore $keystorePath `
+      -alias radarrss `
+      -keyalg RSA `
+      -keysize 2048 `
+      -validity 10000 `
+      -storepass "RadarRss2026Secure!" `
+      -keypass "RadarRss2026Secure!" `
+      -dname "CN=Radar RSS, OU=Radar RSS Production, O=Radar RSS OpenSource, L=Sao Paulo, ST=SP, C=BR"
+}
+
+Write-Host "=== 4. Configurando local.properties no projeto Android... ==="
 $escapedSdkRoot = $sdkRoot.Replace("\", "\\")
 "sdk.dir=$escapedSdkRoot" | Out-File -FilePath "android\local.properties" -Encoding ascii
 
-Write-Host "=== 4. Compilando o APK (assembleDebug)... ==="
+Write-Host "=== 5. Compilando o APK Release Assinado (assembleRelease)... ==="
 Set-Location android
-& .\gradlew.bat assembleDebug
-
-Write-Host "=== 5. Verificando APK gerado... ==="
+& .\gradlew.bat assembleRelease
 Set-Location ..
-$apkSource = "android\app\build\outputs\apk\debug\app-debug.apk"
+
+Write-Host "=== 6. Verificando e Assinando APK Release... ==="
+$apkSource = "android\app\build\outputs\apk\release\app-release.apk"
+
 if (Test-Path $apkSource) {
     New-Item -ItemType Directory -Force -Path "release" | Out-Null
     Copy-Item $apkSource -Destination "release\Radar-RSS-0.0.1.apk" -Force
-    Copy-Item $apkSource -Destination "$env:USERPROFILE\Pictures\RadarRSS\Radar-RSS-0.0.1.apk" -Force
-    Write-Host "SUCESSO! APK gerado em release\Radar-RSS-0.0.1.apk"
+    
+    $userPicturesDir = "$env:USERPROFILE\Pictures\RadarRSS"
+    New-Item -ItemType Directory -Force -Path $userPicturesDir | Out-Null
+    Copy-Item $apkSource -Destination "$userPicturesDir\Radar-RSS-0.0.1.apk" -Force
+
+    Write-Host "=== Verificando assinatura do APK ==="
+    $apksigner = "$sdkRoot\build-tools\34.0.0\apksigner.bat"
+    & cmd /c "`"$apksigner`" verify --verbose `"release\Radar-RSS-0.0.1.apk`""
+
+    Write-Host "SUCESSO! APK Release assinado gerado em release\Radar-RSS-0.0.1.apk"
     Get-Item "release\Radar-RSS-0.0.1.apk" | Select-Object Name, Length, LastWriteTime
 } else {
-    Write-Host "Aviso: APK nao encontrado no caminho padrao."
+    Write-Host "Aviso: APK Release nao encontrado no caminho padrao."
 }

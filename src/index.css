@@ -7,6 +7,23 @@
   --color-primary-border: rgba(249, 115, 22, 0.4);
   --color-primary-glow: rgba(249, 115, 22, 0.25);
   --color-primary-text: #fb923c;
+  --sat: env(safe-area-inset-top, 0px);
+  --sab: env(safe-area-inset-bottom, 0px);
+  --sal: env(safe-area-inset-left, 0px);
+  --sar: env(safe-area-inset-right, 0px);
+}
+
+* {
+  -webkit-tap-highlight-color: transparent;
+}
+
+body {
+  padding-top: var(--sat);
+  padding-bottom: var(--sab);
+  padding-left: var(--sal);
+  padding-right: var(--sar);
+  touch-action: manipulation;
+  overscroll-behavior-y: none;
 }
 
 [data-accent="orange"] {

@@ -7,39 +7,59 @@ export const isNativePlatform = (): boolean => {
 
 // Client-side image extractor from XML / HTML
 function extractImageFromXmlItem(itemXml: Element, defaultBaseUrl?: string): string | undefined {
-  // 1. Check enclosure
-  const enclosure = itemXml.querySelector('enclosure');
-  if (enclosure) {
-    const url = enclosure.getAttribute('url');
-    const type = enclosure.getAttribute('type') || '';
-    if (url && (type.includes('image') || /\.(jpg|jpeg|gif|png|webp|bmp|svg)/i.test(url))) {
-      return url;
+  // 1. Check enclosure (RSS 2.0)
+  const enclosures = Array.from(itemXml.querySelectorAll('enclosure'));
+  for (const enc of enclosures) {
+    const url = enc.getAttribute('url');
+    const type = enc.getAttribute('type') || '';
+    if (url && (type.includes('image') || /\.(jpg|jpeg|gif|png|webp|bmp|svg|avif)/i.test(url))) {
+      return url.replace(/&amp;/g, '&').trim();
     }
   }
 
-  // 2. Check media:content / media\:content
-  const mediaContent = itemXml.getElementsByTagNameNS('http://search.yahoo.com/mrss/', 'content')[0] ||
-                       itemXml.querySelector('media\\:content') ||
-                       itemXml.querySelector('content');
-  if (mediaContent && mediaContent.getAttribute('url')) {
-    return mediaContent.getAttribute('url') || undefined;
+  // 2. Check media:content / media:thumbnail (Yahoo Media RSS)
+  const mediaNodes = [
+    ...Array.from(itemXml.getElementsByTagNameNS('http://search.yahoo.com/mrss/', 'content')),
+    ...Array.from(itemXml.getElementsByTagNameNS('http://search.yahoo.com/mrss/', 'thumbnail')),
+    ...Array.from(itemXml.querySelectorAll('media\\:content, media\\:thumbnail, content, thumbnail'))
+  ];
+
+  for (const node of mediaNodes) {
+    const url = node.getAttribute('url');
+    if (url && !url.includes('pixel') && !url.includes('1x1')) {
+      return url.replace(/&amp;/g, '&').trim();
+    }
   }
 
-  // 3. Check media:thumbnail / media\:thumbnail
-  const mediaThumb = itemXml.getElementsByTagNameNS('http://search.yahoo.com/mrss/', 'thumbnail')[0] ||
-                     itemXml.querySelector('media\\:thumbnail') ||
-                     itemXml.querySelector('thumbnail');
-  if (mediaThumb && mediaThumb.getAttribute('url')) {
-    return mediaThumb.getAttribute('url') || undefined;
+  // 3. Check <image><url>
+  const imgUrlNode = itemXml.querySelector('image > url');
+  if (imgUrlNode && imgUrlNode.textContent) {
+    return imgUrlNode.textContent.replace(/&amp;/g, '&').trim();
   }
 
-  // 4. Regex scan description / content:encoded
-  const desc = itemXml.querySelector('description')?.textContent ||
-               itemXml.querySelector('content\\:encoded')?.textContent || '';
-  const imgMatch = desc.match(/<img[^>]+src=["']([^"']+)["']/i);
-  if (imgMatch && imgMatch[1]) {
-    let src = imgMatch[1].trim();
+  // 4. Regex scan description / content:encoded / summary
+  const fullHtml = (
+    (itemXml.querySelector('description')?.textContent || '') + ' ' +
+    (itemXml.querySelector('content\\:encoded')?.textContent || '') + ' ' +
+    (itemXml.querySelector('summary')?.textContent || '') + ' ' +
+    (itemXml.querySelector('content')?.textContent || '')
+  );
+
+  const imgRegex = /<img[^>]+(?:src|data-src|data-original|data-lazy-src)=["']([^"']+\.(?:jpg|jpeg|png|webp|gif|avif)[^"']*)["']/i;
+  const match = fullHtml.match(imgRegex);
+  if (match && match[1]) {
+    let src = match[1].replace(/&amp;/g, '&').trim();
     if (!src.includes('pixel') && !src.includes('tracker') && !src.includes('1x1')) {
+      if (src.startsWith('//')) src = `https:${src}`;
+      return src;
+    }
+  }
+
+  // 5. Fallback regex for any <img> src
+  const anyImgMatch = fullHtml.match(/<img[^>]+src=["']([^"']+)["']/i);
+  if (anyImgMatch && anyImgMatch[1]) {
+    let src = anyImgMatch[1].replace(/&amp;/g, '&').trim();
+    if (!src.includes('pixel') && !src.includes('tracker') && !src.includes('1x1') && !src.startsWith('data:image')) {
       if (src.startsWith('//')) src = `https:${src}`;
       return src;
     }
