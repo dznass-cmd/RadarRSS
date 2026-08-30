@@ -74,6 +74,7 @@ async function parseRssClientSide(url: string): Promise<NewsItem[]> {
     headers: {
       'Accept': 'application/rss+xml, application/xml, text/xml, */*',
     },
+    signal: AbortSignal.timeout(4500),
   });
   const text = await response.text();
   const parser = new DOMParser();

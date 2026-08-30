@@ -26,6 +26,7 @@ const STORAGE_KEYS = {
   BOOKMARKS: 'radar_rss_bookmarks_v1',
   SETTINGS: 'radar_rss_settings_v1',
   ARCHIVED: 'radar_rss_archived_ids_v1',
+  ARTICLES: 'radar_rss_cached_articles_v1',
 };
 
 export default function App() {
@@ -90,8 +91,15 @@ export default function App() {
     };
   });
 
-  // --- Runtime States ---
-  const [allNewsItems, setAllNewsItems] = useState<NewsItem[]>([]);
+  // --- Runtime States (Instant Hydration from offline cache) ---
+  const [allNewsItems, setAllNewsItems] = useState<NewsItem[]>(() => {
+    try {
+      const saved = localStorage.getItem(STORAGE_KEYS.ARTICLES);
+      return saved ? JSON.parse(saved) : [];
+    } catch {
+      return [];
+    }
+  });
   const [isRefreshing, setIsRefreshing] = useState<boolean>(false);
   const [lastUpdated, setLastUpdated] = useState<Date | null>(null);
   const [searchQuery, setSearchQuery] = useState<string>('');
@@ -303,6 +311,10 @@ export default function App() {
               }
             }
           });
+
+          try {
+            localStorage.setItem(STORAGE_KEYS.ARTICLES, JSON.stringify(data.items.slice(0, 150)));
+          } catch { }
 
           isInitialFetchRef.current = false;
           return data.items;
