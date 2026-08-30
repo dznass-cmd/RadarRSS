@@ -20,6 +20,7 @@ export const SafeImage: React.FC<SafeImageProps> = ({
 }) => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(false);
+  const [triedProxy, setTriedProxy] = useState(false);
 
   // Normalize image URL: unescape HTML entities, upgrade http to https when possible
   const sanitizedSrc = useMemo(() => {
@@ -31,7 +32,17 @@ export const SafeImage: React.FC<SafeImageProps> = ({
     return url;
   }, [src]);
 
-  // If there's no source image, or if it failed to load, show a beautiful fallback placeholder.
+  // Current display source (original first, then weserv proxy fallback if blocked by CDN/hotlink)
+  const currentSrc = useMemo(() => {
+    if (!sanitizedSrc) return '';
+    if (triedProxy) {
+      const cleanUrl = sanitizedSrc.replace(/^https?:\/\//i, '');
+      return `https://images.weserv.nl/?url=${encodeURIComponent(cleanUrl)}&w=900&fit=cover&default=404`;
+    }
+    return sanitizedSrc;
+  }, [sanitizedSrc, triedProxy]);
+
+  // If there's no source image, or if both direct and proxy failed to load, show placeholder.
   if (error || !sanitizedSrc) {
     return (
       <div 
@@ -55,17 +66,22 @@ export const SafeImage: React.FC<SafeImageProps> = ({
         </div>
       )}
       <img
-        src={sanitizedSrc}
+        src={currentSrc}
         alt={alt}
         loading="lazy"
         decoding="async"
         referrerPolicy="no-referrer"
-        crossOrigin="anonymous"
         className={`${className} ${loading ? 'opacity-0' : 'opacity-100'} transition-opacity duration-300`}
         onLoad={() => setLoading(false)}
         onError={() => {
-          setLoading(false);
-          setError(true);
+          if (!triedProxy && sanitizedSrc && !sanitizedSrc.includes('weserv.nl')) {
+            // Retry with proxy once to bypass CORS/hotlink restrictions
+            setTriedProxy(true);
+            setLoading(true);
+          } else {
+            setLoading(false);
+            setError(true);
+          }
         }}
       />
     </div>
