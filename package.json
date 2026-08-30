@@ -23,7 +23,7 @@
   "build": {
     "appId": "com.dznasscmd.radarrss",
     "productName": "Radar RSS",
-    "asar": false,
+    "asar": true,
     "directories": {
       "output": "release"
     },
