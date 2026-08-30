@@ -148,8 +148,13 @@ export const CreateBlockModal: React.FC<CreateBlockModalProps> = ({
             <Layers className="w-5 h-5 text-orange-500" />
             {initialBlock ? t.createBlock.titleEdit : t.createBlock.titleCreate}
           </h3>
-          <button onClick={onClose} className="p-1 rounded-xl hover:bg-neutral-800 cursor-pointer">
-            <X className="w-5 h-5 text-neutral-400" />
+          <button
+            onClick={onClose}
+            className={`p-1.5 rounded-xl border transition-colors cursor-pointer ${
+              theme === 'dark' ? 'hover:bg-neutral-800 border-neutral-700 text-neutral-300' : 'hover:bg-neutral-200 border-neutral-300 text-neutral-700'
+            }`}
+          >
+            <X className="w-5 h-5" />
           </button>
         </div>
 

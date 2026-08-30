@@ -125,7 +125,9 @@ export const Navbar: React.FC<NavbarProps> = ({
               <Rss className="w-4 h-4 sm:w-5 sm:h-5 animate-pulse" />
             </div>
             <div className="flex items-center gap-1.5">
-              <span className="font-black text-base sm:text-xl tracking-tight uppercase text-neutral-100 flex items-center">
+              <span className={`font-black text-base sm:text-xl tracking-tight uppercase flex items-center ${
+                settings.theme === 'dark' ? 'text-neutral-100' : 'text-neutral-900'
+              }`}>
                 RADAR<span className="text-amber-400 ml-1">RSS</span>
               </span>
               <span className="text-[9px] font-black uppercase tracking-wider px-1.5 py-0.5 rounded bg-amber-500/20 text-amber-400 border border-amber-500/30 hidden xs:inline-block">
@@ -326,13 +328,17 @@ export const Navbar: React.FC<NavbarProps> = ({
 
         {/* Mobile Extra Drawer Menu */}
         {mobileMenuOpen && (
-          <div className="lg:hidden p-3 border-t border-neutral-800 bg-[#0d0e12] rounded-b-2xl mb-2 flex flex-wrap gap-2 text-xs">
+          <div className={`lg:hidden p-3 border-t rounded-b-2xl mb-2 flex flex-wrap gap-2 text-xs transition-all ${
+            settings.theme === 'dark'
+              ? 'border-neutral-800 bg-[#0d0e12] text-neutral-100'
+              : 'border-neutral-200 bg-neutral-100 text-neutral-900 shadow-md'
+          }`}>
             <button
               onClick={() => {
                 onOpenAICurator();
                 setMobileMenuOpen(false);
               }}
-              className="flex items-center gap-1.5 px-3 py-2 rounded-xl bg-amber-500/20 text-amber-400 border border-amber-500/40 font-bold"
+              className="flex items-center gap-1.5 px-3 py-2 rounded-xl bg-amber-500/20 text-amber-500 border border-amber-500/40 font-bold cursor-pointer"
             >
               <Sparkles className="w-3.5 h-3.5" />
               <span>{t.nav.aiCurator}</span>
@@ -343,7 +349,11 @@ export const Navbar: React.FC<NavbarProps> = ({
                 onOpenGlobalFeeds();
                 setMobileMenuOpen(false);
               }}
-              className="flex items-center gap-1.5 px-3 py-2 rounded-xl bg-neutral-900 text-neutral-300 border border-neutral-800 font-bold"
+              className={`flex items-center gap-1.5 px-3 py-2 rounded-xl border font-bold cursor-pointer ${
+                settings.theme === 'dark'
+                  ? 'bg-neutral-900 text-neutral-300 border-neutral-800 hover:bg-neutral-800'
+                  : 'bg-white text-neutral-700 border-neutral-300 hover:bg-neutral-200'
+              }`}
             >
               <Globe className="w-3.5 h-3.5" />
               <span>{t.nav.globalDirectory}</span>
@@ -354,7 +364,11 @@ export const Navbar: React.FC<NavbarProps> = ({
                 onToggleArchive();
                 setMobileMenuOpen(false);
               }}
-              className="flex items-center gap-1.5 px-3 py-2 rounded-xl bg-neutral-900 text-neutral-300 border border-neutral-800 font-bold"
+              className={`flex items-center gap-1.5 px-3 py-2 rounded-xl border font-bold cursor-pointer ${
+                settings.theme === 'dark'
+                  ? 'bg-neutral-900 text-neutral-300 border-neutral-800 hover:bg-neutral-800'
+                  : 'bg-white text-neutral-700 border-neutral-300 hover:bg-neutral-200'
+              }`}
             >
               <Archive className="w-3.5 h-3.5" />
               <span>{t.nav.archive} ({archivedCount})</span>
@@ -362,7 +376,11 @@ export const Navbar: React.FC<NavbarProps> = ({
 
             <button
               onClick={toggleTheme}
-              className="flex items-center gap-1.5 px-3 py-2 rounded-xl bg-neutral-900 text-neutral-300 border border-neutral-800 font-bold"
+              className={`flex items-center gap-1.5 px-3 py-2 rounded-xl border font-bold cursor-pointer ${
+                settings.theme === 'dark'
+                  ? 'bg-neutral-900 text-neutral-300 border-neutral-800 hover:bg-neutral-800'
+                  : 'bg-white text-neutral-700 border-neutral-300 hover:bg-neutral-200'
+              }`}
             >
               {settings.theme === 'dark' ? <Sun className="w-3.5 h-3.5 text-amber-400" /> : <Moon className="w-3.5 h-3.5" />}
               <span>{settings.theme === 'dark' ? t.settings.themeLight : t.settings.themeDark}</span>

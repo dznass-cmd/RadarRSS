@@ -866,7 +866,7 @@ export default function App() {
                 >
                   <div>
                     <span className={`text-[10px] font-black uppercase ${getAccent(settings.accentColor).text} mb-2 block tracking-wider`}>{item.sourceName}</span>
-                    <h3 className={`font-bold text-sm mb-2 group-${getAccent(settings.accentColor).textHover} transition-colors leading-snug`}>{item.title}</h3>
+                    <h3 className={`font-bold text-sm mb-2 ${getAccent(settings.accentColor).groupTextHover} transition-colors leading-snug`}>{item.title}</h3>
                     <p className="text-xs text-neutral-400 line-clamp-3 leading-relaxed">{item.contentSnippet}</p>
                   </div>
                   <div className="pt-3 border-t border-neutral-700/50 mt-4 flex items-center justify-between text-[11px] font-mono text-neutral-400">

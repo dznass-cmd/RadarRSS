@@ -39,10 +39,14 @@ export const TickerBar: React.FC<TickerBarProps> = ({ items, onSelectArticle, th
               onClick={() => onSelectArticle(item)}
               className="inline-flex items-center gap-2 group cursor-pointer text-left transition-colors shrink-0"
             >
-              <span className="font-semibold text-xs text-neutral-100 group-hover:text-amber-400 transition-colors max-w-sm sm:max-w-md truncate">
+              <span className={`font-semibold text-xs transition-colors max-w-sm sm:max-w-md truncate ${
+                theme === 'dark' ? 'text-neutral-100 group-hover:text-amber-400' : 'text-neutral-900 group-hover:text-amber-700'
+              }`}>
                 {item.title}
               </span>
-              <span className="text-[11px] font-bold text-amber-400/90 font-mono">
+              <span className={`text-[11px] font-bold font-mono ${
+                theme === 'dark' ? 'text-amber-400/90' : 'text-amber-700'
+              }`}>
                 [{item.sourceName}]
               </span>
               {idx < breakingItems.length - 1 && (

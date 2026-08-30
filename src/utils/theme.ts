@@ -4,6 +4,7 @@ export interface AccentTheme {
   name: AccentColor;
   text: string;
   textHover: string;
+  groupTextHover: string;
   textDark: string;
   textLight: string;
   bg: string;
@@ -27,6 +28,7 @@ export const ACCENT_MAP: Record<AccentColor, AccentTheme> = {
     name: 'orange',
     text: 'text-orange-500',
     textHover: 'hover:text-orange-400',
+    groupTextHover: 'group-hover:text-orange-400',
     textDark: 'text-orange-400',
     textLight: 'text-orange-600',
     bg: 'bg-orange-500',
@@ -48,6 +50,7 @@ export const ACCENT_MAP: Record<AccentColor, AccentTheme> = {
     name: 'emerald',
     text: 'text-emerald-500',
     textHover: 'hover:text-emerald-400',
+    groupTextHover: 'group-hover:text-emerald-400',
     textDark: 'text-emerald-400',
     textLight: 'text-emerald-600',
     bg: 'bg-emerald-500',
@@ -69,6 +72,7 @@ export const ACCENT_MAP: Record<AccentColor, AccentTheme> = {
     name: 'cyan',
     text: 'text-cyan-500',
     textHover: 'hover:text-cyan-400',
+    groupTextHover: 'group-hover:text-cyan-400',
     textDark: 'text-cyan-400',
     textLight: 'text-cyan-600',
     bg: 'bg-cyan-500',
@@ -90,6 +94,7 @@ export const ACCENT_MAP: Record<AccentColor, AccentTheme> = {
     name: 'purple',
     text: 'text-purple-500',
     textHover: 'hover:text-purple-400',
+    groupTextHover: 'group-hover:text-purple-400',
     textDark: 'text-purple-400',
     textLight: 'text-purple-600',
     bg: 'bg-purple-500',
@@ -111,6 +116,7 @@ export const ACCENT_MAP: Record<AccentColor, AccentTheme> = {
     name: 'red',
     text: 'text-red-500',
     textHover: 'hover:text-red-400',
+    groupTextHover: 'group-hover:text-red-400',
     textDark: 'text-red-400',
     textLight: 'text-red-600',
     bg: 'bg-red-500',
@@ -132,6 +138,7 @@ export const ACCENT_MAP: Record<AccentColor, AccentTheme> = {
     name: 'amber',
     text: 'text-amber-500',
     textHover: 'hover:text-amber-400',
+    groupTextHover: 'group-hover:text-amber-400',
     textDark: 'text-amber-400',
     textLight: 'text-amber-600',
     bg: 'bg-amber-500',
@@ -153,6 +160,7 @@ export const ACCENT_MAP: Record<AccentColor, AccentTheme> = {
     name: 'blue',
     text: 'text-blue-500',
     textHover: 'hover:text-blue-400',
+    groupTextHover: 'group-hover:text-blue-400',
     textDark: 'text-blue-400',
     textLight: 'text-blue-600',
     bg: 'bg-blue-500',
@@ -174,6 +182,7 @@ export const ACCENT_MAP: Record<AccentColor, AccentTheme> = {
     name: 'pink',
     text: 'text-pink-500',
     textHover: 'hover:text-pink-400',
+    groupTextHover: 'group-hover:text-pink-400',
     textDark: 'text-pink-400',
     textLight: 'text-pink-600',
     bg: 'bg-pink-500',

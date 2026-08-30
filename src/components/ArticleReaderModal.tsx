@@ -434,7 +434,9 @@ export const ArticleReaderModal: React.FC<ArticleReaderModalProps> = ({
 
           {/* Article Image Banner */}
           {!isFocusMode && article.imageUrl && (
-            <div className="w-full aspect-video rounded-2xl overflow-hidden bg-neutral-950 border border-neutral-800">
+            <div className={`w-full aspect-video rounded-2xl overflow-hidden bg-neutral-950 border ${
+              theme === 'dark' ? 'border-neutral-800' : 'border-neutral-200'
+            }`}>
               <SafeImage
                 src={article.imageUrl}
                 alt={article.title}
@@ -457,15 +459,19 @@ export const ArticleReaderModal: React.FC<ArticleReaderModalProps> = ({
           </div>
 
           {/* Interactive AI & Audio Toolbar */}
-          <div className="flex flex-wrap items-center gap-2 pt-2 border-t border-b border-neutral-800 py-3">
+          <div className={`flex flex-wrap items-center gap-2 pt-2 border-t border-b ${
+            theme === 'dark' ? 'border-neutral-800' : 'border-neutral-200'
+          } py-3`}>
 
             {/* Audio TTS Button */}
             <button
               onClick={handleToggleTts}
-              className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-black uppercase tracking-wider border transition-all ${
+              className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-black uppercase tracking-wider border transition-all cursor-pointer ${
                 isPlayingTts
                   ? `${acc.bg} text-black ${acc.border} animate-pulse`
-                  : 'bg-neutral-800 border-neutral-700 text-neutral-200 hover:bg-neutral-700'
+                  : theme === 'dark'
+                    ? 'bg-neutral-800 border-neutral-700 text-neutral-200 hover:bg-neutral-700'
+                    : 'bg-neutral-100 border-neutral-300 text-neutral-800 hover:bg-neutral-200'
               }`}
             >
               {isPlayingTts ? <VolumeX className="w-4 h-4 text-black" /> : <Volume2 className={`w-4 h-4 ${acc.textDark}`} />}
@@ -476,7 +482,7 @@ export const ArticleReaderModal: React.FC<ArticleReaderModalProps> = ({
             <button
               onClick={handleGenerateAiSummary}
               disabled={isGeneratingAi}
-              className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-black uppercase tracking-wider ${acc.bg} text-black ${acc.bgHover} transition-all`}
+              className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-black uppercase tracking-wider ${acc.bg} text-black ${acc.bgHover} transition-all cursor-pointer`}
             >
               <Sparkles className={`w-4 h-4 ${isGeneratingAi ? 'animate-spin' : ''}`} />
               <span>{isGeneratingAi ? t.reader.generating : t.reader.generateSummary}</span>
@@ -486,7 +492,11 @@ export const ArticleReaderModal: React.FC<ArticleReaderModalProps> = ({
             <button
               onClick={handleTranslate}
               disabled={isTranslating}
-              className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-black uppercase tracking-wider bg-neutral-800 border border-neutral-700 hover:bg-neutral-700 text-neutral-200 transition-all"
+              className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-black uppercase tracking-wider border transition-all cursor-pointer ${
+                theme === 'dark'
+                  ? 'bg-neutral-800 border-neutral-700 hover:bg-neutral-700 text-neutral-200'
+                  : 'bg-neutral-100 border-neutral-300 hover:bg-neutral-200 text-neutral-800'
+              }`}
             >
               <Languages className={`w-4 h-4 ${isTranslating ? 'animate-spin' : ''}`} />
               <span>{isTranslating ? t.reader.translating : t.reader.translate}</span>
@@ -508,7 +518,9 @@ export const ArticleReaderModal: React.FC<ArticleReaderModalProps> = ({
 
           {/* Translation Box */}
           {translatedText && (
-            <div className="p-4 rounded-2xl border border-neutral-700 bg-neutral-800/80 text-xs leading-relaxed">
+            <div className={`p-4 rounded-2xl border text-xs leading-relaxed ${
+              theme === 'dark' ? 'border-neutral-700 bg-neutral-800/80 text-neutral-200' : 'border-neutral-200 bg-neutral-100 text-neutral-900'
+            }`}>
               <div className={`font-black uppercase ${acc.textDark} mb-2 tracking-wider`}>
                 {t.reader.translate}:
               </div>
@@ -517,8 +529,8 @@ export const ArticleReaderModal: React.FC<ArticleReaderModalProps> = ({
           )}
 
           {/* Article Snippet / Description */}
-          <div className={`prose prose-invert max-w-none ${getFontSizeClass()} ${getFontFamilyClass()} ${
-            theme === 'dark' ? 'text-neutral-200' : 'text-neutral-800'
+          <div className={`prose max-w-none ${getFontSizeClass()} ${getFontFamilyClass()} ${
+            theme === 'dark' ? 'prose-invert text-neutral-200' : 'text-neutral-800'
           }`}>
             {article.contentSnippet}
           </div>
