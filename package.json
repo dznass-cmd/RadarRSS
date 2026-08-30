@@ -3,7 +3,7 @@
   "description": "Real-time dynamic RSS news reader with customizable modular blocks, AI curation & summaries powered by Google Gemini, native Android app, and Windows desktop support.",
   "author": "Freebuff",
   "private": true,
-  "version": "0.0.3",
+  "version": "0.0.4",
   "type": "module",
   "main": "electron/main.cjs",
   "scripts": {
