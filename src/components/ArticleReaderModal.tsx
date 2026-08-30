@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import {
   X,
   ExternalLink,
@@ -13,6 +13,9 @@ import {
   BookOpen,
   Plus,
   Minus,
+  ChevronLeft,
+  ChevronRight,
+  ArrowLeft,
 } from 'lucide-react';
 import { NewsItem, AccentColor } from '../types';
 import { getAccent } from '../utils/theme';
@@ -20,6 +23,8 @@ import { SafeImage } from './SafeImage';
 import { summarizeBlockWithAi, translateWithAi } from '../services/apiAdapter';
 import { shareArticle } from '../services/shareService';
 import { Language, getTranslation } from '../i18n/translations';
+import { showError } from '../utils/errorHandler';
+import { Haptics, ImpactStyle } from '@capacitor/haptics';
 
 interface ArticleReaderModalProps {
   article: NewsItem | null;
@@ -29,6 +34,10 @@ interface ArticleReaderModalProps {
   theme: 'dark' | 'light';
   accentColor?: AccentColor;
   language?: Language;
+  onNextArticle?: () => void;
+  onPrevArticle?: () => void;
+  hasPrev?: boolean;
+  hasNext?: boolean;
 }
 
 export const ArticleReaderModal: React.FC<ArticleReaderModalProps> = ({
@@ -39,6 +48,10 @@ export const ArticleReaderModal: React.FC<ArticleReaderModalProps> = ({
   theme,
   accentColor,
   language = 'en',
+  onNextArticle,
+  onPrevArticle,
+  hasPrev = false,
+  hasNext = false,
 }) => {
   const acc = getAccent(accentColor);
   const t = getTranslation(language);
@@ -48,6 +61,13 @@ export const ArticleReaderModal: React.FC<ArticleReaderModalProps> = ({
   const [translatedText, setTranslatedText] = useState<string | null>(null);
   const [isTranslating, setIsTranslating] = useState<boolean>(false);
   const [copied, setCopied] = useState<boolean>(false);
+
+  // Gesture & Swipe Tracking State
+  const [swipeOffsetX, setSwipeOffsetX] = useState<number>(0);
+  const [isAnimating, setIsAnimating] = useState<boolean>(false);
+  const touchStartXRef = useRef<number>(0);
+  const touchStartYRef = useRef<number>(0);
+  const isHorizontalGestureRef = useRef<boolean>(false);
 
   // Focus Reader Mode States
   const [isFocusMode, setIsFocusMode] = useState<boolean>(false);
@@ -59,6 +79,8 @@ export const ArticleReaderModal: React.FC<ArticleReaderModalProps> = ({
     setAiSummary(null);
     setTranslatedText(null);
     setIsFocusMode(false);
+    setSwipeOffsetX(0);
+    setIsAnimating(false);
     if ('speechSynthesis' in window) {
       window.speechSynthesis.cancel();
       setIsPlayingTts(false);
@@ -67,10 +89,70 @@ export const ArticleReaderModal: React.FC<ArticleReaderModalProps> = ({
 
   if (!article) return null;
 
+  // --- Touch & Swipe Gesture Handlers (Left-to-Right & Right-to-Left) ---
+  const handleTouchStart = (e: React.TouchEvent) => {
+    touchStartXRef.current = e.touches[0].clientX;
+    touchStartYRef.current = e.touches[0].clientY;
+    isHorizontalGestureRef.current = false;
+    setIsAnimating(false);
+  };
+
+  const handleTouchMove = (e: React.TouchEvent) => {
+    const currentX = e.touches[0].clientX;
+    const currentY = e.touches[0].clientY;
+    const diffX = currentX - touchStartXRef.current;
+    const diffY = currentY - touchStartYRef.current;
+
+    // Check if primarily a horizontal gesture
+    if (Math.abs(diffX) > 12 && Math.abs(diffX) > Math.abs(diffY) * 1.1) {
+      isHorizontalGestureRef.current = true;
+      const dampenedX = diffX > 0 ? Math.min(diffX * 0.85, 240) : Math.max(diffX * 0.85, -240);
+      setSwipeOffsetX(dampenedX);
+    }
+  };
+
+  const handleTouchEnd = () => {
+    if (!isHorizontalGestureRef.current) {
+      setSwipeOffsetX(0);
+      return;
+    }
+
+    setIsAnimating(true);
+
+    // Swipe Left-to-Right (diffX > 75px)
+    if (swipeOffsetX > 75) {
+      try {
+        Haptics.impact({ style: ImpactStyle.Light });
+      } catch (_) { }
+
+      if (hasPrev && onPrevArticle) {
+        onPrevArticle();
+      } else {
+        onClose();
+      }
+    }
+    // Swipe Right-to-Left (diffX < -75px)
+    else if (swipeOffsetX < -75) {
+      try {
+        Haptics.impact({ style: ImpactStyle.Light });
+      } catch (_) { }
+
+      if (hasNext && onNextArticle) {
+        onNextArticle();
+      } else {
+        setSwipeOffsetX(0);
+      }
+    } else {
+      setSwipeOffsetX(0);
+    }
+
+    isHorizontalGestureRef.current = false;
+  };
+
   // Web Speech API Text-to-Speech
   const handleToggleTts = () => {
     if (!('speechSynthesis' in window)) {
-      alert(t.reader.ttsNotSupported);
+      showError(t.reader.ttsNotSupported);
       return;
     }
 
@@ -99,11 +181,10 @@ export const ArticleReaderModal: React.FC<ArticleReaderModalProps> = ({
       if (data.success && data.summary) {
         setAiSummary(data.summary);
       } else {
-        alert(data.error || t.reader.summaryFailed);
+        showError(data.error || t.reader.summaryFailed);
       }
     } catch (err: any) {
-      console.error(err);
-      alert(t.reader.summaryFailed);
+      showError(t.reader.summaryFailed);
     } finally {
       setIsGeneratingAi(false);
     }
@@ -117,11 +198,10 @@ export const ArticleReaderModal: React.FC<ArticleReaderModalProps> = ({
       if (data.success && data.translation) {
         setTranslatedText(data.translation);
       } else {
-        alert(data.error || t.reader.translationFailed);
+        showError(data.error || t.reader.translationFailed);
       }
     } catch (err) {
-      console.error(err);
-      alert(t.reader.translationFailed);
+      showError(t.reader.translationFailed);
     } finally {
       setIsTranslating(false);
     }
@@ -174,14 +254,62 @@ export const ArticleReaderModal: React.FC<ArticleReaderModalProps> = ({
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-2 sm:p-4 bg-black/85 backdrop-blur-md">
-      <div className={`relative w-full ${isFocusMode ? 'max-w-3xl h-[95vh]' : 'max-w-2xl max-h-[90vh]'} rounded-3xl border shadow-2xl flex flex-col overflow-hidden transition-all duration-300 ${theme === 'dark' ? 'bg-neutral-900 border-neutral-700 text-neutral-100' : 'bg-white border-neutral-300 text-neutral-900'
-        }`}>
+    <div
+      className="fixed inset-0 z-50 flex items-center justify-center p-2 sm:p-4 bg-black/85 backdrop-blur-md overflow-hidden touch-none"
+      onClick={onClose}
+    >
+      {/* Swipe Left/Right Visual Indicator Overlay */}
+      {swipeOffsetX !== 0 && (
+        <div className="absolute inset-0 pointer-events-none z-60 flex items-center justify-between px-6">
+          {swipeOffsetX > 30 && (
+            <div className="flex items-center gap-2 bg-neutral-900/90 border border-neutral-700 px-4 py-2 rounded-2xl text-xs font-bold text-amber-400 backdrop-blur-md shadow-xl animate-in fade-in">
+              <ArrowLeft className="w-4 h-4" />
+              <span>{hasPrev ? t.reader.prevStory : t.reader.close}</span>
+            </div>
+          )}
+          {swipeOffsetX < -30 && hasNext && (
+            <div className="ml-auto flex items-center gap-2 bg-neutral-900/90 border border-neutral-700 px-4 py-2 rounded-2xl text-xs font-bold text-amber-400 backdrop-blur-md shadow-xl animate-in fade-in">
+              <span>{t.reader.nextStory}</span>
+              <ChevronRight className="w-4 h-4" />
+            </div>
+          )}
+        </div>
+      )}
+
+      {/* Main Story Modal Container with gesture tracking */}
+      <div
+        onClick={(e) => e.stopPropagation()}
+        onTouchStart={handleTouchStart}
+        onTouchMove={handleTouchMove}
+        onTouchEnd={handleTouchEnd}
+        style={{
+          transform: `translateX(${swipeOffsetX}px)`,
+          opacity: 1 - Math.abs(swipeOffsetX) / 700,
+          transition: isAnimating ? 'transform 0.25s cubic-bezier(0.2, 0.9, 0.3, 1), opacity 0.25s ease' : 'none',
+        }}
+        className={`relative w-full ${isFocusMode ? 'max-w-3xl h-[95vh]' : 'max-w-2xl max-h-[90vh]'} rounded-3xl border shadow-2xl flex flex-col overflow-hidden ${
+          theme === 'dark' ? 'bg-neutral-900 border-neutral-700 text-neutral-100' : 'bg-white border-neutral-300 text-neutral-900'
+        }`}
+      >
 
         {/* Top Header Bar */}
-        <div className={`p-4 border-b flex items-center justify-between gap-3 shrink-0 ${theme === 'dark' ? 'bg-neutral-950/80 border-neutral-800' : 'bg-neutral-100 border-neutral-200'
-          }`}>
+        <div className={`p-4 border-b flex items-center justify-between gap-3 shrink-0 ${
+          theme === 'dark' ? 'bg-neutral-950/80 border-neutral-800' : 'bg-neutral-100 border-neutral-200'
+        }`}>
           <div className="flex items-center gap-2">
+            {/* Story Navigation Prev */}
+            {hasPrev && onPrevArticle && (
+              <button
+                onClick={onPrevArticle}
+                title={`${t.reader.prevStory} (←)`}
+                className={`p-1.5 rounded-xl border transition-colors ${
+                  theme === 'dark' ? 'hover:bg-neutral-800 border-neutral-700 text-neutral-300' : 'hover:bg-neutral-200 border-neutral-300 text-neutral-700'
+                }`}
+              >
+                <ChevronLeft className="w-4 h-4" />
+              </button>
+            )}
+
             <span className={`px-2.5 py-1 rounded text-[10px] font-black uppercase ${acc.bg} text-black tracking-wider shrink-0`}>
               {article.sourceName}
             </span>
@@ -189,6 +317,19 @@ export const ArticleReaderModal: React.FC<ArticleReaderModalProps> = ({
               <Clock className="w-3.5 h-3.5 text-neutral-500" />
               {article.pubDate}
             </span>
+
+            {/* Story Navigation Next */}
+            {hasNext && onNextArticle && (
+              <button
+                onClick={onNextArticle}
+                title={`${t.reader.nextStory} (→)`}
+                className={`p-1.5 rounded-xl border transition-colors ${
+                  theme === 'dark' ? 'hover:bg-neutral-800 border-neutral-700 text-neutral-300' : 'hover:bg-neutral-200 border-neutral-300 text-neutral-700'
+                }`}
+              >
+                <ChevronRight className="w-4 h-4" />
+              </button>
+            )}
           </div>
 
           <div className="flex items-center gap-1.5 sm:gap-2">
@@ -196,24 +337,26 @@ export const ArticleReaderModal: React.FC<ArticleReaderModalProps> = ({
             {/* Focus Reader Toggle */}
             <button
               onClick={() => setIsFocusMode(!isFocusMode)}
-              title={t.reader.focusMode}
-              className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl border text-xs font-black uppercase tracking-wider transition-all cursor-pointer ${isFocusMode
+              title={isFocusMode ? 'Exit Focus Mode' : t.reader.focusMode}
+              className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl border text-xs font-black uppercase tracking-wider transition-all ${
+                isFocusMode
                   ? `${acc.bg} text-black ${acc.border} shadow-md`
                   : theme === 'dark' ? `bg-neutral-800 border-neutral-700 ${acc.textDark} hover:bg-neutral-700` : `bg-neutral-200 border-neutral-300 ${acc.textLight} hover:bg-neutral-300`
-                }`}
+              }`}
             >
               <BookOpen className="w-4 h-4" />
-              <span className="hidden xs:inline">{t.reader.focusMode}</span>
+              <span className="hidden xs:inline">{isFocusMode ? 'Exit' : t.reader.focusMode}</span>
             </button>
 
             {/* Font Size & Type Controls */}
             {isFocusMode && (
-              <div className={`flex items-center p-0.5 rounded-xl border ${theme === 'dark' ? 'bg-neutral-900 border-neutral-700' : 'bg-neutral-200 border-neutral-300'
-                }`}>
+              <div className={`flex items-center p-0.5 rounded-xl border ${
+                theme === 'dark' ? 'bg-neutral-900 border-neutral-700' : 'bg-neutral-200 border-neutral-300'
+              }`}>
                 <button
                   onClick={decreaseFontSize}
-                  title="A-"
-                  className={`p-1.5 ${acc.textHover} transition-colors cursor-pointer`}
+                  title="Smaller font"
+                  className={`p-1.5 ${acc.textHover} transition-colors`}
                 >
                   <Minus className="w-3.5 h-3.5" />
                 </button>
@@ -222,8 +365,8 @@ export const ArticleReaderModal: React.FC<ArticleReaderModalProps> = ({
                 </span>
                 <button
                   onClick={increaseFontSize}
-                  title="A+"
-                  className={`p-1.5 ${acc.textHover} transition-colors cursor-pointer`}
+                  title="Larger font"
+                  className={`p-1.5 ${acc.textHover} transition-colors`}
                 >
                   <Plus className="w-3.5 h-3.5" />
                 </button>
@@ -232,8 +375,8 @@ export const ArticleReaderModal: React.FC<ArticleReaderModalProps> = ({
 
                 <button
                   onClick={() => setFontFamily(fontFamily === 'serif' ? 'sans' : fontFamily === 'sans' ? 'mono' : 'serif')}
-                  title={t.reader.fontFamily}
-                  className={`px-2 py-1 text-[10px] font-black uppercase tracking-wider ${acc.textHover} transition-colors cursor-pointer`}
+                  title="Toggle typography"
+                  className={`px-2 py-1 text-[10px] font-black uppercase tracking-wider ${acc.textHover} transition-colors`}
                 >
                   {fontFamily}
                 </button>
@@ -244,9 +387,10 @@ export const ArticleReaderModal: React.FC<ArticleReaderModalProps> = ({
               <>
                 <button
                   onClick={handleShare}
-                  title={t.reader.shareArticle}
-                  className={`p-2 rounded-xl border transition-colors cursor-pointer ${copied ? 'bg-emerald-500/20 border-emerald-500 text-emerald-400' : theme === 'dark' ? 'hover:bg-neutral-800 border-neutral-700' : 'hover:bg-neutral-200 border-neutral-300'
-                    }`}
+                  title={t.reader.share}
+                  className={`p-2 rounded-xl border transition-colors ${
+                    copied ? 'bg-emerald-500/20 border-emerald-500 text-emerald-400' : theme === 'dark' ? 'hover:bg-neutral-800 border-neutral-700' : 'hover:bg-neutral-200 border-neutral-300'
+                  }`}
                 >
                   {copied ? <Check className="w-4 h-4" /> : <Share2 className="w-4 h-4" />}
                 </button>
@@ -254,8 +398,9 @@ export const ArticleReaderModal: React.FC<ArticleReaderModalProps> = ({
                 <button
                   onClick={() => onToggleBookmark(article)}
                   title={t.block.bookmark}
-                  className={`p-2 rounded-xl border transition-colors cursor-pointer ${isBookmarked ? `${acc.bgLight} ${acc.borderLight} ${acc.textDark}` : theme === 'dark' ? 'hover:bg-neutral-800 border-neutral-700' : 'hover:bg-neutral-200 border-neutral-300'
-                    }`}
+                  className={`p-2 rounded-xl border transition-colors ${
+                    isBookmarked ? `${acc.bgLight} ${acc.borderLight} ${acc.textDark}` : theme === 'dark' ? 'hover:bg-neutral-800 border-neutral-700' : 'hover:bg-neutral-200 border-neutral-300'
+                  }`}
                 >
                   <Bookmark className={`w-4 h-4 ${isBookmarked ? `${acc.fill}` : ''}`} />
                 </button>
@@ -264,17 +409,17 @@ export const ArticleReaderModal: React.FC<ArticleReaderModalProps> = ({
 
             <button
               onClick={onClose}
-              className={`p-2 rounded-xl border transition-colors cursor-pointer ${theme === 'dark' ? 'hover:bg-neutral-800 border-neutral-700' : 'hover:bg-neutral-200 border-neutral-300'
-                }`}
-              title={t.reader.close}
+              className={`p-2 rounded-xl border transition-colors ${
+                theme === 'dark' ? 'hover:bg-neutral-800 border-neutral-700' : 'hover:bg-neutral-200 border-neutral-300'
+              }`}
             >
               <X className="w-4 h-4" />
             </button>
           </div>
         </div>
 
-        {/* Scrollable Article Body */}
-        <div className={`p-6 sm:p-10 overflow-y-auto space-y-6 flex-1 ${isFocusMode ? 'max-w-2xl mx-auto w-full' : ''}`}>
+        {/* Scrollable Article Body with horizontal gesture containment */}
+        <div className={`p-6 sm:p-10 overflow-y-auto space-y-6 flex-1 stories-scroll-container ${isFocusMode ? 'max-w-2xl mx-auto w-full' : ''}`}>
 
           {/* Focus Mode Indicator Banner */}
           {isFocusMode && (
@@ -283,7 +428,7 @@ export const ArticleReaderModal: React.FC<ArticleReaderModalProps> = ({
                 <BookOpen className={`w-4 h-4 ${acc.text}`} />
                 {t.reader.focusMode}
               </span>
-              <span className="text-neutral-400 text-[10px]">Distraction-Free</span>
+              <span className="text-neutral-400 text-[10px]">Distraction free</span>
             </div>
           )}
 
@@ -317,10 +462,11 @@ export const ArticleReaderModal: React.FC<ArticleReaderModalProps> = ({
             {/* Audio TTS Button */}
             <button
               onClick={handleToggleTts}
-              className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-black uppercase tracking-wider border transition-all cursor-pointer ${isPlayingTts
+              className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-black uppercase tracking-wider border transition-all ${
+                isPlayingTts
                   ? `${acc.bg} text-black ${acc.border} animate-pulse`
                   : 'bg-neutral-800 border-neutral-700 text-neutral-200 hover:bg-neutral-700'
-                }`}
+              }`}
             >
               {isPlayingTts ? <VolumeX className="w-4 h-4 text-black" /> : <Volume2 className={`w-4 h-4 ${acc.textDark}`} />}
               <span>{isPlayingTts ? t.reader.stopReading : t.reader.readAloud}</span>
@@ -330,7 +476,7 @@ export const ArticleReaderModal: React.FC<ArticleReaderModalProps> = ({
             <button
               onClick={handleGenerateAiSummary}
               disabled={isGeneratingAi}
-              className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-black uppercase tracking-wider ${acc.bg} text-black ${acc.bgHover} transition-all cursor-pointer`}
+              className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-black uppercase tracking-wider ${acc.bg} text-black ${acc.bgHover} transition-all`}
             >
               <Sparkles className={`w-4 h-4 ${isGeneratingAi ? 'animate-spin' : ''}`} />
               <span>{isGeneratingAi ? t.reader.generating : t.reader.generateSummary}</span>
@@ -340,7 +486,7 @@ export const ArticleReaderModal: React.FC<ArticleReaderModalProps> = ({
             <button
               onClick={handleTranslate}
               disabled={isTranslating}
-              className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-black uppercase tracking-wider bg-neutral-800 border border-neutral-700 hover:bg-neutral-700 text-neutral-200 transition-all cursor-pointer"
+              className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-black uppercase tracking-wider bg-neutral-800 border border-neutral-700 hover:bg-neutral-700 text-neutral-200 transition-all"
             >
               <Languages className={`w-4 h-4 ${isTranslating ? 'animate-spin' : ''}`} />
               <span>{isTranslating ? t.reader.translating : t.reader.translate}</span>
@@ -349,8 +495,9 @@ export const ArticleReaderModal: React.FC<ArticleReaderModalProps> = ({
 
           {/* AI Generated Summary Box */}
           {aiSummary && (
-            <div className={`p-4 rounded-2xl border text-xs leading-relaxed ${theme === 'dark' ? `${acc.bgLight} ${acc.borderLight} text-neutral-200` : `${acc.bgLight} ${acc.borderLight} text-neutral-900`
-              }`}>
+            <div className={`p-4 rounded-2xl border text-xs leading-relaxed ${
+              theme === 'dark' ? `${acc.bgLight} ${acc.borderLight} text-neutral-200` : `${acc.bgLight} ${acc.borderLight} text-neutral-900`
+            }`}>
               <div className={`flex items-center gap-2 font-black uppercase ${acc.textDark} mb-2 tracking-wider`}>
                 <Sparkles className="w-4 h-4" />
                 <span>{t.reader.aiSummaryTitle}:</span>
@@ -363,25 +510,31 @@ export const ArticleReaderModal: React.FC<ArticleReaderModalProps> = ({
           {translatedText && (
             <div className="p-4 rounded-2xl border border-neutral-700 bg-neutral-800/80 text-xs leading-relaxed">
               <div className={`font-black uppercase ${acc.textDark} mb-2 tracking-wider`}>
-                {language === 'pt' ? 'Tradução em Português:' : 'AI Translation:'}
+                {t.reader.translate}:
               </div>
               <div className="whitespace-pre-wrap leading-relaxed">{translatedText}</div>
             </div>
           )}
 
-          {/* Article Snippet */}
-          <div className={`prose prose-invert max-w-none ${getFontSizeClass()} ${getFontFamilyClass()} ${theme === 'dark' ? 'text-neutral-200' : 'text-neutral-800'
-            }`}>
+          {/* Article Snippet / Description */}
+          <div className={`prose prose-invert max-w-none ${getFontSizeClass()} ${getFontFamilyClass()} ${
+            theme === 'dark' ? 'text-neutral-200' : 'text-neutral-800'
+          }`}>
             {article.contentSnippet}
           </div>
 
+          {/* Swipe Navigation Hint */}
+          <div className="pt-2 text-center text-[10px] font-mono text-neutral-500 select-none">
+            {t.reader.swipeHint}
+          </div>
+
           {/* Source Link CTA Button */}
-          <div className="pt-6">
+          <div className="pt-2">
             <a
               href={article.link}
               target="_blank"
               rel="noopener noreferrer"
-              className={`w-full flex items-center justify-center gap-2 py-3.5 px-4 rounded-2xl font-black uppercase tracking-wider text-xs ${acc.bg} ${acc.bgHover} text-black shadow-xl transition-all cursor-pointer`}
+              className={`w-full flex items-center justify-center gap-2 py-3.5 px-4 rounded-2xl font-black uppercase tracking-wider text-xs ${acc.bg} ${acc.bgHover} text-black shadow-xl transition-all`}
             >
               <span>{t.reader.openOriginal} ({article.sourceName})</span>
               <ExternalLink className="w-4 h-4" />

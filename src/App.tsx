@@ -243,6 +243,25 @@ export default function App() {
     });
   }, []);
 
+  const currentArticleIndex = useMemo(() => {
+    if (!selectedArticle) return -1;
+    return allNewsItems.findIndex((it) => it.id === selectedArticle.id);
+  }, [selectedArticle, allNewsItems]);
+
+  const handleNextArticle = useCallback(() => {
+    if (currentArticleIndex >= 0 && currentArticleIndex < allNewsItems.length - 1) {
+      handleSelectArticle(allNewsItems[currentArticleIndex + 1]);
+    }
+  }, [currentArticleIndex, allNewsItems, handleSelectArticle]);
+
+  const handlePrevArticle = useCallback(() => {
+    if (currentArticleIndex > 0) {
+      handleSelectArticle(allNewsItems[currentArticleIndex - 1]);
+    } else {
+      setSelectedArticle(null);
+    }
+  }, [currentArticleIndex, allNewsItems, handleSelectArticle]);
+
   const handleToggleArchiveItem = useCallback((item: NewsItem) => {
     setArchivedArticleIds((prev) => {
       const next = new Set(prev);
@@ -300,16 +319,35 @@ export default function App() {
   // --- Mobile Pull-to-Refresh State & Gesture ---
   const [pullDistance, setPullDistance] = useState<number>(0);
   const [isPullRefreshing, setIsPullRefreshing] = useState<boolean>(false);
+  const touchStartXRef = useRef<number>(0);
   const touchStartYRef = useRef<number>(0);
   const hasTriggeredHapticRef = useRef<boolean>(false);
   const isPullingActiveRef = useRef<boolean>(false);
+  const isHorizontalGestureRef = useRef<boolean>(false);
 
   useEffect(() => {
     const handleTouchStart = (e: TouchEvent) => {
-      if (window.scrollY <= 5 && !isRefreshing && !isPullRefreshing) {
+      // Don't activate pull-to-refresh if a modal is open or already refreshing
+      if (
+        selectedArticle ||
+        isSettingsOpen ||
+        isManageFeedsOpen ||
+        isCreateBlockOpen ||
+        isAICuratorOpen ||
+        isGlobalFeedsOpen ||
+        isRefreshing ||
+        isPullRefreshing
+      ) {
+        isPullingActiveRef.current = false;
+        return;
+      }
+
+      if (window.scrollY <= 5) {
+        touchStartXRef.current = e.touches[0].clientX;
         touchStartYRef.current = e.touches[0].clientY;
         hasTriggeredHapticRef.current = false;
         isPullingActiveRef.current = true;
+        isHorizontalGestureRef.current = false;
       } else {
         isPullingActiveRef.current = false;
       }
@@ -317,10 +355,22 @@ export default function App() {
 
     const handleTouchMove = (e: TouchEvent) => {
       if (!isPullingActiveRef.current || window.scrollY > 10) return;
+
+      const currentX = e.touches[0].clientX;
       const currentY = e.touches[0].clientY;
-      const diff = currentY - touchStartYRef.current;
-      if (diff > 0) {
-        const distance = Math.min(diff * 0.45, 80);
+      const diffX = currentX - touchStartXRef.current;
+      const diffY = currentY - touchStartYRef.current;
+
+      // Cancel pull-to-refresh if the user is swiping horizontally (stories, category pills, etc.)
+      if (Math.abs(diffX) > Math.abs(diffY) || isHorizontalGestureRef.current) {
+        isHorizontalGestureRef.current = true;
+        isPullingActiveRef.current = false;
+        setPullDistance(0);
+        return;
+      }
+
+      if (diffY > 0) {
+        const distance = Math.min(diffY * 0.45, 80);
         setPullDistance(distance);
         if (distance >= 55 && !hasTriggeredHapticRef.current) {
           hasTriggeredHapticRef.current = true;
@@ -328,11 +378,16 @@ export default function App() {
             Haptics.impact({ style: ImpactStyle.Light });
           } catch (_) { }
         }
+      } else {
+        setPullDistance(0);
       }
     };
 
     const handleTouchEnd = () => {
-      if (!isPullingActiveRef.current) return;
+      if (!isPullingActiveRef.current) {
+        setPullDistance(0);
+        return;
+      }
       isPullingActiveRef.current = false;
       if (pullDistance >= 55) {
         setIsPullRefreshing(true);
@@ -355,7 +410,18 @@ export default function App() {
       window.removeEventListener('touchmove', handleTouchMove);
       window.removeEventListener('touchend', handleTouchEnd);
     };
-  }, [fetchAllFeeds, isRefreshing, isPullRefreshing, pullDistance]);
+  }, [
+    fetchAllFeeds,
+    isRefreshing,
+    isPullRefreshing,
+    pullDistance,
+    selectedArticle,
+    isSettingsOpen,
+    isManageFeedsOpen,
+    isCreateBlockOpen,
+    isAICuratorOpen,
+    isGlobalFeedsOpen,
+  ]);
 
   // Initial Fetch
   useEffect(() => {
@@ -871,6 +937,10 @@ export default function App() {
         theme={settings.theme}
         accentColor={settings.accentColor}
         language={settings.language}
+        onNextArticle={handleNextArticle}
+        onPrevArticle={handlePrevArticle}
+        hasNext={currentArticleIndex >= 0 && currentArticleIndex < allNewsItems.length - 1}
+        hasPrev={currentArticleIndex > 0}
       />
 
       {/* Create / Edit Dynamic Block Modal */}

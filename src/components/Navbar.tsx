@@ -279,7 +279,7 @@ export const Navbar: React.FC<NavbarProps> = ({
         </div>
 
         {/* Mobile Horizontal Category Pills Bar */}
-        <div className="flex lg:hidden items-center gap-2 overflow-x-auto no-scrollbar py-2 border-t border-neutral-800/40">
+        <div className="flex lg:hidden items-center gap-2 overflow-x-auto no-scrollbar stories-scroll-container py-2 border-t border-neutral-800/40">
           {categoryTabs.map((tab) => {
             const isActive = selectedCategory === tab.id;
             return (
