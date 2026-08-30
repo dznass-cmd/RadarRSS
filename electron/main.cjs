@@ -27,7 +27,7 @@ function getFreePort() {
   });
 }
 
-async function waitForServer(url, timeoutMs = 20000) {
+async function waitForServer(url, timeoutMs = 8000) {
   const started = Date.now();
   while (Date.now() - started < timeoutMs) {
     try {
@@ -36,12 +36,45 @@ async function waitForServer(url, timeoutMs = 20000) {
     } catch {
       // server not up yet
     }
-    await new Promise((r) => setTimeout(r, 200));
+    await new Promise((r) => setTimeout(r, 25));
   }
   return false;
 }
 
 app.whenReady().then(async () => {
+  // Create the main window immediately for zero perceived startup lag
+  mainWindow = new BrowserWindow({
+    width: 1380,
+    height: 880,
+    minWidth: 940,
+    minHeight: 600,
+    autoHideMenuBar: true,
+    backgroundColor: '#0a0b0e',
+    title: 'Radar RSS',
+    icon: path.join(app.getAppPath(), 'build', 'icon.ico'),
+    webPreferences: {
+      contextIsolation: true,
+      nodeIntegration: false,
+      sandbox: true,
+    },
+  });
+
+  // Open external links in the system browser instead of inside the app
+  mainWindow.webContents.setWindowOpenHandler(({ url }) => {
+    shell.openExternal(url);
+    return { action: 'deny' };
+  });
+  mainWindow.webContents.on('will-navigate', (event, url) => {
+    if (!url.startsWith('http://127.0.0.1')) {
+      event.preventDefault();
+      shell.openExternal(url);
+    }
+  });
+
+  mainWindow.on('closed', () => {
+    mainWindow = null;
+  });
+
   const port = await getFreePort();
   process.env.PORT = String(port);
 
@@ -57,39 +90,9 @@ app.whenReady().then(async () => {
   const serverUrl = `http://127.0.0.1:${port}`;
   await waitForServer(serverUrl);
 
-  mainWindow = new BrowserWindow({
-    width: 1380,
-    height: 880,
-    minWidth: 940,
-    minHeight: 600,
-    autoHideMenuBar: true,
-    backgroundColor: '#0c101c',
-    title: 'Radar RSS',
-    icon: path.join(app.getAppPath(), 'build', 'icon.ico'),
-    webPreferences: {
-      contextIsolation: true,
-      nodeIntegration: false,
-      sandbox: true,
-    },
-  });
-
-  mainWindow.loadURL(serverUrl);
-
-  // Open external links in the system browser instead of inside the app
-  mainWindow.webContents.setWindowOpenHandler(({ url }) => {
-    shell.openExternal(url);
-    return { action: 'deny' };
-  });
-  mainWindow.webContents.on('will-navigate', (event, url) => {
-    if (!url.startsWith(serverUrl)) {
-      event.preventDefault();
-      shell.openExternal(url);
-    }
-  });
-
-  mainWindow.on('closed', () => {
-    mainWindow = null;
-  });
+  if (mainWindow) {
+    mainWindow.loadURL(serverUrl);
+  }
 
   setupAutoUpdater();
 });

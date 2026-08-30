@@ -19,7 +19,7 @@ const rssParser = new Parser({
       ['image', 'image'],
     ],
   },
-  timeout: 8000,
+  timeout: 4500,
 });
 
 // Cache map with 60 seconds TTL
@@ -162,7 +162,7 @@ app.get('/api/rss', async (req: Request, res: Response) => {
                 'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Safari/537.36',
                 'Accept': 'application/rss+xml, application/xml, text/xml, application/atom+xml, text/html;q=0.9, */*;q=0.8',
               },
-              signal: AbortSignal.timeout(8000),
+              signal: AbortSignal.timeout(4500),
             });
             if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
             const text = await resp.text();
