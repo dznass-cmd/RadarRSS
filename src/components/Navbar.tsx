@@ -129,7 +129,7 @@ export const Navbar: React.FC<NavbarProps> = ({
                 RADAR<span className="text-amber-400 ml-1">RSS</span>
               </span>
               <span className="text-[9px] font-black uppercase tracking-wider px-1.5 py-0.5 rounded bg-amber-500/20 text-amber-400 border border-amber-500/30 hidden xs:inline-block">
-                Beta
+                BETA v0.0.4
               </span>
             </div>
           </div>
