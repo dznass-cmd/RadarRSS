@@ -32,7 +32,7 @@ export const TickerBar: React.FC<TickerBarProps> = ({ items, onSelectArticle, th
         </div>
 
         {/* Horizontal Scrolling Headlines */}
-        <div className="flex-1 overflow-x-auto no-scrollbar whitespace-nowrap flex items-center gap-5 py-0.5">
+        <div className="flex-1 overflow-x-auto no-scrollbar stories-scroll-container whitespace-nowrap flex items-center gap-5 py-0.5">
           {breakingItems.map((item, idx) => (
             <button
               key={item.id}

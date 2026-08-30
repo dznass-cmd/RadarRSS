@@ -68,7 +68,10 @@ export const TRANSLATIONS = {
       ttsNotSupported: 'Text-to-speech is not supported in this browser.',
       summaryFailed: 'Could not generate AI summary at this time.',
       translationFailed: 'Could not translate article at this time.',
+      prevStory: 'Previous Story',
+      nextStory: 'Next Story',
       close: 'Close',
+      swipeHint: '← Swipe left or right to browse stories →',
     },
     settings: {
       title: 'Preferences & Configuration',
@@ -279,7 +282,10 @@ export const TRANSLATIONS = {
       ttsNotSupported: 'A leitura em voz alta não é suportada por este navegador.',
       summaryFailed: 'Não foi possível gerar o resumo por IA no momento.',
       translationFailed: 'Não foi possível traduzir o artigo no momento.',
+      prevStory: 'História Anterior',
+      nextStory: 'Próxima História',
       close: 'Fechar',
+      swipeHint: '← Deslize para a esquerda ou direita para navegar entre histórias →',
     },
     settings: {
       title: 'Preferências & Configurações',
@@ -425,7 +431,7 @@ export const TRANSLATIONS = {
   },
 } as const;
 
-export function getTranslation(lang?: Language) {
+export function getTranslation(lang?: Language | string) {
   const selectedLang = lang === 'pt' ? 'pt' : 'en';
   return TRANSLATIONS[selectedLang];
 }
