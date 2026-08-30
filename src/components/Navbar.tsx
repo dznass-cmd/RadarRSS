@@ -17,6 +17,7 @@ import {
 } from 'lucide-react';
 import { AppSettings } from '../types';
 import { getAccent } from '../utils/theme';
+import { getTranslation } from '../i18n/translations';
 
 interface NavbarProps {
   onRefreshAll: () => void;
@@ -43,14 +44,6 @@ interface NavbarProps {
   selectedCategory?: string;
   onSelectCategory?: (cat: string) => void;
 }
-
-const CATEGORY_TABS = [
-  { id: 'all', label: 'Manchetes' },
-  { id: 'tech', label: 'Tecnologia' },
-  { id: 'finance', label: 'Economia' },
-  { id: 'games', label: 'Games' },
-  { id: 'saved', label: '⭐ Salvos' },
-];
 
 export const Navbar: React.FC<NavbarProps> = ({
   onRefreshAll,
@@ -80,6 +73,15 @@ export const Navbar: React.FC<NavbarProps> = ({
   const [countdown, setCountdown] = useState<number>(autoRefreshSec);
   const [mobileMenuOpen, setMobileMenuOpen] = useState<boolean>(false);
   const acc = getAccent(settings.accentColor);
+  const t = getTranslation(settings.language);
+
+  const categoryTabs = [
+    { id: 'all', label: t.nav.headlines },
+    { id: 'tech', label: t.nav.tech },
+    { id: 'finance', label: t.nav.finance },
+    { id: 'games', label: t.nav.games },
+    { id: 'saved', label: t.nav.saved },
+  ];
 
   // Countdown timer for next auto refresh
   useEffect(() => {
@@ -139,7 +141,7 @@ export const Navbar: React.FC<NavbarProps> = ({
               type="text"
               value={searchQuery ?? ''}
               onChange={(e) => onSearchChange(e.target.value)}
-              placeholder="Buscar notícias..."
+              placeholder={t.nav.searchPlaceholder}
               className={`w-full pl-9 pr-8 py-1.5 text-xs font-medium rounded-xl border transition-all outline-none ${
                 settings.theme === 'dark'
                   ? 'bg-neutral-900/90 border-neutral-800 text-neutral-100 placeholder-neutral-500 focus:border-amber-500/50'
@@ -158,7 +160,7 @@ export const Navbar: React.FC<NavbarProps> = ({
 
           {/* Desktop Category Tabs */}
           <nav className="hidden lg:flex items-center gap-5">
-            {CATEGORY_TABS.map((tab) => {
+            {categoryTabs.map((tab) => {
               const isActive = selectedCategory === tab.id;
               return (
                 <button
@@ -186,7 +188,7 @@ export const Navbar: React.FC<NavbarProps> = ({
             <button
               onClick={onRefreshAll}
               disabled={isRefreshing}
-              title={`Sincronizando em ${countdown}s. Toque para atualizar.`}
+              title={`${t.nav.autoRefreshIn} ${countdown}s. ${t.nav.refresh}.`}
               className={`flex items-center gap-1.5 px-2.5 sm:px-3 py-1.5 rounded-2xl text-xs font-mono font-bold border transition-all ${
                 isRefreshing
                   ? `${acc.bgLight} ${acc.borderLight} ${acc.textDark}`
@@ -199,30 +201,30 @@ export const Navbar: React.FC<NavbarProps> = ({
               <span className="text-[11px]">{isRefreshing ? '...' : `${countdown}s`}</span>
             </button>
 
-            {/* AI Curator Button (Hidden on very small mobile, shown in menu) */}
+            {/* AI Curator Button */}
             <button
               onClick={onOpenAICurator}
               className={`hidden sm:flex items-center gap-1.5 px-3 py-1.5 rounded-2xl text-xs font-black uppercase tracking-wider bg-gradient-to-r ${acc.gradientFrom} ${acc.gradientTo} text-black shadow-md transition-all`}
-              title="Solicitar à IA para criar um bloco sob medida"
+              title={t.nav.aiCurator}
             >
               <Sparkles className="w-3.5 h-3.5" />
-              <span className="hidden md:inline">Curadoria IA</span>
+              <span className="hidden md:inline">{t.nav.aiCurator}</span>
             </button>
 
             {/* Add Dynamic Block Button */}
             <button
               onClick={onOpenCreateBlock}
               className={`flex items-center gap-1 px-2.5 sm:px-3 py-1.5 rounded-2xl text-xs font-black uppercase tracking-wider ${acc.bg} ${acc.bgHover} text-black transition-all shadow-md`}
-              title="Criar novo bloco de notícias"
+              title={t.nav.newBlock}
             >
               <Plus className="w-3.5 h-3.5 stroke-[3]" />
-              <span className="hidden sm:inline">Novo Bloco</span>
+              <span className="hidden sm:inline">{t.nav.newBlock}</span>
             </button>
 
             {/* Feeds Manager */}
             <button
               onClick={onOpenManageFeeds}
-              title="Gerenciar Feeds RSS"
+              title={t.nav.manageFeeds}
               className={`p-2 rounded-2xl border transition-all ${
                 settings.theme === 'dark'
                   ? 'bg-neutral-900 border-neutral-800 text-neutral-300 hover:bg-neutral-800'
@@ -235,7 +237,7 @@ export const Navbar: React.FC<NavbarProps> = ({
             {/* Bookmarks Quick Toggle */}
             <button
               onClick={onToggleBookmarks}
-              title="Ver Matérias Salvas"
+              title={t.nav.bookmarks}
               className={`relative p-2 rounded-2xl border transition-all ${
                 showBookmarksOnly
                   ? `${acc.bgLight} ${acc.borderLight} ${acc.textDark}`
@@ -255,7 +257,7 @@ export const Navbar: React.FC<NavbarProps> = ({
             {/* Settings */}
             <button
               onClick={onOpenSettings}
-              title="Configurações do Painel"
+              title={t.nav.settings}
               className={`p-2 rounded-2xl border transition-all ${
                 settings.theme === 'dark'
                   ? 'bg-neutral-900 border-neutral-800 text-neutral-300 hover:bg-neutral-800'
@@ -269,7 +271,7 @@ export const Navbar: React.FC<NavbarProps> = ({
             <button
               onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
               className="p-2 rounded-2xl border border-neutral-800 bg-neutral-900 text-neutral-300 lg:hidden"
-              title="Mais opções"
+              title="Menu"
             >
               {mobileMenuOpen ? <X className="w-4 h-4" /> : <Menu className="w-4 h-4" />}
             </button>
@@ -278,7 +280,7 @@ export const Navbar: React.FC<NavbarProps> = ({
 
         {/* Mobile Horizontal Category Pills Bar */}
         <div className="flex lg:hidden items-center gap-2 overflow-x-auto no-scrollbar py-2 border-t border-neutral-800/40">
-          {CATEGORY_TABS.map((tab) => {
+          {categoryTabs.map((tab) => {
             const isActive = selectedCategory === tab.id;
             return (
               <button
@@ -296,7 +298,7 @@ export const Navbar: React.FC<NavbarProps> = ({
           })}
         </div>
 
-        {/* Mobile Search Bar (if not in desktop) */}
+        {/* Mobile Search Bar */}
         <div className="md:hidden pb-2.5 pt-0.5">
           <div className="relative">
             <Search className="w-3.5 h-3.5 absolute left-3 top-1/2 -translate-y-1/2 text-neutral-500" />
@@ -304,7 +306,7 @@ export const Navbar: React.FC<NavbarProps> = ({
               type="text"
               value={searchQuery}
               onChange={(e) => onSearchChange(e.target.value)}
-              placeholder="Buscar em todas as notícias..."
+              placeholder={t.nav.searchPlaceholder}
               className={`w-full pl-8 pr-7 py-1 text-xs rounded-xl border transition-all outline-none ${
                 settings.theme === 'dark'
                   ? 'bg-neutral-900 border-neutral-800 text-neutral-100 placeholder-neutral-500'
@@ -333,7 +335,7 @@ export const Navbar: React.FC<NavbarProps> = ({
               className="flex items-center gap-1.5 px-3 py-2 rounded-xl bg-amber-500/20 text-amber-400 border border-amber-500/40 font-bold"
             >
               <Sparkles className="w-3.5 h-3.5" />
-              <span>Curadoria IA</span>
+              <span>{t.nav.aiCurator}</span>
             </button>
 
             <button
@@ -344,7 +346,7 @@ export const Navbar: React.FC<NavbarProps> = ({
               className="flex items-center gap-1.5 px-3 py-2 rounded-xl bg-neutral-900 text-neutral-300 border border-neutral-800 font-bold"
             >
               <Globe className="w-3.5 h-3.5" />
-              <span>RSS Mundiais</span>
+              <span>{t.nav.globalDirectory}</span>
             </button>
 
             <button
@@ -355,7 +357,7 @@ export const Navbar: React.FC<NavbarProps> = ({
               className="flex items-center gap-1.5 px-3 py-2 rounded-xl bg-neutral-900 text-neutral-300 border border-neutral-800 font-bold"
             >
               <Archive className="w-3.5 h-3.5" />
-              <span>Lidas ({archivedCount})</span>
+              <span>{t.nav.archive} ({archivedCount})</span>
             </button>
 
             <button
@@ -363,7 +365,7 @@ export const Navbar: React.FC<NavbarProps> = ({
               className="flex items-center gap-1.5 px-3 py-2 rounded-xl bg-neutral-900 text-neutral-300 border border-neutral-800 font-bold"
             >
               {settings.theme === 'dark' ? <Sun className="w-3.5 h-3.5 text-amber-400" /> : <Moon className="w-3.5 h-3.5" />}
-              <span>{settings.theme === 'dark' ? 'Tema Claro' : 'Tema Escuro'}</span>
+              <span>{settings.theme === 'dark' ? t.settings.themeLight : t.settings.themeDark}</span>
             </button>
           </div>
         )}

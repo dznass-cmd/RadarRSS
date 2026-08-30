@@ -3,8 +3,8 @@ import { DynamicBlock } from '../types';
 export const DEFAULT_BLOCKS: DynamicBlock[] = [
   {
     id: 'block_breaking',
-    title: '⚡ Manchetes & Últimas Notícias',
-    categoryFilter: 'brazil',
+    title: '⚡ Headlines & Top Stories',
+    categoryFilter: 'tech',
     layout: 'hero',
     itemCount: 5,
     autoRefreshSec: 60,
@@ -13,7 +13,7 @@ export const DEFAULT_BLOCKS: DynamicBlock[] = [
   },
   {
     id: 'block_tech',
-    title: '💻 Tecnologia & Ecossistema Dev',
+    title: '💻 Technology & Dev Ecosystem',
     categoryFilter: 'tech',
     layout: 'grid',
     itemCount: 6,
@@ -23,9 +23,9 @@ export const DEFAULT_BLOCKS: DynamicBlock[] = [
   },
   {
     id: 'block_ai',
-    title: '🤖 Radar IA, Gemini & Inovação',
+    title: '🤖 AI Radar, Gemini & Innovation',
     categoryFilter: 'ai',
-    filterKeyword: 'IA|AI|inteligência artificial|Gemini|ChatGPT|OpenAI|LLM|DeepMind',
+    filterKeyword: 'AI|artificial intelligence|Gemini|ChatGPT|OpenAI|LLM|DeepMind|Machine Learning|NVIDIA',
     layout: 'compact',
     itemCount: 5,
     autoRefreshSec: 120,
@@ -34,7 +34,7 @@ export const DEFAULT_BLOCKS: DynamicBlock[] = [
   },
   {
     id: 'block_finance',
-    title: '📈 Economia, Mercado & Startups',
+    title: '📈 Markets, Economy & Startups',
     categoryFilter: 'finance',
     layout: 'list',
     itemCount: 5,
@@ -44,8 +44,8 @@ export const DEFAULT_BLOCKS: DynamicBlock[] = [
   },
   {
     id: 'block_sports_media',
-    title: '⚽ Esportes & Cultura Geek',
-    categoryFilter: 'sports',
+    title: '🎮 Culture, Media & Gaming',
+    categoryFilter: 'entertainment',
     layout: 'ticker',
     itemCount: 8,
     autoRefreshSec: 300,

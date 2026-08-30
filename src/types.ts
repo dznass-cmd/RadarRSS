@@ -52,6 +52,7 @@ export interface DynamicBlock {
 export type AccentColor = 'orange' | 'emerald' | 'cyan' | 'purple' | 'red' | 'amber' | 'blue' | 'pink';
 
 export interface AppSettings {
+  language?: 'en' | 'pt';
   theme: 'dark' | 'light';
   accentColor?: AccentColor;
   globalRefreshSec: number; // e.g., 60

@@ -1,7 +1,8 @@
 import React, { useEffect } from 'react';
 import { ToastItem, AccentColor, NewsItem } from '../types';
 import { getAccent } from '../utils/theme';
-import { BellRing, Flame, X, ChevronRight, Volume2 } from 'lucide-react';
+import { BellRing, Flame, X, ChevronRight } from 'lucide-react';
+import { Language, getTranslation } from '../i18n/translations';
 
 interface ToastNotificationContainerProps {
   toasts: ToastItem[];
@@ -9,6 +10,7 @@ interface ToastNotificationContainerProps {
   onSelectArticle?: (article: NewsItem) => void;
   accentColor?: AccentColor;
   theme?: 'dark' | 'light';
+  language?: Language;
 }
 
 export const ToastNotificationContainer: React.FC<ToastNotificationContainerProps> = ({
@@ -17,6 +19,7 @@ export const ToastNotificationContainer: React.FC<ToastNotificationContainerProp
   onSelectArticle,
   accentColor,
   theme = 'dark',
+  language = 'en',
 }) => {
   if (!toasts || toasts.length === 0) return null;
 
@@ -30,6 +33,7 @@ export const ToastNotificationContainer: React.FC<ToastNotificationContainerProp
           toast={toast}
           acc={acc}
           theme={theme}
+          language={language}
           onDismiss={() => onDismiss(toast.id)}
           onSelectArticle={onSelectArticle}
         />
@@ -42,6 +46,7 @@ interface ToastCardProps {
   toast: ToastItem;
   acc: ReturnType<typeof getAccent>;
   theme: 'dark' | 'light';
+  language?: Language;
   onDismiss: () => void;
   onSelectArticle?: (article: NewsItem) => void;
 }
@@ -50,9 +55,12 @@ const ToastCard: React.FC<ToastCardProps> = ({
   toast,
   acc,
   theme,
+  language = 'en',
   onDismiss,
   onSelectArticle,
 }) => {
+  const t = getTranslation(language);
+
   useEffect(() => {
     const timer = setTimeout(() => {
       onDismiss();
@@ -67,7 +75,7 @@ const ToastCard: React.FC<ToastCardProps> = ({
     }
   };
 
-  const isBreaking = toast.type === 'breaking' || toast.title.includes('URGENTE');
+  const isBreaking = toast.type === 'breaking' || toast.title.includes('URGENTE') || toast.title.includes('BREAKING');
 
   return (
     <div
@@ -124,10 +132,10 @@ const ToastCard: React.FC<ToastCardProps> = ({
                   : `${acc.bg} text-black font-extrabold`
               }`}
             >
-              {isBreaking ? '⚡ NOTÍCIA URGENTE' : 'NOTIFICAÇÃO RADAR'}
+              {isBreaking ? t.toast.breakingTitle : t.toast.radarTitle}
             </span>
             <span className="text-[10px] font-mono text-neutral-400">
-              {new Date().toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' })}
+              {new Date().toLocaleTimeString(language === 'pt' ? 'pt-BR' : 'en-US', { hour: '2-digit', minute: '2-digit' })}
             </span>
           </div>
 
@@ -143,7 +151,7 @@ const ToastCard: React.FC<ToastCardProps> = ({
 
           {toast.article && (
             <div className={`mt-2 inline-flex items-center gap-1 text-[10px] font-black uppercase tracking-wider ${acc.textDark}`}>
-              <span>Clique para ler notícia completa</span>
+              <span>{t.toast.clickToRead}</span>
               <ChevronRight className="w-3 h-3 group-hover:translate-x-1 transition-transform" />
             </div>
           )}
@@ -156,7 +164,7 @@ const ToastCard: React.FC<ToastCardProps> = ({
             onDismiss();
           }}
           className="absolute top-2.5 right-2.5 p-1 rounded-lg text-neutral-400 hover:text-white hover:bg-neutral-800 transition-colors"
-          title="Fechar"
+          title="Close"
         >
           <X className="w-4 h-4" />
         </button>
