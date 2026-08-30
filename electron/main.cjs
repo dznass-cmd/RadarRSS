@@ -14,6 +14,18 @@ dotenv.config({ path: path.join(app.getAppPath(), '.env') });
 
 process.env.NODE_ENV = 'production';
 
+const gotTheLock = app.requestSingleInstanceLock();
+if (!gotTheLock) {
+  app.quit();
+} else {
+  app.on('second-instance', () => {
+    if (mainWindow) {
+      if (mainWindow.isMinimized()) mainWindow.restore();
+      mainWindow.focus();
+    }
+  });
+}
+
 let mainWindow = null;
 
 function getFreePort() {
@@ -27,7 +39,7 @@ function getFreePort() {
   });
 }
 
-async function waitForServer(url, timeoutMs = 8000) {
+async function waitForServer(url, timeoutMs = 12000) {
   const started = Date.now();
   while (Date.now() - started < timeoutMs) {
     try {
@@ -36,7 +48,7 @@ async function waitForServer(url, timeoutMs = 8000) {
     } catch {
       // server not up yet
     }
-    await new Promise((r) => setTimeout(r, 25));
+    await new Promise((r) => setTimeout(r, 30));
   }
   return false;
 }
@@ -76,22 +88,27 @@ app.whenReady().then(async () => {
   });
 
   const port = await getFreePort();
+  const appPath = app.getAppPath();
+  const distDir = path.join(appPath, 'dist');
+  process.env.DIST_PATH = distDir;
   process.env.PORT = String(port);
 
-  // The bundled server resolves the static path from cwd, so point cwd at the app dir.
+  // Load bundled server
   try {
-    process.chdir(app.getAppPath());
-  } catch {
-    // ignore
+    require(path.join(distDir, 'server.cjs'));
+  } catch (err) {
+    console.error('[Electron Main] Failed to load server.cjs:', err);
   }
 
-  require(path.join(app.getAppPath(), 'dist', 'server.cjs'));
-
   const serverUrl = `http://127.0.0.1:${port}`;
-  await waitForServer(serverUrl);
+  const isUp = await waitForServer(serverUrl);
 
   if (mainWindow) {
-    mainWindow.loadURL(serverUrl);
+    if (isUp) {
+      mainWindow.loadURL(serverUrl);
+    } else {
+      mainWindow.loadURL(`file://${path.join(distDir, 'index.html')}`);
+    }
   }
 
   setupAutoUpdater();
