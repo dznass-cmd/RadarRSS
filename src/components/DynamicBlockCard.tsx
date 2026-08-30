@@ -384,28 +384,41 @@ export const DynamicBlockCard: React.FC<DynamicBlockCardProps> = ({
                       <div
                         key={item.id}
                         onClick={() => onSelectArticle(item)}
-                        className={`p-3 rounded-2xl border transition-all cursor-pointer group flex flex-col justify-between ${
+                        className={`p-3 rounded-2xl border transition-all cursor-pointer group flex items-center justify-between gap-3 ${
                           theme === 'dark'
                             ? 'bg-[#131520]/80 border-neutral-800/80 hover:border-amber-500/60 hover:shadow-md'
                             : 'bg-neutral-50 border-neutral-200 hover:border-amber-500/60'
                         }`}
                       >
-                        <div className="flex items-start justify-between gap-2 mb-1">
-                          <div className="flex items-center gap-1.5">
-                            <span className={`w-3 h-3 rounded-full ${source.bg} flex items-center justify-center text-[7px] font-black text-white`}>
-                              {source.name.charAt(0)}
-                            </span>
-                            <span className="text-[10px] font-bold text-neutral-300 group-hover:text-amber-400 uppercase tracking-wider">
-                              {source.name}
+                        <div className="flex-1 min-w-0">
+                          <div className="flex items-start justify-between gap-2 mb-1">
+                            <div className="flex items-center gap-1.5">
+                              <span className={`w-3 h-3 rounded-full ${source.bg} flex items-center justify-center text-[7px] font-black text-white`}>
+                                {source.name.charAt(0)}
+                              </span>
+                              <span className="text-[10px] font-bold text-neutral-300 group-hover:text-amber-400 uppercase tracking-wider">
+                                {source.name}
+                              </span>
+                            </div>
+                            <span className="text-[10px] font-mono text-neutral-400">
+                              {getRelativeTime(item.timestamp)}
                             </span>
                           </div>
-                          <span className="text-[10px] font-mono text-neutral-400">
-                            {getRelativeTime(item.timestamp)}
-                          </span>
+                          <h4 className="font-bold text-xs leading-snug group-hover:text-amber-400 text-neutral-100 line-clamp-2">
+                            {item.title}
+                          </h4>
                         </div>
-                        <h4 className="font-bold text-xs leading-snug group-hover:text-amber-400 text-neutral-100 line-clamp-2">
-                          {item.title}
-                        </h4>
+                        {item.imageUrl && (
+                          <div className="w-14 h-14 rounded-xl overflow-hidden shrink-0 bg-neutral-950 border border-neutral-800/40">
+                            <SafeImage
+                              src={item.imageUrl}
+                              alt={item.title}
+                              fallbackType="square"
+                              className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                              sourceName={item.sourceName}
+                            />
+                          </div>
+                        )}
                       </div>
                     );
                   })}
@@ -515,6 +528,17 @@ export const DynamicBlockCard: React.FC<DynamicBlockCardProps> = ({
                         : 'bg-white border-neutral-200 hover:border-amber-500/60'
                     }`}
                   >
+                    {item.imageUrl && (
+                      <div className="w-16 h-16 rounded-xl overflow-hidden shrink-0 bg-neutral-950 border border-neutral-800/40 hidden sm:block">
+                        <SafeImage
+                          src={item.imageUrl}
+                          alt={item.title}
+                          fallbackType="square"
+                          className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                          sourceName={item.sourceName}
+                        />
+                      </div>
+                    )}
                     <div className="flex-1 min-w-0">
                       <div className="flex items-center gap-2 mb-1">
                         <span className="text-[10px] font-bold text-amber-500">

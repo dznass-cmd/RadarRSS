@@ -12,56 +12,68 @@ function extractImageFromXmlItem(itemXml: Element, defaultBaseUrl?: string): str
   for (const enc of enclosures) {
     const url = enc.getAttribute('url');
     const type = enc.getAttribute('type') || '';
-    if (url && (type.includes('image') || /\.(jpg|jpeg|gif|png|webp|bmp|svg|avif)/i.test(url))) {
+    if (url && (type.includes('image') || /\.(jpg|jpeg|gif|png|webp|bmp|svg|avif)/i.test(url) || !type)) {
       return url.replace(/&amp;/g, '&').trim();
     }
   }
 
-  // 2. Check media:content / media:thumbnail (Yahoo Media RSS)
+  // 2. Check media:content / media:thumbnail / media:group (Yahoo Media RSS)
   const mediaNodes = [
     ...Array.from(itemXml.getElementsByTagNameNS('http://search.yahoo.com/mrss/', 'content')),
     ...Array.from(itemXml.getElementsByTagNameNS('http://search.yahoo.com/mrss/', 'thumbnail')),
-    ...Array.from(itemXml.querySelectorAll('media\\:content, media\\:thumbnail, content, thumbnail'))
+    ...Array.from(itemXml.querySelectorAll('media\\:content, media\\:thumbnail, content, thumbnail, [medium="image"]'))
   ];
 
   for (const node of mediaNodes) {
-    const url = node.getAttribute('url');
-    if (url && !url.includes('pixel') && !url.includes('1x1')) {
+    const url = node.getAttribute('url') || node.getAttribute('href') || node.textContent?.trim();
+    if (url && !url.includes('pixel') && !url.includes('1x1') && !url.startsWith('data:image')) {
       return url.replace(/&amp;/g, '&').trim();
     }
   }
 
-  // 3. Check <image><url>
-  const imgUrlNode = itemXml.querySelector('image > url');
+  // 3. Check <image><url> or <thumbnail>
+  const imgUrlNode = itemXml.querySelector('image > url, thumbnail > url, image, thumbnail, thumb');
   if (imgUrlNode && imgUrlNode.textContent) {
-    return imgUrlNode.textContent.replace(/&amp;/g, '&').trim();
+    const url = imgUrlNode.textContent.replace(/&amp;/g, '&').trim();
+    if (url.startsWith('http') || url.startsWith('//')) return url;
   }
 
-  // 4. Regex scan description / content:encoded / summary
-  const fullHtml = (
+  // 4. Regex scan description / content:encoded / summary / content with HTML entity decoding
+  const rawHtml = (
     (itemXml.querySelector('description')?.textContent || '') + ' ' +
     (itemXml.querySelector('content\\:encoded')?.textContent || '') + ' ' +
     (itemXml.querySelector('summary')?.textContent || '') + ' ' +
     (itemXml.querySelector('content')?.textContent || '')
   );
 
-  const imgRegex = /<img[^>]+(?:src|data-src|data-original|data-lazy-src)=["']([^"']+\.(?:jpg|jpeg|png|webp|gif|avif)[^"']*)["']/i;
-  const match = fullHtml.match(imgRegex);
-  if (match && match[1]) {
-    let src = match[1].replace(/&amp;/g, '&').trim();
-    if (!src.includes('pixel') && !src.includes('tracker') && !src.includes('1x1')) {
-      if (src.startsWith('//')) src = `https:${src}`;
-      return src;
-    }
-  }
+  const decodedHtml = rawHtml
+    .replace(/&amp;/g, '&')
+    .replace(/&lt;/g, '<')
+    .replace(/&gt;/g, '>')
+    .replace(/&quot;/g, '"')
+    .replace(/&#39;/g, "'");
 
-  // 5. Fallback regex for any <img> src
-  const anyImgMatch = fullHtml.match(/<img[^>]+src=["']([^"']+)["']/i);
-  if (anyImgMatch && anyImgMatch[1]) {
-    let src = anyImgMatch[1].replace(/&amp;/g, '&').trim();
-    if (!src.includes('pixel') && !src.includes('tracker') && !src.includes('1x1') && !src.startsWith('data:image')) {
-      if (src.startsWith('//')) src = `https:${src}`;
-      return src;
+  const imgRegexes = [
+    /<img[^>]+(?:data-src|data-original|data-lazy-src|data-hi-res-src)=["']([^"'\s>]+)["']/i,
+    /<img[^>]+src=["']([^"'\s>]+)["']/i,
+    /<img[^>]+srcset=["']([^"'\s,>]+)/i,
+    /<source[^>]+srcset=["']([^"'\s,>]+)/i,
+    /url\(["']?(https?:\/\/[^'"\)\s]+\.(?:jpg|jpeg|png|webp|avif|gif))["']?\)/i
+  ];
+
+  for (const rx of imgRegexes) {
+    const match = decodedHtml.match(rx);
+    if (match && match[1]) {
+      let src = match[1].replace(/&amp;/g, '&').trim();
+      if (!src.includes('pixel') && !src.includes('tracker') && !src.includes('1x1') && !src.startsWith('data:image')) {
+        if (src.startsWith('//')) src = `https:${src}`;
+        if (src.startsWith('/') && defaultBaseUrl) {
+          try {
+            src = new URL(src, defaultBaseUrl).toString();
+          } catch {}
+        }
+        return src;
+      }
     }
   }
 

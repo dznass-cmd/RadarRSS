@@ -14,9 +14,13 @@ const rssParser = new Parser({
       ['media:content', 'mediaContent', { keepArray: true }],
       ['media:thumbnail', 'mediaThumbnail', { keepArray: true }],
       ['media:group', 'mediaGroup'],
-      ['enclosure', 'enclosure'],
+      ['enclosure', 'enclosure', { keepArray: true }],
       ['content:encoded', 'contentEncoded'],
       ['image', 'image'],
+      ['thumbnail', 'thumbnail'],
+      ['thumb', 'thumb'],
+      ['og:image', 'ogImage'],
+      ['twitter:image', 'twitterImage'],
     ],
   },
   timeout: 4500,
@@ -30,16 +34,32 @@ interface CacheEntry {
 const feedCache = new Map<string, CacheEntry>();
 const CACHE_TTL_MS = 60 * 1000;
 
+// Utility to decode HTML entities
+function decodeHtmlEntities(str: string): string {
+  if (!str) return '';
+  return str
+    .replace(/&amp;/g, '&')
+    .replace(/&lt;/g, '<')
+    .replace(/&gt;/g, '>')
+    .replace(/&quot;/g, '"')
+    .replace(/&#39;/g, "'")
+    .replace(/&apos;/g, "'");
+}
+
 // Utility to extract image URL from item
 function extractImageUrl(item: any, baseUrl?: string): string | undefined {
   let src: string | undefined = undefined;
 
-  // 1. Check enclosure
-  if (item.enclosure && item.enclosure.url) {
-    const type = item.enclosure.type || '';
-    const isImage = type.includes('image') || /\.(jpg|jpeg|gif|png|webp|bmp|svg)/i.test(item.enclosure.url);
-    if (isImage) {
-      src = item.enclosure.url;
+  // 1. Check enclosure (object or array)
+  if (item.enclosure) {
+    const arr = Array.isArray(item.enclosure) ? item.enclosure : [item.enclosure];
+    for (const enc of arr) {
+      const url = enc.url || enc.$?.url || enc.href;
+      const type = enc.type || enc.$?.type || '';
+      if (url && (type.includes('image') || /\.(jpg|jpeg|gif|png|webp|bmp|svg|avif)/i.test(url) || !type)) {
+        src = url;
+        break;
+      }
     }
   }
 
@@ -51,7 +71,7 @@ function extractImageUrl(item: any, baseUrl?: string): string | undefined {
 
   // 3. Check mediaThumbnail
   if (!src && item.mediaThumbnail && item.mediaThumbnail.length > 0) {
-    const img = item.mediaThumbnail[0];
+    const img = item.mediaThumbnail.find((m: any) => m.$?.url || m.url || m.href);
     if (img) src = img.$?.url || img.url || img.href;
   }
 
@@ -75,27 +95,52 @@ function extractImageUrl(item: any, baseUrl?: string): string | undefined {
     }
   }
 
-  // 5. Check item.image
+  // 5. Check item.image, thumbnail, thumb, ogImage, twitterImage
   if (!src && item.image) {
-    if (typeof item.image === 'string') {
-      src = item.image;
-    } else if (typeof item.image === 'object') {
-      src = item.image.url || item.image.$?.url || item.image.href;
-    }
+    if (typeof item.image === 'string') src = item.image;
+    else if (typeof item.image === 'object') src = item.image.url || item.image.$?.url || item.image.href;
+  }
+  if (!src && item.thumbnail) {
+    if (typeof item.thumbnail === 'string') src = item.thumbnail;
+    else if (typeof item.thumbnail === 'object') src = item.thumbnail.url || item.thumbnail.$?.url || item.thumbnail.href;
+  }
+  if (!src && item.thumb) {
+    if (typeof item.thumb === 'string') src = item.thumb;
+    else if (typeof item.thumb === 'object') src = item.thumb.url || item.thumb.$?.url;
+  }
+  if (!src && (item.ogImage || item.twitterImage)) {
+    src = item.ogImage || item.twitterImage;
   }
 
-  // 6. Regex scan description / content / contentEncoded for <img>
+  // 6. Regex scan description / content / contentEncoded / summary with decoded HTML
   if (!src) {
-    const htmlToScan = item.contentEncoded || item.content || item.description || '';
-    const imgMatch = htmlToScan.match(/<img[^>]+src=["']([^"']+)["']/i);
-    if (imgMatch && imgMatch[1]) {
-      src = imgMatch[1];
+    const rawHtml = `${item.contentEncoded || ''} ${item.content || ''} ${item.description || ''} ${item.summary || ''}`;
+    const decoded = decodeHtmlEntities(rawHtml);
+
+    // Look for data-src, data-original, data-lazy-src, src attributes
+    const imgRegexes = [
+      /<img[^>]+(?:data-src|data-original|data-lazy-src|data-hi-res-src)=["']([^"'\s>]+)["']/i,
+      /<img[^>]+src=["']([^"'\s>]+)["']/i,
+      /<img[^>]+srcset=["']([^"'\s,>]+)/i,
+      /<source[^>]+srcset=["']([^"'\s,>]+)/i,
+      /url\(["']?(https?:\/\/[^'"\)\s]+\.(?:jpg|jpeg|png|webp|avif|gif))["']?\)/i
+    ];
+
+    for (const rx of imgRegexes) {
+      const match = decoded.match(rx);
+      if (match && match[1]) {
+        const candidate = match[1].trim();
+        if (!candidate.startsWith('data:image') && !candidate.includes('1x1') && !candidate.includes('pixel') && !candidate.includes('tracker')) {
+          src = candidate;
+          break;
+        }
+      }
     }
   }
 
   if (!src) return undefined;
 
-  src = src.trim();
+  src = decodeHtmlEntities(src).trim();
 
   // Filter out tracking pixels / web beacons
   if (src.includes('pixel') || src.includes('tracker') || src.includes('1x1') || src.includes('statcounter') || src.includes('doubleclick')) {
