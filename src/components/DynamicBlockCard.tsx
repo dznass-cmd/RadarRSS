@@ -5,28 +5,21 @@ import {
   Settings2,
   Bookmark,
   Share2,
-  Volume2,
-  ExternalLink,
-  Pin,
   Trash2,
   LayoutGrid,
   List,
   Columns,
-  Radio,
-  Clock,
   MessageSquareText,
   X,
-  ChevronRight,
-  TrendingUp,
-  AlertTriangle,
   Smile,
   Frown,
-  Minus
+  Clock
 } from 'lucide-react';
 import { DynamicBlock, NewsItem, BlockLayout, AccentColor } from '../types';
 import { getAccent } from '../utils/theme';
 import { SafeImage } from './SafeImage';
 import { shareArticle } from '../services/shareService';
+import { Language, getTranslation } from '../i18n/translations';
 
 interface DynamicBlockCardProps {
   block: DynamicBlock;
@@ -45,6 +38,7 @@ interface DynamicBlockCardProps {
   bookmarkedIds: Set<string>;
   archivedIds?: Set<string>;
   onToggleArchive?: (item: NewsItem) => void;
+  language?: Language;
 }
 
 export const DynamicBlockCard: React.FC<DynamicBlockCardProps> = ({
@@ -64,9 +58,11 @@ export const DynamicBlockCard: React.FC<DynamicBlockCardProps> = ({
   bookmarkedIds,
   archivedIds = new Set(),
   onToggleArchive,
+  language = 'en',
 }) => {
   const [showSummary, setShowSummary] = useState<boolean>(!!block.aiSummary);
   const acc = getAccent(accentColor);
+  const t = getTranslation(language);
 
   const displayItems = items.slice(0, block.itemCount);
 
@@ -75,13 +71,13 @@ export const DynamicBlockCard: React.FC<DynamicBlockCardProps> = ({
     const s = sourceName.toLowerCase();
     if (s.includes('g1')) return { bg: 'bg-red-600', text: 'text-white', dot: 'bg-red-500', name: 'G1' };
     if (s.includes('techcrunch')) return { bg: 'bg-emerald-600', text: 'text-white', dot: 'bg-emerald-400', name: 'TechCrunch' };
-    if (s.includes('verge')) return { bg: 'bg-purple-600', text: 'text-white', dot: 'bg-purple-400', name: 'Verge' };
+    if (s.includes('verge')) return { bg: 'bg-purple-600', text: 'text-white', dot: 'bg-purple-400', name: 'The Verge' };
     if (s.includes('guardian')) return { bg: 'bg-blue-700', text: 'text-white', dot: 'bg-blue-400', name: 'The Guardian' };
     if (s.includes('folha')) return { bg: 'bg-neutral-700', text: 'text-white', dot: 'bg-neutral-300', name: 'Folha de S.Paulo' };
-    if (s.includes('cnn')) return { bg: 'bg-red-700', text: 'text-white', dot: 'bg-red-400', name: 'CNN Brasil' };
+    if (s.includes('cnn')) return { bg: 'bg-red-700', text: 'text-white', dot: 'bg-red-400', name: 'CNN' };
     if (s.includes('bbc')) return { bg: 'bg-red-800', text: 'text-white', dot: 'bg-red-300', name: 'BBC News' };
-    if (s.includes('meta')) return { bg: 'bg-blue-600', text: 'text-white', dot: 'bg-blue-300', name: 'Meta' };
-    if (s.includes('nexo')) return { bg: 'bg-sky-700', text: 'text-white', dot: 'bg-sky-300', name: 'Nexo' };
+    if (s.includes('wired')) return { bg: 'bg-zinc-800', text: 'text-white', dot: 'bg-zinc-400', name: 'WIRED' };
+    if (s.includes('hackernews') || s.includes('hacker news')) return { bg: 'bg-orange-600', text: 'text-white', dot: 'bg-orange-400', name: 'HN' };
     return { bg: 'bg-neutral-700', text: 'text-white', dot: 'bg-amber-400', name: sourceName };
   };
 
@@ -89,17 +85,17 @@ export const DynamicBlockCard: React.FC<DynamicBlockCardProps> = ({
   const renderSentiment = (sentiment?: string) => {
     if (sentiment === 'positive') {
       return (
-        <span className="inline-flex items-center gap-1 text-[10px] font-semibold text-emerald-400 bg-emerald-500/10 px-1.5 py-0.5 rounded-md" title="Sentimento Positivo">
+        <span className="inline-flex items-center gap-1 text-[10px] font-semibold text-emerald-400 bg-emerald-500/10 px-1.5 py-0.5 rounded-md" title={t.block.positive}>
           <Smile className="w-3 h-3" />
-          <span>Positivo</span>
+          <span>{t.block.positive}</span>
         </span>
       );
     }
     if (sentiment === 'negative') {
       return (
-        <span className="inline-flex items-center gap-1 text-[10px] font-semibold text-red-400 bg-red-500/10 px-1.5 py-0.5 rounded-md" title="Sentimento Negativo / Alerta">
+        <span className="inline-flex items-center gap-1 text-[10px] font-semibold text-red-400 bg-red-500/10 px-1.5 py-0.5 rounded-md" title={t.block.negative}>
           <Frown className="w-3 h-3" />
-          <span>Alerta</span>
+          <span>{t.block.negative}</span>
         </span>
       );
     }
@@ -109,12 +105,12 @@ export const DynamicBlockCard: React.FC<DynamicBlockCardProps> = ({
   // Helper for relative time string
   const getRelativeTime = (timestamp: number) => {
     const diffMin = Math.floor((Date.now() - timestamp) / (1000 * 60));
-    if (diffMin < 1) return 'agora';
-    if (diffMin < 60) return `há ${diffMin} min`;
+    if (diffMin < 1) return t.block.justNow;
+    if (diffMin < 60) return `${diffMin}${t.block.minutesAgo}`;
     const diffHours = Math.floor(diffMin / 60);
-    if (diffHours < 24) return `há ${diffHours}h`;
+    if (diffHours < 24) return `${diffHours}${t.block.hoursAgo}`;
     const diffDays = Math.floor(diffHours / 24);
-    return `há ${diffDays}d`;
+    return `${diffDays}d`;
   };
 
   return (
@@ -152,28 +148,28 @@ export const DynamicBlockCard: React.FC<DynamicBlockCardProps> = ({
           }`}>
             <button
               onClick={() => onUpdateBlockLayout('hero')}
-              title="Destaque Hero"
+              title={t.createBlock.layouts.hero}
               className={`p-1 rounded-lg transition-colors ${block.layout === 'hero' ? `${acc.bg} text-black font-extrabold` : 'hover:text-white'}`}
             >
               <Columns className="w-3.5 h-3.5" />
             </button>
             <button
               onClick={() => onUpdateBlockLayout('grid')}
-              title="Grade de Cards"
+              title={t.createBlock.layouts.grid}
               className={`p-1 rounded-lg transition-colors ${block.layout === 'grid' ? `${acc.bg} text-black font-extrabold` : 'hover:text-white'}`}
             >
               <LayoutGrid className="w-3.5 h-3.5" />
             </button>
             <button
               onClick={() => onUpdateBlockLayout('list')}
-              title="Lista Detalhada"
+              title={t.createBlock.layouts.list}
               className={`p-1 rounded-lg transition-colors ${block.layout === 'list' ? `${acc.bg} text-black font-extrabold` : 'hover:text-white'}`}
             >
               <List className="w-3.5 h-3.5" />
             </button>
             <button
               onClick={() => onUpdateBlockLayout('compact')}
-              title="Lista Compacta"
+              title={t.createBlock.layouts.compact}
               className={`p-1 rounded-lg transition-colors ${block.layout === 'compact' ? `${acc.bg} text-black font-extrabold` : 'hover:text-white'}`}
             >
               <MessageSquareText className="w-3.5 h-3.5" />
@@ -184,18 +180,18 @@ export const DynamicBlockCard: React.FC<DynamicBlockCardProps> = ({
           <button
             onClick={onGenerateAISummary}
             disabled={isGeneratingAI || displayItems.length === 0}
-            title="Sintetizar bloco com IA (Gemini)"
+            title={t.block.aiSummary}
             className={`flex items-center gap-1 px-2.5 py-1 rounded-xl text-xs font-black uppercase tracking-wider ${acc.bg} ${acc.bgHover} text-black transition-all shadow-xs`}
           >
             <Sparkles className={`w-3.5 h-3.5 ${isGeneratingAI ? 'animate-spin' : ''}`} />
-            <span className="hidden md:inline">{isGeneratingAI ? '...' : 'SÍNTESE IA'}</span>
+            <span className="hidden md:inline">{isGeneratingAI ? '...' : t.block.aiSummary}</span>
           </button>
 
           {/* Refresh Block */}
           <button
             onClick={onRefreshBlock}
             disabled={isLoading}
-            title="Atualizar este bloco"
+            title={t.block.refresh}
             className={`p-1.5 rounded-xl transition-colors ${
               theme === 'dark' ? 'hover:bg-neutral-700 text-neutral-400' : 'hover:bg-neutral-100 text-neutral-600'
             }`}
@@ -206,7 +202,7 @@ export const DynamicBlockCard: React.FC<DynamicBlockCardProps> = ({
           {/* Block Settings */}
           <button
             onClick={onEditBlock}
-            title="Configurar este bloco"
+            title={t.block.edit}
             className={`p-1.5 rounded-xl transition-colors ${
               theme === 'dark' ? 'hover:bg-neutral-700 text-neutral-400' : 'hover:bg-neutral-100 text-neutral-600'
             }`}
@@ -217,8 +213,8 @@ export const DynamicBlockCard: React.FC<DynamicBlockCardProps> = ({
           {/* Delete Block */}
           <button
             onClick={onDeleteBlock}
-            title="Excluir este bloco"
-            className={`p-1.5 rounded-xl transition-colors text-red-400 hover:bg-red-500/10`}
+            title={t.block.remove}
+            className={`p-1.5 rounded-xl transition-colors text-red-400 hover:bg-red-500/10 cursor-pointer`}
           >
             <Trash2 className="w-4 h-4" />
           </button>
@@ -233,13 +229,13 @@ export const DynamicBlockCard: React.FC<DynamicBlockCardProps> = ({
           <div className="flex items-center justify-between mb-2 font-bold text-purple-400">
             <span className="flex items-center gap-1.5">
               <Sparkles className="w-4 h-4 text-purple-400" />
-              SÍNTESE INTELIGENTE DO BLOCO (GEMINI AI)
+              {t.reader.aiSummaryTitle}
             </span>
             <button
               onClick={() => setShowSummary(!showSummary)}
-              className="text-purple-400 hover:text-purple-200 text-[11px] underline"
+              className="text-purple-400 hover:text-purple-200 text-[11px] underline cursor-pointer"
             >
-              {showSummary ? 'Ocultar' : 'Ver Resumo'}
+              {showSummary ? (language === 'pt' ? 'Ocultar' : 'Hide') : (language === 'pt' ? 'Ver Resumo' : 'Show Summary')}
             </button>
           </div>
           {showSummary && (
@@ -255,11 +251,11 @@ export const DynamicBlockCard: React.FC<DynamicBlockCardProps> = ({
         {isLoading && displayItems.length === 0 ? (
           <div className="py-12 text-center text-zinc-500 text-xs flex flex-col items-center justify-center gap-2">
             <RefreshCw className="w-6 h-6 animate-spin text-amber-500" />
-            <span>Sincronizando feeds do bloco em tempo real...</span>
+            <span>{t.block.generatingSummary}</span>
           </div>
         ) : displayItems.length === 0 ? (
           <div className="py-12 text-center text-zinc-500 text-xs">
-            Nenhuma notícia encontrada com os filtros configurados.
+            {t.block.noArticles}
           </div>
         ) : (
           <>
@@ -316,10 +312,10 @@ export const DynamicBlockCard: React.FC<DynamicBlockCardProps> = ({
                           {displayItems[0].contentSnippet}
                         </p>
 
-                        {/* Resumo IA Banner */}
+                        {/* Summary Pill */}
                         <div className="mt-2 pt-2 border-t border-neutral-800/60 flex items-center gap-2">
                           <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-emerald-950/90 border border-emerald-500/50 text-emerald-400 text-[10px] font-extrabold tracking-wide shrink-0">
-                            Resumo IA
+                            {t.block.aiSummary}
                           </span>
                           <span className="text-[11px] text-neutral-300 truncate">
                             {displayItems[0].contentSnippet}
@@ -333,7 +329,7 @@ export const DynamicBlockCard: React.FC<DynamicBlockCardProps> = ({
                           {getRelativeTime(displayItems[0].timestamp)}
                           {archivedIds.has(displayItems[0].id) && (
                             <span className="ml-1 text-[9px] font-black text-amber-400 bg-amber-500/20 px-1.5 py-0.2 rounded border border-amber-500/30">
-                              LIDA
+                              {t.block.archived}
                             </span>
                           )}
                         </span>
@@ -344,8 +340,8 @@ export const DynamicBlockCard: React.FC<DynamicBlockCardProps> = ({
                                 e.stopPropagation();
                                 onToggleArchive(displayItems[0]);
                               }}
-                              title={archivedIds.has(displayItems[0].id) ? "Desarquivar notícia" : "Arquivar notícia"}
-                              className="p-1 hover:text-amber-400 transition-colors"
+                              title={archivedIds.has(displayItems[0].id) ? t.archive.unarchive : t.block.archive}
+                              className="p-1 hover:text-amber-400 transition-colors cursor-pointer"
                             >
                               <X className={`w-3.5 h-3.5 ${archivedIds.has(displayItems[0].id) ? 'text-amber-400' : 'text-neutral-500'}`} />
                             </button>
@@ -359,8 +355,8 @@ export const DynamicBlockCard: React.FC<DynamicBlockCardProps> = ({
                                 url: displayItems[0].link,
                               });
                             }}
-                            title="Compartilhar notícia"
-                            className="p-1 hover:text-amber-400 transition-colors"
+                            title={t.block.share}
+                            className="p-1 hover:text-amber-400 transition-colors cursor-pointer"
                           >
                             <Share2 className="w-3.5 h-3.5" />
                           </button>
@@ -369,7 +365,8 @@ export const DynamicBlockCard: React.FC<DynamicBlockCardProps> = ({
                               e.stopPropagation();
                               onToggleBookmark(displayItems[0]);
                             }}
-                            className={`p-1 ${acc.textHover} transition-colors`}
+                            title={t.block.bookmark}
+                            className={`p-1 ${acc.textHover} transition-colors cursor-pointer`}
                           >
                             <Bookmark className={`w-3.5 h-3.5 ${bookmarkedIds.has(displayItems[0].id) ? `${acc.fill}` : ''}`} />
                           </button>
@@ -448,52 +445,31 @@ export const DynamicBlockCard: React.FC<DynamicBlockCardProps> = ({
                           </div>
                         )}
                         <div className="flex items-center justify-between gap-2 mb-1.5">
-                          <div className="flex items-center gap-1.5">
+                          <div className="flex items-center gap-1.5 min-w-0">
                             <span className={`w-3.5 h-3.5 rounded-full ${source.bg} flex items-center justify-center text-[8px] font-black text-white shrink-0`}>
                               {source.name.charAt(0)}
                             </span>
-                            <span className="text-[11px] font-bold text-neutral-300 group-hover:text-amber-400 transition-colors">
+                            <span className="text-[10px] font-bold text-neutral-400 group-hover:text-amber-400 uppercase tracking-wider truncate">
                               {source.name}
                             </span>
                           </div>
                           {renderSentiment(item.sentiment)}
                         </div>
-                        <h4 className="font-bold text-xs sm:text-sm leading-snug group-hover:text-amber-400 text-neutral-100 transition-colors line-clamp-2 mb-1.5">
+
+                        <h4 className="font-extrabold text-xs leading-snug group-hover:text-amber-400 text-neutral-100 line-clamp-3 mb-2">
                           {item.title}
                         </h4>
-                        <p className="text-[11px] text-neutral-400 line-clamp-2 mb-2 leading-relaxed">
+                        <p className="text-[11px] text-neutral-400 line-clamp-2 leading-relaxed">
                           {item.contentSnippet}
                         </p>
-
-                        {/* Resumo IA pill */}
-                        <div className="mt-2 pt-2 border-t border-neutral-800/60 flex items-center gap-2">
-                          <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-emerald-950/90 border border-emerald-500/50 text-emerald-400 text-[10px] font-black tracking-wide shrink-0">
-                            Resumo IA
-                          </span>
-                          <span className="text-[11px] text-neutral-300 truncate">
-                            {item.contentSnippet}
-                          </span>
-                        </div>
                       </div>
 
-                      <div className="flex items-center justify-between text-[10px] font-mono text-neutral-400 pt-2.5 mt-2 border-t border-neutral-800/40">
-                        <span className="flex items-center gap-1">
+                      <div className="flex items-center justify-between text-[10px] text-neutral-400 pt-3 mt-2 border-t border-neutral-800/40">
+                        <span className="flex items-center gap-1 font-mono">
                           <Clock className="w-3 h-3 text-neutral-500" />
                           {getRelativeTime(item.timestamp)}
                         </span>
                         <div className="flex items-center gap-1.5">
-                          {onToggleArchive && (
-                            <button
-                              onClick={(e) => {
-                                e.stopPropagation();
-                                onToggleArchive(item);
-                              }}
-                              title={archivedIds.has(item.id) ? "Desarquivar notícia" : "Arquivar notícia"}
-                              className="p-1 hover:text-amber-400 transition-colors"
-                            >
-                              <X className={`w-3.5 h-3.5 ${archivedIds.has(item.id) ? 'text-amber-400' : 'text-neutral-500'}`} />
-                            </button>
-                          )}
                           <button
                             onClick={(e) => {
                               e.stopPropagation();
@@ -503,8 +479,8 @@ export const DynamicBlockCard: React.FC<DynamicBlockCardProps> = ({
                                 url: item.link,
                               });
                             }}
-                            title="Compartilhar notícia"
-                            className="p-1 hover:text-amber-400 transition-colors"
+                            title={t.block.share}
+                            className="p-1 hover:text-amber-400 transition-colors cursor-pointer"
                           >
                             <Share2 className="w-3.5 h-3.5" />
                           </button>
@@ -513,7 +489,8 @@ export const DynamicBlockCard: React.FC<DynamicBlockCardProps> = ({
                               e.stopPropagation();
                               onToggleBookmark(item);
                             }}
-                            className={`p-1 ${acc.textHover} transition-colors`}
+                            title={t.block.bookmark}
+                            className={`p-1 ${acc.textHover} transition-colors cursor-pointer`}
                           >
                             <Bookmark className={`w-3.5 h-3.5 ${bookmarkedIds.has(item.id) ? `${acc.fill}` : ''}`} />
                           </button>
@@ -527,27 +504,17 @@ export const DynamicBlockCard: React.FC<DynamicBlockCardProps> = ({
 
             {/* LIST LAYOUT */}
             {block.layout === 'list' && (
-              <div className="flex flex-col gap-2.5">
+              <div className="space-y-2.5">
                 {displayItems.map((item) => (
                   <div
                     key={item.id}
                     onClick={() => onSelectArticle(item)}
-                    className={`p-3 rounded-xl border flex items-center justify-between gap-3 group cursor-pointer transition-all ${
+                    className={`p-3 rounded-2xl border flex items-center justify-between gap-4 group cursor-pointer transition-all ${
                       theme === 'dark'
-                        ? 'bg-zinc-950/60 border-zinc-800/80 hover:border-amber-500/40'
-                        : 'bg-zinc-50 border-zinc-200 hover:border-amber-500/40'
+                        ? 'bg-[#13141c]/80 border-neutral-800/80 hover:border-amber-500/60'
+                        : 'bg-white border-neutral-200 hover:border-amber-500/60'
                     }`}
                   >
-                    {item.imageUrl && (
-                      <div className="w-16 h-16 rounded-lg overflow-hidden bg-zinc-950 shrink-0 hidden sm:block">
-                        <SafeImage 
-                          src={item.imageUrl} 
-                          alt="" 
-                          className="w-full h-full object-cover group-hover:scale-105 transition-transform"
-                          fallbackType="square"
-                        />
-                      </div>
-                    )}
                     <div className="flex-1 min-w-0">
                       <div className="flex items-center gap-2 mb-1">
                         <span className="text-[10px] font-bold text-amber-500">
@@ -576,8 +543,8 @@ export const DynamicBlockCard: React.FC<DynamicBlockCardProps> = ({
                             url: item.link,
                           });
                         }}
-                        title="Compartilhar notícia"
-                        className="p-1.5 hover:text-amber-500 transition-colors"
+                        title={t.block.share}
+                        className="p-1.5 hover:text-amber-500 transition-colors cursor-pointer"
                       >
                         <Share2 className="w-4 h-4" />
                       </button>
@@ -586,7 +553,8 @@ export const DynamicBlockCard: React.FC<DynamicBlockCardProps> = ({
                           e.stopPropagation();
                           onToggleBookmark(item);
                         }}
-                        className="p-1.5 hover:text-amber-500 transition-colors"
+                        title={t.block.bookmark}
+                        className="p-1.5 hover:text-amber-500 transition-colors cursor-pointer"
                       >
                         <Bookmark className={`w-4 h-4 ${bookmarkedIds.has(item.id) ? 'fill-amber-500 text-amber-500' : ''}`} />
                       </button>
@@ -626,8 +594,8 @@ export const DynamicBlockCard: React.FC<DynamicBlockCardProps> = ({
                             url: item.link,
                           });
                         }}
-                        title="Compartilhar notícia"
-                        className="hover:text-amber-500 transition-colors"
+                        title={t.block.share}
+                        className="hover:text-amber-500 transition-colors cursor-pointer"
                       >
                         <Share2 className="w-3.5 h-3.5" />
                       </button>
@@ -636,7 +604,8 @@ export const DynamicBlockCard: React.FC<DynamicBlockCardProps> = ({
                           e.stopPropagation();
                           onToggleBookmark(item);
                         }}
-                        className="hover:text-amber-500 transition-colors"
+                        title={t.block.bookmark}
+                        className="hover:text-amber-500 transition-colors cursor-pointer"
                       >
                         <Bookmark className={`w-3.5 h-3.5 ${bookmarkedIds.has(item.id) ? 'fill-amber-500 text-amber-500' : ''}`} />
                       </button>

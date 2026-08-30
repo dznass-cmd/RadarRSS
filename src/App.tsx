@@ -15,6 +15,7 @@ import { DynamicBlock, NewsItem, RssFeed, AppSettings, BlockLayout, ToastItem } 
 import { getAccent } from './utils/theme';
 import { Bookmark, Sparkles, Plus, Radio, Layers, RefreshCw, Archive, Trash2, CheckCircle2 } from 'lucide-react';
 import { fetchRssFeeds, isNativePlatform } from './services/apiAdapter';
+import { getTranslation } from './i18n/translations';
 import { App as CapApp } from '@capacitor/app';
 import { StatusBar, Style } from '@capacitor/status-bar';
 import { Haptics, ImpactStyle } from '@capacitor/haptics';
@@ -79,11 +80,12 @@ export default function App() {
   const [settings, setSettings] = useState<AppSettings>(() => {
     const saved = localStorage.getItem(STORAGE_KEYS.SETTINGS);
     return saved ? JSON.parse(saved) : {
+      language: 'en',
       theme: 'dark',
       globalRefreshSec: 60,
       soundAlerts: true,
       browserNotifications: true,
-      breakingKeywords: ['Urgente', 'Bomba', 'Atenção', 'Breaking', 'Exclusivo', 'Última Hora'],
+      breakingKeywords: ['Breaking', 'Urgent', 'Alert', 'Exclusive', 'Developing', 'Bomba', 'Urgente', 'Última Hora'],
       layoutCols: 2,
     };
   });
@@ -670,6 +672,7 @@ export default function App() {
         onSelectArticle={handleSelectArticle}
         theme={settings.theme}
         accentColor={settings.accentColor}
+        language={settings.language}
       />
 
       {/* Pull to Refresh Mobile Indicator */}
@@ -685,10 +688,10 @@ export default function App() {
             />
             <span>
               {isPullRefreshing
-                ? 'Sincronizando Feeds...'
+                ? (settings.language === 'pt' ? 'Sincronizando Feeds...' : 'Syncing Feeds...')
                 : pullDistance >= 55
-                  ? 'Solte para Atualizar!'
-                  : 'Puxe para Atualizar'}
+                  ? (settings.language === 'pt' ? 'Solte para Atualizar!' : 'Release to Refresh!')
+                  : (settings.language === 'pt' ? 'Puxe para Atualizar' : 'Pull to Refresh')}
             </span>
           </div>
         </div>
@@ -704,13 +707,15 @@ export default function App() {
               <Archive className="w-6 h-6 text-amber-500" />
               <div>
                 <h2 className="font-extrabold text-base uppercase tracking-wider flex items-center gap-2">
-                  Notícias Arquivadas / Lidas ({archivedArticleIds.size})
+                  {settings.language === 'pt' ? `Notícias Arquivadas / Lidas (${archivedArticleIds.size})` : `Archived / Read Articles (${archivedArticleIds.size})`}
                   <span className="text-[10px] bg-amber-500/20 text-amber-400 font-mono px-2 py-0.5 rounded border border-amber-500/30">
-                    Notícias clicadas são auto-arquivadas
+                    {settings.language === 'pt' ? 'Auto-arquivadas ao clicar' : 'Auto-archived on click'}
                   </span>
                 </h2>
                 <p className="text-xs text-neutral-400">
-                  As notícias que você clica são guardadas aqui para manter seu feed principal limpo e focado em novidades.
+                  {settings.language === 'pt'
+                    ? 'As notícias que você clica são guardadas aqui para manter seu feed principal limpo e focado em novidades.'
+                    : 'Articles you click are preserved here to keep your main dashboard clean and focused on breaking stories.'}
                 </p>
               </div>
             </div>
@@ -719,22 +724,22 @@ export default function App() {
               {archivedArticleIds.size > 0 && (
                 <button
                   onClick={() => {
-                    if (confirm('Deseja limpar todo o histórico de notícias arquivadas?')) {
+                    if (confirm(settings.language === 'pt' ? 'Deseja limpar todo o histórico de notícias arquivadas?' : 'Clear all archived reading history?')) {
                       setArchivedArticleIds(new Set());
                     }
                   }}
-                  className="px-3 py-2 rounded-2xl text-xs font-bold uppercase tracking-wider bg-red-500/20 border border-red-500/40 text-red-400 hover:bg-red-500/30 transition-colors flex items-center gap-1.5"
+                  className="px-3 py-2 rounded-2xl text-xs font-bold uppercase tracking-wider bg-red-500/20 border border-red-500/40 text-red-400 hover:bg-red-500/30 transition-colors flex items-center gap-1.5 cursor-pointer"
                 >
                   <Trash2 className="w-3.5 h-3.5" />
-                  <span>Esvaziar Arquivo</span>
+                  <span>{settings.language === 'pt' ? 'Esvaziar Arquivo' : 'Clear Archive'}</span>
                 </button>
               )}
 
               <button
                 onClick={() => setShowArchiveOnly(false)}
-                className="px-4 py-2 rounded-2xl text-xs font-black uppercase tracking-wider bg-amber-500 text-black hover:bg-amber-400 transition-colors"
+                className="px-4 py-2 rounded-2xl text-xs font-black uppercase tracking-wider bg-amber-500 text-black hover:bg-amber-400 transition-colors cursor-pointer"
               >
-                Voltar às Novidades
+                {settings.language === 'pt' ? 'Voltar às Novidades' : 'Back to News'}
               </button>
             </div>
           </div>
@@ -746,15 +751,19 @@ export default function App() {
             <div className="flex items-center gap-3">
               <Bookmark className={`w-6 h-6 ${getAccent(settings.accentColor).text} ${getAccent(settings.accentColor).fill}`} />
               <div>
-                <h2 className="font-extrabold text-base uppercase tracking-wider">Suas Matérias Salvas ({bookmarkedArticles.length})</h2>
-                <p className="text-xs text-neutral-400">Leitura offline e artigos marcados para ler mais tarde</p>
+                <h2 className="font-extrabold text-base uppercase tracking-wider">
+                  {settings.language === 'pt' ? `Suas Matérias Salvas (${bookmarkedArticles.length})` : `Saved Bookmarks (${bookmarkedArticles.length})`}
+                </h2>
+                <p className="text-xs text-neutral-400">
+                  {settings.language === 'pt' ? 'Leitura offline e artigos marcados para ler mais tarde' : 'Offline bookmarks and saved stories for later'}
+                </p>
               </div>
             </div>
             <button
               onClick={() => setShowBookmarksOnly(false)}
-              className={`px-4 py-2 rounded-2xl text-xs font-black uppercase tracking-wider ${getAccent(settings.accentColor).bg} text-black ${getAccent(settings.accentColor).bgHover} transition-colors`}
+              className={`px-4 py-2 rounded-2xl text-xs font-black uppercase tracking-wider ${getAccent(settings.accentColor).bg} text-black ${getAccent(settings.accentColor).bgHover} transition-colors cursor-pointer`}
             >
-              Voltar ao Painel
+              {settings.language === 'pt' ? 'Voltar ao Painel' : 'Back to Dashboard'}
             </button>
           </div>
         )}
@@ -763,7 +772,9 @@ export default function App() {
         {showBookmarksOnly ? (
           bookmarkedArticles.length === 0 ? (
             <div className="text-center py-20 text-neutral-500 text-xs font-mono">
-              NENHUMA MATÉRIA SALVA NO SEU BANCO LOCAL. CLIQUE NO ÍCONE DE BOOKMARK PARA SALVAR NOTÍCIAS.
+              {settings.language === 'pt'
+                ? 'NENHUMA MATÉRIA SALVA NO SEU BANCO LOCAL. CLIQUE NO ÍCONE DE BOOKMARK PARA SALVAR NOTÍCIAS.'
+                : 'NO BOOKMARKED ARTICLES YET. CLICK THE BOOKMARK ICON ON ANY ARTICLE TO SAVE IT HERE.'}
             </div>
           ) : (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
@@ -786,9 +797,9 @@ export default function App() {
                         e.stopPropagation();
                         toggleBookmark(item);
                       }}
-                      className={`${getAccent(settings.accentColor).text} hover:underline font-bold`}
+                      className={`${getAccent(settings.accentColor).text} hover:underline font-bold cursor-pointer`}
                     >
-                      Remover
+                      {settings.language === 'pt' ? 'Remover' : 'Remove'}
                     </button>
                   </div>
                 </div>
@@ -827,6 +838,7 @@ export default function App() {
                   bookmarkedIds={bookmarkedIds}
                   archivedIds={archivedArticleIds}
                   onToggleArchive={handleToggleArchiveItem}
+                  language={settings.language}
                 />
               );
             })}
@@ -839,10 +851,10 @@ export default function App() {
             : 'bg-neutral-200/60 border-neutral-300 text-neutral-700'
           }`}>
           <span className={`text-[9px] font-black ${getAccent(settings.accentColor).bg} text-black px-1.5 py-0.5 rounded tracking-widest`}>
-            RAW
+            LIVE
           </span>
           <div className="overflow-hidden whitespace-nowrap text-ellipsis flex-1">
-            <span className={`${getAccent(settings.accentColor).text} font-bold`}>[RADAR LOG]</span> Sincronizando {feeds.filter(f => f.active).length} feeds ativas... <span className="text-emerald-400">Success</span> • {allNewsItems.length} artigos carregados • Latência: <span className={getAccent(settings.accentColor).textDark}>12ms</span> • Formato: <span className="text-white font-bold">Bento Grid Engine</span>
+            <span className={`${getAccent(settings.accentColor).text} font-bold`}>[RADAR ENGINE]</span> Syncing {feeds.filter(f => f.active).length} active feeds... <span className="text-emerald-400">Online</span> • {allNewsItems.length} articles loaded • Engine: <span className="text-white font-bold">Bento Real-time Matrix</span>
           </div>
         </footer>
 
@@ -858,6 +870,7 @@ export default function App() {
         isBookmarked={selectedArticle ? bookmarkedIds.has(selectedArticle.id) : false}
         theme={settings.theme}
         accentColor={settings.accentColor}
+        language={settings.language}
       />
 
       {/* Create / Edit Dynamic Block Modal */}
@@ -871,6 +884,7 @@ export default function App() {
         initialBlock={editingBlock}
         availableFeeds={feeds}
         theme={settings.theme}
+        language={settings.language}
       />
 
       {/* Manage Feeds Catalog Modal */}
@@ -884,6 +898,7 @@ export default function App() {
         onExportConfig={handleExportConfig}
         onImportConfig={handleImportConfig}
         theme={settings.theme}
+        language={settings.language}
       />
 
       {/* Gemini AI Smart Curator Modal */}
@@ -892,6 +907,7 @@ export default function App() {
         onClose={() => setIsAICuratorOpen(false)}
         onBlockCurated={handleSaveBlock}
         theme={settings.theme}
+        language={settings.language}
       />
 
       {/* Global Feeds Recommendations Modal */}
@@ -901,6 +917,7 @@ export default function App() {
         activeFeeds={feeds}
         onAddFeed={handleAddCustomFeed}
         theme={settings.theme}
+        language={settings.language}
       />
 
       {/* Settings Modal */}
@@ -920,6 +937,7 @@ export default function App() {
         onSelectArticle={handleSelectArticle}
         accentColor={settings.accentColor}
         theme={settings.theme}
+        language={settings.language}
       />
 
     </div>

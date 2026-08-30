@@ -1,22 +1,13 @@
 import { RssFeed } from '../types';
 
 export const DEFAULT_FEEDS: RssFeed[] = [
-  // Tecnologia & Dev
+  // International Tech & Dev
   {
-    id: 'tecnoblog',
-    title: 'Tecnoblog',
-    url: 'https://tecnoblog.net/feed/',
+    id: 'techcrunch',
+    title: 'TechCrunch',
+    url: 'https://techcrunch.com/feed/',
     category: 'tech',
-    icon: '💻',
-    active: true,
-    status: 'ok',
-  },
-  {
-    id: 'canaltech',
-    title: 'Canaltech',
-    url: 'https://canaltech.com.br/rss/',
-    category: 'tech',
-    icon: '⚡',
+    icon: '🔥',
     active: true,
     status: 'ok',
   },
@@ -30,25 +21,63 @@ export const DEFAULT_FEEDS: RssFeed[] = [
     status: 'ok',
   },
   {
-    id: 'techcrunch',
-    title: 'TechCrunch',
-    url: 'https://techcrunch.com/feed/',
+    id: 'theverge',
+    title: 'The Verge',
+    url: 'https://www.theverge.com/rss/index.xml',
     category: 'tech',
-    icon: '🔥',
+    icon: '⚡',
+    active: true,
+    status: 'ok',
+  },
+  {
+    id: 'wired',
+    title: 'WIRED',
+    url: 'https://www.wired.com/feed/rss',
+    category: 'tech',
+    icon: '💡',
     active: true,
     status: 'ok',
   },
   {
     id: 'devto',
-    title: 'Dev.to (Devs)',
+    title: 'Dev.to',
     url: 'https://dev.to/feed',
     category: 'tech',
     icon: '👨‍💻',
     active: true,
     status: 'ok',
   },
+  {
+    id: 'tecnoblog',
+    title: 'Tecnoblog',
+    url: 'https://tecnoblog.net/feed/',
+    category: 'tech',
+    icon: '💻',
+    active: true,
+    status: 'ok',
+  },
 
-  // Brasil & Notícias Gerais
+  // Global & World News
+  {
+    id: 'bbc_world',
+    title: 'BBC World News',
+    url: 'http://feeds.bbci.co.uk/news/world/rss.xml',
+    category: 'world',
+    icon: '🌍',
+    active: true,
+    status: 'ok',
+  },
+  {
+    id: 'guardian_world',
+    title: 'The Guardian (World)',
+    url: 'https://www.theguardian.com/world/rss',
+    category: 'world',
+    icon: '📰',
+    active: true,
+    status: 'ok',
+  },
+
+  // Regional (Brasil) & General
   {
     id: 'g1_brasil',
     title: 'G1 - Brasil',

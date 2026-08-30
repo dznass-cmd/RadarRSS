@@ -2,18 +2,16 @@ import React, { useState } from 'react';
 import {
   X,
   Plus,
-  Rss,
-  Check,
-  AlertCircle,
-  Download,
-  Upload,
   Trash2,
   ListPlus,
-  ExternalLink,
-  Loader2
+  Loader2,
+  AlertCircle,
+  Download,
+  Upload
 } from 'lucide-react';
 import { RssFeed } from '../types';
 import { validateRssFeed } from '../services/apiAdapter';
+import { Language, getTranslation } from '../i18n/translations';
 
 interface ManageFeedsModalProps {
   isOpen: boolean;
@@ -25,6 +23,7 @@ interface ManageFeedsModalProps {
   onExportConfig: () => void;
   onImportConfig: (e: React.ChangeEvent<HTMLInputElement>) => void;
   theme: 'dark' | 'light';
+  language?: Language;
 }
 
 export const ManageFeedsModal: React.FC<ManageFeedsModalProps> = ({
@@ -37,7 +36,9 @@ export const ManageFeedsModal: React.FC<ManageFeedsModalProps> = ({
   onExportConfig,
   onImportConfig,
   theme,
+  language = 'en',
 }) => {
+  const t = getTranslation(language);
   const [customUrl, setCustomUrl] = useState<string>('');
   const [customTitle, setCustomTitle] = useState<string>('');
   const [customCategory, setCustomCategory] = useState<RssFeed['category']>('custom');
@@ -59,7 +60,7 @@ export const ManageFeedsModal: React.FC<ManageFeedsModalProps> = ({
       if (data.success) {
         const feedToAdd: RssFeed = {
           id: `custom_${Date.now()}`,
-          title: customTitle.trim() || data.title || 'Feed Personalizado',
+          title: customTitle.trim() || data.title || (language === 'pt' ? 'Feed Personalizado' : 'Custom Feed'),
           url: customUrl.trim(),
           category: customCategory,
           icon: '🔗',
@@ -70,10 +71,10 @@ export const ManageFeedsModal: React.FC<ManageFeedsModalProps> = ({
         setCustomUrl('');
         setCustomTitle('');
       } else {
-        setValidationError(data.error || 'Feed RSS inválido ou inacessível.');
+        setValidationError(data.error || t.manageFeeds.invalidFeed);
       }
     } catch (err: any) {
-      setValidationError('Erro de conexão ao validar URL do feed RSS.');
+      setValidationError(t.manageFeeds.connectionError);
     } finally {
       setIsValidating(false);
     }
@@ -91,9 +92,9 @@ export const ManageFeedsModal: React.FC<ManageFeedsModalProps> = ({
         }`}>
           <div className="flex items-center gap-2">
             <ListPlus className="w-5 h-5 text-orange-500" />
-            <h3 className="font-black text-sm uppercase tracking-wider">Gerenciar Fontes & Feeds RSS</h3>
+            <h3 className="font-black text-sm uppercase tracking-wider">{t.manageFeeds.title}</h3>
           </div>
-          <button onClick={onClose} className="p-1.5 rounded-xl hover:bg-neutral-800">
+          <button onClick={onClose} className="p-1.5 rounded-xl hover:bg-neutral-800 cursor-pointer">
             <X className="w-5 h-5 text-neutral-400" />
           </button>
         </div>
@@ -107,7 +108,7 @@ export const ManageFeedsModal: React.FC<ManageFeedsModalProps> = ({
           }`}>
             <h4 className="font-black text-xs uppercase tracking-widest text-orange-500 mb-3 flex items-center gap-1.5">
               <Plus className="w-4 h-4" />
-              Adicionar Novo Feed RSS por URL
+              {t.manageFeeds.addFeed}
             </h4>
             <form onSubmit={handleValidateAndAdd} className="space-y-3">
               <div className="grid grid-cols-1 sm:grid-cols-12 gap-2">
@@ -116,7 +117,7 @@ export const ManageFeedsModal: React.FC<ManageFeedsModalProps> = ({
                   required
                   value={customUrl}
                   onChange={(e) => setCustomUrl(e.target.value)}
-                  placeholder="https://exemplo.com/rss ou /feed.xml"
+                  placeholder={t.manageFeeds.urlPlaceholder}
                   className={`sm:col-span-7 px-3.5 py-2.5 text-xs font-mono rounded-xl border outline-none ${
                     theme === 'dark' ? 'bg-neutral-900 border-neutral-800 focus:border-orange-500' : 'bg-white border-neutral-300'
                   }`}
@@ -125,7 +126,7 @@ export const ManageFeedsModal: React.FC<ManageFeedsModalProps> = ({
                   type="text"
                   value={customTitle}
                   onChange={(e) => setCustomTitle(e.target.value)}
-                  placeholder="Nome do portal (opcional)"
+                  placeholder={t.manageFeeds.feedNamePlaceholder}
                   className={`sm:col-span-5 px-3.5 py-2.5 text-xs font-bold rounded-xl border outline-none ${
                     theme === 'dark' ? 'bg-neutral-900 border-neutral-800 focus:border-orange-500' : 'bg-white border-neutral-300'
                   }`}
@@ -140,22 +141,23 @@ export const ManageFeedsModal: React.FC<ManageFeedsModalProps> = ({
                     theme === 'dark' ? 'bg-neutral-900 border-neutral-800' : 'bg-white border-neutral-300'
                   }`}
                 >
-                  <option value="tech">💻 Tecnologia</option>
-                  <option value="brazil">🇧🇷 Brasil</option>
-                  <option value="ai">🤖 IA & Inovação</option>
-                  <option value="finance">📈 Economia</option>
-                  <option value="sports">⚽ Esportes</option>
-                  <option value="entertainment">🎬 Cultura</option>
-                  <option value="custom">🔗 Personalizado</option>
+                  <option value="tech">💻 {t.createBlock.categories.tech}</option>
+                  <option value="world">🌍 {t.createBlock.categories.world}</option>
+                  <option value="ai">🤖 {t.createBlock.categories.ai}</option>
+                  <option value="finance">📈 {t.createBlock.categories.finance}</option>
+                  <option value="brazil">🇧🇷 {t.createBlock.categories.brazil}</option>
+                  <option value="sports">⚽ {t.createBlock.categories.sports}</option>
+                  <option value="entertainment">🎬 {t.createBlock.categories.entertainment}</option>
+                  <option value="custom">🔗 {t.createBlock.categories.custom}</option>
                 </select>
 
                 <button
                   type="submit"
                   disabled={isValidating || !customUrl}
-                  className="px-4 py-2 rounded-xl text-xs font-black uppercase tracking-wider bg-orange-500 hover:bg-orange-400 text-black transition-all flex items-center gap-1.5 shadow-md"
+                  className="px-4 py-2 rounded-xl text-xs font-black uppercase tracking-wider bg-orange-500 hover:bg-orange-400 text-black transition-all flex items-center gap-1.5 shadow-md cursor-pointer"
                 >
                   {isValidating ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Plus className="w-3.5 h-3.5" />}
-                  <span>{isValidating ? 'Validando RSS...' : 'Adicionar Feed'}</span>
+                  <span>{isValidating ? t.manageFeeds.validating : t.manageFeeds.validateAndAdd}</span>
                 </button>
               </div>
 
@@ -171,7 +173,7 @@ export const ManageFeedsModal: React.FC<ManageFeedsModalProps> = ({
           {/* Active / Inactive Feed Catalog */}
           <div>
             <h4 className="font-black text-xs uppercase tracking-widest text-neutral-400 mb-3">
-              Catálogo de Feeds ({feeds.length})
+              {t.manageFeeds.activeFeeds} ({feeds.length})
             </h4>
             <div className="divide-y divide-neutral-800/80 max-h-60 overflow-y-auto pr-1">
               {feeds.map((feed) => (
@@ -195,19 +197,20 @@ export const ManageFeedsModal: React.FC<ManageFeedsModalProps> = ({
                   <div className="flex items-center gap-2 shrink-0">
                     <button
                       onClick={() => onToggleFeed(feed.id)}
-                      className={`px-3 py-1 rounded-xl text-[10px] font-black uppercase tracking-wider border transition-all ${
+                      className={`px-3 py-1 rounded-xl text-[10px] font-black uppercase tracking-wider border transition-all cursor-pointer ${
                         feed.active
                           ? 'bg-emerald-500/20 border-emerald-500/40 text-emerald-400'
                           : 'bg-neutral-800 border-neutral-700 text-neutral-500'
                       }`}
                     >
-                      {feed.active ? 'Ativo' : 'Inativo'}
+                      {feed.active ? (language === 'pt' ? 'Ativo' : 'Active') : (language === 'pt' ? 'Inativo' : 'Inactive')}
                     </button>
 
                     {feed.id.startsWith('custom_') && (
                       <button
                         onClick={() => onRemoveFeed(feed.id)}
-                        className="p-1.5 text-red-400 hover:bg-red-500/10 rounded-xl transition-colors"
+                        className="p-1.5 text-red-400 hover:bg-red-500/10 rounded-xl transition-colors cursor-pointer"
+                        title={t.manageFeeds.deleteFeed}
                       >
                         <Trash2 className="w-4 h-4" />
                       </button>
@@ -222,15 +225,15 @@ export const ManageFeedsModal: React.FC<ManageFeedsModalProps> = ({
           <div className="pt-2 border-t border-neutral-800 flex items-center justify-between gap-3">
             <button
               onClick={onExportConfig}
-              className="flex items-center gap-1.5 px-3.5 py-2 rounded-xl text-xs font-black uppercase tracking-wider border border-neutral-700 hover:bg-neutral-800 transition-all text-neutral-200"
+              className="flex items-center gap-1.5 px-3.5 py-2 rounded-xl text-xs font-black uppercase tracking-wider border border-neutral-700 hover:bg-neutral-800 transition-all text-neutral-200 cursor-pointer"
             >
               <Download className="w-3.5 h-3.5 text-orange-500" />
-              <span>Exportar Backup</span>
+              <span>{t.manageFeeds.exportConfig}</span>
             </button>
 
             <label className="flex items-center gap-1.5 px-3.5 py-2 rounded-xl text-xs font-black uppercase tracking-wider border border-neutral-700 hover:bg-neutral-800 transition-all text-neutral-200 cursor-pointer">
               <Upload className="w-3.5 h-3.5 text-orange-500" />
-              <span>Importar Backup</span>
+              <span>{t.manageFeeds.importConfig}</span>
               <input
                 type="file"
                 accept=".json"

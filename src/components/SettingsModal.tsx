@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
-import { X, Settings, RotateCcw, Volume2, Clock, LayoutGrid, Bell, BellRing, Sparkles, AlertTriangle, Send, Info, Sun, Moon, Palette } from 'lucide-react';
+import { X, Settings, RotateCcw, Volume2, Clock, LayoutGrid, BellRing, Sparkles, AlertTriangle, Send, Info, Sun, Moon, Palette, Globe } from 'lucide-react';
 import { AppSettings, AccentColor } from '../types';
+import { getTranslation } from '../i18n/translations';
 
 interface SettingsModalProps {
   isOpen: boolean;
@@ -13,20 +14,19 @@ interface SettingsModalProps {
 
 const ACCENT_COLORS: {
   id: AccentColor;
-  label: string;
   colorBg: string;
   activeBorder: string;
   bgLight: string;
   ringColor: string;
 }[] = [
-  { id: 'orange', label: 'Laranja', colorBg: 'bg-orange-500', activeBorder: 'border-orange-500 text-orange-400', bgLight: 'bg-orange-500/10', ringColor: 'ring-orange-500/50' },
-  { id: 'emerald', label: 'Esmeralda', colorBg: 'bg-emerald-500', activeBorder: 'border-emerald-500 text-emerald-400', bgLight: 'bg-emerald-500/10', ringColor: 'ring-emerald-500/50' },
-  { id: 'cyan', label: 'Ciano', colorBg: 'bg-cyan-500', activeBorder: 'border-cyan-500 text-cyan-400', bgLight: 'bg-cyan-500/10', ringColor: 'ring-cyan-500/50' },
-  { id: 'purple', label: 'Roxo', colorBg: 'bg-purple-500', activeBorder: 'border-purple-500 text-purple-400', bgLight: 'bg-purple-500/10', ringColor: 'ring-purple-500/50' },
-  { id: 'red', label: 'Vermelho', colorBg: 'bg-red-500', activeBorder: 'border-red-500 text-red-400', bgLight: 'bg-red-500/10', ringColor: 'ring-red-500/50' },
-  { id: 'amber', label: 'Âmbar', colorBg: 'bg-amber-500', activeBorder: 'border-amber-500 text-amber-400', bgLight: 'bg-amber-500/10', ringColor: 'ring-amber-500/50' },
-  { id: 'blue', label: 'Azul', colorBg: 'bg-blue-500', activeBorder: 'border-blue-500 text-blue-400', bgLight: 'bg-blue-500/10', ringColor: 'ring-blue-500/50' },
-  { id: 'pink', label: 'Rosa', colorBg: 'bg-pink-500', activeBorder: 'border-pink-500 text-pink-400', bgLight: 'bg-pink-500/10', ringColor: 'ring-pink-500/50' },
+  { id: 'orange', colorBg: 'bg-orange-500', activeBorder: 'border-orange-500 text-orange-400', bgLight: 'bg-orange-500/10', ringColor: 'ring-orange-500/50' },
+  { id: 'emerald', colorBg: 'bg-emerald-500', activeBorder: 'border-emerald-500 text-emerald-400', bgLight: 'bg-emerald-500/10', ringColor: 'ring-emerald-500/50' },
+  { id: 'cyan', colorBg: 'bg-cyan-500', activeBorder: 'border-cyan-500 text-cyan-400', bgLight: 'bg-cyan-500/10', ringColor: 'ring-cyan-500/50' },
+  { id: 'purple', colorBg: 'bg-purple-500', activeBorder: 'border-purple-500 text-purple-400', bgLight: 'bg-purple-500/10', ringColor: 'ring-purple-500/50' },
+  { id: 'red', colorBg: 'bg-red-500', activeBorder: 'border-red-500 text-red-400', bgLight: 'bg-red-500/10', ringColor: 'ring-red-500/50' },
+  { id: 'amber', colorBg: 'bg-amber-500', activeBorder: 'border-amber-500 text-amber-400', bgLight: 'bg-amber-500/10', ringColor: 'ring-amber-500/50' },
+  { id: 'blue', colorBg: 'bg-blue-500', activeBorder: 'border-blue-500 text-blue-400', bgLight: 'bg-blue-500/10', ringColor: 'ring-blue-500/50' },
+  { id: 'pink', colorBg: 'bg-pink-500', activeBorder: 'border-pink-500 text-pink-400', bgLight: 'bg-pink-500/10', ringColor: 'ring-pink-500/50' },
 ];
 
 export const SettingsModal: React.FC<SettingsModalProps> = ({
@@ -38,6 +38,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
   onTriggerToast,
 }) => {
   const [keywordInput, setKeywordInput] = useState('');
+  const t = getTranslation(settings.language);
 
   if (!isOpen) return null;
 
@@ -51,8 +52,8 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
         if (result !== 'granted') {
           if (onTriggerToast) {
             onTriggerToast({
-              title: 'Notificações Negadas',
-              message: 'O navegador ou sistema bloqueou as notificações nativas. Ativando alertas no app.',
+              title: t.toast.notificationsDenied,
+              message: t.toast.notificationsDeniedMsg,
               type: 'warning',
             });
           }
@@ -60,7 +61,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
           return;
         }
       } catch (err) {
-        console.warn('Erro ao solicitar permissão de notificação:', err);
+        console.warn('Notification permission error:', err);
       }
     }
     onUpdateSettings({ ...settings, browserNotifications: enabled });
@@ -77,8 +78,8 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
         }
         if (perm === 'granted') {
           try {
-            const notif = new Notification('⚡ RADAR RSS: Teste de Notificação', {
-              body: 'Notificação do sistema funcionando perfeitamente!',
+            const notif = new Notification(t.toast.testTitle, {
+              body: t.toast.testMessage,
               icon: 'https://images.unsplash.com/photo-1504711434969-e33886168f5c?auto=format&fit=crop&w=120&q=80',
               tag: 'radar-rss-test-' + Date.now(),
             });
@@ -88,21 +89,18 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
             };
             nativeTriggered = true;
           } catch (e) {
-            console.warn('Falha na construção da notificação nativa (restrição de iframe/dispositivo):', e);
+            console.warn('Native notification failed:', e);
           }
         }
       } catch (err) {
-        console.warn('Erro na API de notificações:', err);
+        console.warn('Notification API error:', err);
       }
     }
 
-    // Always trigger in-app toast for guaranteed feedback
     if (onTriggerToast) {
       onTriggerToast({
-        title: '⚡ RADAR RSS: Notificação de Teste',
-        message: nativeTriggered
-          ? 'Notificação nativa e alerta no app ativados com sucesso!'
-          : 'Alerta no app ativado com sucesso! (Notificação nativa indisponível no ambiente iFrame/dispositivo)',
+        title: t.toast.testTitle,
+        message: t.toast.testMessage,
         type: 'info',
       });
     }
@@ -140,7 +138,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
         }`}>
           <div className="flex items-center gap-2">
             <Settings className="w-5 h-5 text-orange-500" />
-            <h3 className="font-black text-sm uppercase tracking-wider">Configurações do Radar RSS</h3>
+            <h3 className="font-black text-sm uppercase tracking-wider">{t.settings.title}</h3>
           </div>
           <button onClick={onClose} className="p-1.5 rounded-xl hover:bg-neutral-800">
             <X className="w-5 h-5 text-neutral-400" />
@@ -150,6 +148,41 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
         {/* Form Body */}
         <div className="p-6 space-y-5 overflow-y-auto">
           
+          {/* Language Selector */}
+          <div className={`p-4 rounded-2xl border space-y-3 ${
+            settings.theme === 'dark' ? 'border-neutral-800 bg-neutral-950/60' : 'border-neutral-200 bg-neutral-50/80'
+          }`}>
+            <div className="flex items-center justify-between">
+              <label className="text-xs font-black uppercase tracking-wider flex items-center gap-1.5">
+                <Globe className="w-4 h-4 text-orange-500" />
+                {t.settings.language}
+              </label>
+
+              <div className={`flex items-center border rounded-xl p-1 gap-1 ${
+                settings.theme === 'dark' ? 'bg-neutral-900 border-neutral-800' : 'bg-white border-neutral-200 shadow-xs'
+              }`}>
+                <button
+                  type="button"
+                  onClick={() => onUpdateSettings({ ...settings, language: 'en' })}
+                  className={`flex items-center gap-1 px-3 py-1.5 rounded-lg text-xs font-extrabold transition-all ${
+                    (settings.language || 'en') === 'en' ? 'bg-orange-500 text-black shadow-xs' : 'text-neutral-400 hover:text-neutral-200'
+                  }`}
+                >
+                  🇬🇧 English
+                </button>
+                <button
+                  type="button"
+                  onClick={() => onUpdateSettings({ ...settings, language: 'pt' })}
+                  className={`flex items-center gap-1 px-3 py-1.5 rounded-lg text-xs font-extrabold transition-all ${
+                    settings.language === 'pt' ? 'bg-orange-500 text-black shadow-xs' : 'text-neutral-400 hover:text-neutral-200'
+                  }`}
+                >
+                  🇧🇷 Português
+                </button>
+              </div>
+            </div>
+          </div>
+
           {/* Theme & Accent Color Section */}
           <div className={`p-4 rounded-2xl border space-y-3.5 ${
             settings.theme === 'dark' ? 'border-neutral-800 bg-neutral-950/60' : 'border-neutral-200 bg-neutral-50/80'
@@ -157,7 +190,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
             <div className="flex items-center justify-between">
               <label className="text-xs font-black uppercase tracking-wider flex items-center gap-1.5">
                 <Palette className="w-4 h-4 text-orange-500" />
-                Tema & Modo Visual
+                {t.settings.theme}
               </label>
 
               {/* Light / Dark Mode Toggle Buttons */}
@@ -172,7 +205,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
                   }`}
                 >
                   <Moon className="w-3.5 h-3.5 text-sky-400" />
-                  Escuro
+                  {t.settings.themeDark}
                 </button>
                 <button
                   type="button"
@@ -182,7 +215,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
                   }`}
                 >
                   <Sun className="w-3.5 h-3.5 text-amber-500" />
-                  Claro
+                  {t.settings.themeLight}
                 </button>
               </div>
             </div>
@@ -190,11 +223,12 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
             {/* Accent Color Palette Selector */}
             <div className="pt-2 border-t border-neutral-800/60">
               <span className="block text-[11px] font-bold uppercase tracking-wider text-neutral-400 mb-2 font-mono">
-                Cor de Destaque da Interface:
+                {t.settings.accentColor}:
               </span>
               <div className="grid grid-cols-4 gap-2">
                 {ACCENT_COLORS.map((acc) => {
                   const isSelected = (settings.accentColor || 'orange') === acc.id;
+                  const label = t.settings.colors[acc.id] || acc.id;
                   return (
                     <button
                       key={acc.id}
@@ -209,7 +243,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
                       }`}
                     >
                       <span className={`w-3.5 h-3.5 rounded-full ${acc.colorBg} shrink-0 shadow-sm`} />
-                      <span className="text-[10px] font-bold truncate">{acc.label}</span>
+                      <span className="text-[10px] font-bold truncate">{label}</span>
                     </button>
                   );
                 })}
@@ -221,7 +255,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
           <div>
             <label className="block text-xs font-black uppercase tracking-wider mb-2 flex items-center gap-1.5">
               <Clock className="w-4 h-4 text-orange-500" />
-              Intervalo Global de Sincronização
+              {t.settings.globalRefresh}
             </label>
             <select
               value={settings.globalRefreshSec ?? 60}
@@ -230,11 +264,11 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
                 settings.theme === 'dark' ? 'bg-neutral-950 border-neutral-800 focus:border-orange-500' : 'bg-neutral-50 border-neutral-200'
               }`}
             >
-              <option value={30}>A cada 30 segundos (Tempo Real)</option>
-              <option value={60}>A cada 1 minuto (Recomendado)</option>
-              <option value={120}>A cada 2 minutos</option>
-              <option value={300}>A cada 5 minutos</option>
-              <option value={0}>Manual apenas (Desativado)</option>
+              <option value={30}>30s (Real-time)</option>
+              <option value={60}>1 min (Recommended)</option>
+              <option value={120}>2 min</option>
+              <option value={300}>5 min</option>
+              <option value={0}>Manual only</option>
             </select>
           </div>
 
@@ -244,8 +278,8 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
               <div className="flex items-center gap-2.5">
                 <BellRing className="w-4 h-4 text-orange-500 shrink-0" />
                 <div>
-                  <span className="block text-xs font-black uppercase tracking-wider">Notificações Nativas do Navegador</span>
-                  <span className="text-[10px] text-neutral-400 font-mono">Disparar alerta do SO ao detectar Breaking News</span>
+                  <span className="block text-xs font-black uppercase tracking-wider">{t.settings.notifications}</span>
+                  <span className="text-[10px] text-neutral-400 font-mono">{t.settings.notificationsDesc}</span>
                 </div>
               </div>
               <input
@@ -260,10 +294,10 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
             <div className="flex items-center justify-between pt-2 border-t border-neutral-800/80 text-[10px]">
               <span className="flex items-center gap-1 font-mono text-neutral-400">
                 Status:
-                {permissionState === 'granted' && <span className="text-emerald-400 font-bold">● Concedido</span>}
-                {permissionState === 'denied' && <span className="text-red-400 font-bold">● Negado pelo SO</span>}
-                {permissionState === 'default' && <span className="text-amber-400 font-bold">● Pendente</span>}
-                {permissionState === 'unsupported' && <span className="text-neutral-500 font-bold">● Não suportado</span>}
+                {permissionState === 'granted' && <span className="text-emerald-400 font-bold">● Active</span>}
+                {permissionState === 'denied' && <span className="text-red-400 font-bold">● Blocked by OS</span>}
+                {permissionState === 'default' && <span className="text-amber-400 font-bold">● Pending</span>}
+                {permissionState === 'unsupported' && <span className="text-neutral-500 font-bold">● Unsupported</span>}
               </span>
 
               <button
@@ -272,7 +306,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
                 className="px-2.5 py-1 rounded-xl bg-orange-500/20 border border-orange-500/40 text-orange-400 hover:bg-orange-500/30 font-bold text-[10px] flex items-center gap-1 transition-colors"
               >
                 <Send className="w-3 h-3" />
-                <span>Testar Notificação</span>
+                <span>{t.settings.testNotification}</span>
               </button>
             </div>
           </div>
@@ -281,10 +315,10 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
           <div>
             <label className="block text-xs font-black uppercase tracking-wider mb-2 flex items-center gap-1.5">
               <AlertTriangle className="w-4 h-4 text-orange-500" />
-              Palavras-chave de "Breaking News"
+              {t.settings.breakingKeywords}
             </label>
             <p className="text-[10px] text-neutral-400 mb-2 font-mono">
-              Notícias contendo estas palavras acionam o alerta urgente e notificação nativa:
+              {t.settings.breakingKeywordsDesc}
             </p>
             
             <div className="flex flex-wrap gap-1.5 mb-2">
@@ -309,7 +343,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
                 type="text"
                 value={keywordInput}
                 onChange={(e) => setKeywordInput(e.target.value)}
-                placeholder="Ex: Exclusivo, Mercado, STF..."
+                placeholder={t.settings.keywordPlaceholder}
                 className={`flex-1 px-3 py-2 text-xs font-semibold rounded-xl border outline-none ${
                   settings.theme === 'dark' ? 'bg-neutral-950 border-neutral-800 focus:border-orange-500' : 'bg-neutral-50 border-neutral-200'
                 }`}
@@ -318,7 +352,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
                 type="submit"
                 className="px-3 py-2 rounded-xl bg-orange-500 text-black font-black text-xs uppercase tracking-wider hover:bg-orange-400 transition-colors"
               >
-                + Add
+                + {t.settings.addKeyword}
               </button>
             </form>
           </div>
@@ -328,8 +362,8 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
             <div className="flex items-center gap-2.5">
               <Volume2 className="w-4 h-4 text-orange-500 shrink-0" />
               <div>
-                <span className="block text-xs font-black uppercase tracking-wider">Alertas Sonoros</span>
-                <span className="text-[10px] text-neutral-400 font-mono">Tocar efeito sonoro ao atualizar feeds</span>
+                <span className="block text-xs font-black uppercase tracking-wider">{t.settings.soundAlerts}</span>
+                <span className="text-[10px] text-neutral-400 font-mono">{t.settings.soundAlertsDesc}</span>
               </div>
             </div>
             <input
@@ -344,7 +378,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
           <div>
             <label className="block text-xs font-black uppercase tracking-wider mb-2 flex items-center gap-1.5">
               <LayoutGrid className="w-4 h-4 text-orange-500" />
-              Colunas da Grade de Blocos (Desktop)
+              {t.settings.layoutCols}
             </label>
             <div className="grid grid-cols-3 gap-2">
               {[1, 2, 3].map((cols) => (
@@ -360,7 +394,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
                       : 'bg-neutral-50 border-neutral-200 text-neutral-600'
                   }`}
                 >
-                  {cols} {cols === 1 ? 'Coluna' : 'Colunas'}
+                  {cols} {cols === 1 ? 'Column' : 'Columns'}
                 </button>
               ))}
             </div>
@@ -373,15 +407,15 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-2">
                 <Info className="w-4 h-4 text-orange-500" />
-                <span className="font-extrabold text-xs uppercase tracking-wider">RSS RADAR</span>
+                <span className="font-extrabold text-xs uppercase tracking-wider">RADAR RSS</span>
               </div>
               <span className="px-2 py-0.5 rounded text-[10px] font-mono bg-neutral-800 text-amber-400 font-bold border border-amber-500/30">
-                build 002 (BETA)
+                build 003
               </span>
             </div>
 
             <p className="text-xs text-neutral-400 font-mono pl-6">
-              Versão 0.0.2 (Beta)
+              Version 0.0.3 · Global Real-Time News
             </p>
 
             <a
@@ -391,18 +425,22 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
               className="flex items-center justify-center gap-2 w-full py-2.5 px-4 rounded-xl border border-sky-500/30 bg-sky-500/10 hover:bg-sky-500/20 text-sky-400 font-bold text-xs transition-all shadow-sm group cursor-pointer"
             >
               <Send className="w-3.5 h-3.5 text-sky-400 group-hover:scale-110 transition-transform" />
-              <span>Desenvolvedor · @Ahderiva</span>
+              <span>Developer · @Ahderiva</span>
             </a>
           </div>
 
           {/* Reset Defaults */}
           <div className="pt-4 border-t border-neutral-800">
             <button
-              onClick={onResetToDefaults}
-              className="w-full py-3 px-4 rounded-2xl font-black text-xs uppercase tracking-wider border border-red-500/40 bg-red-500/10 hover:bg-red-500/20 text-red-400 transition-all flex items-center justify-center gap-2"
+              onClick={() => {
+                if (window.confirm(t.settings.resetConfirm)) {
+                  onResetToDefaults();
+                }
+              }}
+              className="w-full py-3 px-4 rounded-2xl font-black text-xs uppercase tracking-wider border border-red-500/40 bg-red-500/10 hover:bg-red-500/20 text-red-400 transition-all flex items-center justify-center gap-2 cursor-pointer"
             >
               <RotateCcw className="w-4 h-4" />
-              <span>Redefinir Blocos e Feeds para o Padrão</span>
+              <span>{t.settings.resetButton}</span>
             </button>
           </div>
 
@@ -412,4 +450,3 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
     </div>
   );
 };
-

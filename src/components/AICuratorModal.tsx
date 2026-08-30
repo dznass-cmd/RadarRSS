@@ -1,28 +1,25 @@
 import React, { useState } from 'react';
-import { X, Sparkles, Loader2, CheckCircle2, ArrowRight } from 'lucide-react';
+import { X, Sparkles, Loader2, ArrowRight } from 'lucide-react';
 import { DynamicBlock } from '../types';
 import { curateBlockWithAi } from '../services/apiAdapter';
+import { Language, getTranslation } from '../i18n/translations';
 
 interface AICuratorModalProps {
   isOpen: boolean;
   onClose: () => void;
   onBlockCurated: (block: DynamicBlock) => void;
   theme: 'dark' | 'light';
+  language?: Language;
 }
-
-const EXAMPLE_PROMPTS = [
-  'Crie um bloco para acompanhar lançamentos e avanços da OpenAI, Gemini e DeepMind',
-  'Notícias sobre a economia brasileira, inflação e taxa Selic',
-  'Quero notícias de esportes, focadas no futebol do Brasileirão e Liga dos Campeões',
-  'Lançamentos de smartphones, Apple, Samsung e gadgets de tecnologia',
-];
 
 export const AICuratorModal: React.FC<AICuratorModalProps> = ({
   isOpen,
   onClose,
   onBlockCurated,
   theme,
+  language = 'en',
 }) => {
+  const t = getTranslation(language);
   const [prompt, setPrompt] = useState<string>('');
   const [isCurating, setIsCurating] = useState<boolean>(false);
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
@@ -43,7 +40,7 @@ export const AICuratorModal: React.FC<AICuratorModalProps> = ({
         const config = data.blockConfig;
         const newBlock: DynamicBlock = {
           id: `ai_block_${Date.now()}`,
-          title: config.title || '🤖 Bloco Curado por IA',
+          title: config.title || (language === 'pt' ? '🤖 Bloco Curado por IA' : '🤖 AI Curated Block'),
           categoryFilter: config.categoryFilter || 'all',
           filterKeyword: config.filterKeyword,
           layout: config.layout || 'grid',
@@ -55,10 +52,10 @@ export const AICuratorModal: React.FC<AICuratorModalProps> = ({
         onBlockCurated(newBlock);
         onClose();
       } else {
-        setErrorMsg(data.error || 'Não foi possível curar o bloco com a IA.');
+        setErrorMsg(data.error || t.aiCurator.errorMessage);
       }
     } catch (err: any) {
-      setErrorMsg('Erro de conexão ao comunicar com a IA.');
+      setErrorMsg(t.aiCurator.networkError);
     } finally {
       setIsCurating(false);
     }
@@ -77,10 +74,10 @@ export const AICuratorModal: React.FC<AICuratorModalProps> = ({
           <div className="flex items-center gap-2">
             <Sparkles className="w-5 h-5 text-orange-500" />
             <h3 className="font-black text-sm uppercase tracking-wider text-orange-500">
-              Curadoria Inteligente por IA (Gemini)
+              {t.aiCurator.title} ({t.aiCurator.poweredBy})
             </h3>
           </div>
-          <button onClick={onClose} className="p-1.5 rounded-xl hover:bg-neutral-800">
+          <button onClick={onClose} className="p-1.5 rounded-xl hover:bg-neutral-800 cursor-pointer">
             <X className="w-5 h-5 text-neutral-400" />
           </button>
         </div>
@@ -88,7 +85,7 @@ export const AICuratorModal: React.FC<AICuratorModalProps> = ({
         {/* Form Body */}
         <div className="p-6 space-y-4">
           <p className="text-xs text-neutral-400 leading-relaxed font-sans">
-            Descreva qual assunto ou nicho de notícias você deseja monitorar. A IA do Gemini analisará os feeds e configurará um bloco dinâmico personalizado em tempo real.
+            {t.aiCurator.subtitle}
           </p>
 
           <div>
@@ -96,7 +93,7 @@ export const AICuratorModal: React.FC<AICuratorModalProps> = ({
               rows={3}
               value={prompt}
               onChange={(e) => setPrompt(e.target.value)}
-              placeholder="ex: Crie um bloco com notícias sobre transição energética, energia solar e sustentabilidade no Brasil..."
+              placeholder={t.aiCurator.placeholder}
               className={`w-full p-3.5 text-xs font-mono rounded-2xl border outline-none resize-none ${
                 theme === 'dark' ? 'bg-neutral-950 border-neutral-800 focus:border-orange-500' : 'bg-neutral-50 border-neutral-200'
               }`}
@@ -106,10 +103,10 @@ export const AICuratorModal: React.FC<AICuratorModalProps> = ({
           {/* Example Prompt Chips */}
           <div>
             <span className="block text-[10px] font-black uppercase text-neutral-400 tracking-widest mb-2">
-              Exemplos de Prompts:
+              {t.aiCurator.exampleTitle}
             </span>
             <div className="space-y-1.5">
-              {EXAMPLE_PROMPTS.map((ex, i) => (
+              {t.aiCurator.examples.map((ex, i) => (
                 <button
                   key={i}
                   type="button"
@@ -117,7 +114,7 @@ export const AICuratorModal: React.FC<AICuratorModalProps> = ({
                     setPrompt(ex);
                     handleCurate(ex);
                   }}
-                  className={`w-full text-left p-2.5 rounded-2xl border text-[11px] font-bold transition-all flex items-center justify-between group ${
+                  className={`w-full text-left p-2.5 rounded-2xl border text-[11px] font-bold transition-all flex items-center justify-between group cursor-pointer ${
                     theme === 'dark'
                       ? 'bg-neutral-950/60 border-neutral-800 hover:border-orange-500/50 hover:bg-neutral-800'
                       : 'bg-neutral-50 border-neutral-200 hover:border-orange-500/50'
@@ -141,17 +138,17 @@ export const AICuratorModal: React.FC<AICuratorModalProps> = ({
             <button
               onClick={() => handleCurate()}
               disabled={isCurating || !prompt.trim()}
-              className="w-full py-3.5 px-4 rounded-2xl font-black uppercase tracking-wider text-xs bg-orange-500 hover:bg-orange-400 text-black shadow-xl transition-all flex items-center justify-center gap-2"
+              className="w-full py-3.5 px-4 rounded-2xl font-black uppercase tracking-wider text-xs bg-orange-500 hover:bg-orange-400 text-black shadow-xl transition-all flex items-center justify-center gap-2 cursor-pointer"
             >
               {isCurating ? (
                 <>
                   <Loader2 className="w-4 h-4 animate-spin text-black" />
-                  <span>Analisando e gerando bloco...</span>
+                  <span>{t.aiCurator.curating}</span>
                 </>
               ) : (
                 <>
                   <Sparkles className="w-4 h-4 text-black" />
-                  <span>Gerar Bloco Dinâmico com IA</span>
+                  <span>{t.aiCurator.generateButton}</span>
                 </>
               )}
             </button>
