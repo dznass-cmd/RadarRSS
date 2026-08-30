@@ -10,6 +10,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### 🚀 Highlights & Major Improvements
 - **⚡ Instant App Startup (< 50ms):** Implemented an offline-first stale-while-revalidate caching engine (`radar_rss_cached_articles_v1`). The app now renders headlines, hero images, and breaking news immediately upon launch, updating seamlessly in the background without blocking the UI.
 - **👈👉 Fluid Swipe Story Navigation:** Users can now swipe horizontally (Left-to-Right / Right-to-Left) or click navigation arrows in the Story Reader to effortlessly browse through news articles, complete with smooth slide animations and haptic feedback.
+- **🖼️ Universal RSS Image Loading:** Removed CORS preflight restrictions on news CDN images, added an intelligent cached proxy fallback (`weserv`), HTML entity decoding (`&lt;img ...&gt;`), and support for modern lazy-load image attributes (`data-src`, `srcset`, `media:group`). Added thumbnail previews across all modular block layouts.
+- **💼 Robust Standalone Portable Executable:** Fixed asset path resolution and single-instance locks in portable `.exe` builds when launched from arbitrary folders (e.g., Downloads, USB drives).
 - **🌐 Bilingual Localization (English & Portuguese):** Complete English repository documentation, interface labels, category names, settings dialog, and one-click switching to Portuguese.
 - **🔔 Modern In-App Toast System:** Fully eliminated blocking browser `alert()` popups across modals, replacing them with sleek animated status notifications and native push alerts for breaking news.
 - **🛡️ Resilient RSS Ingestion:** Added automatic UTF-8 BOM stripping (`\uFEFF`), real browser User-Agent headers, and optimized 4.5s per-feed timeouts to prevent network stalls.
