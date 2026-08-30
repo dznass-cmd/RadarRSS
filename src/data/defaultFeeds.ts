@@ -79,15 +79,6 @@ export const DEFAULT_FEEDS: RssFeed[] = [
 
   // Regional (Brasil) & General
   {
-    id: 'g1_brasil',
-    title: 'G1 - Brasil',
-    url: 'https://g1.globo.com/rss/g1/brasil/',
-    category: 'brazil',
-    icon: '🇧🇷',
-    active: true,
-    status: 'ok',
-  },
-  {
     id: 'cnn_brasil',
     title: 'CNN Brasil',
     url: 'https://www.cnnbrasil.com.br/feed/',

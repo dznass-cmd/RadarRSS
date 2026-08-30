@@ -51,9 +51,10 @@ export default function App() {
         return feed;
       });
 
-      // Deduplicate by ID
+      // Deduplicate by ID and filter out problematic g1 feed
       const seen = new Set<string>();
       return mapped.filter((f) => {
+        if (f.url.includes('g1.globo.com') || f.id === 'g1_brasil') return false;
         if (seen.has(f.id)) return false;
         seen.add(f.id);
         return true;
