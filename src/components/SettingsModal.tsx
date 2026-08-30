@@ -410,12 +410,12 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
                 <span className="font-extrabold text-xs uppercase tracking-wider">RADAR RSS</span>
               </div>
               <span className="px-2 py-0.5 rounded text-[10px] font-mono bg-amber-500/20 text-amber-400 font-bold border border-amber-500/30">
-                v0.0.4-beta
+                v0.0.5-beta
               </span>
             </div>
 
             <p className="text-xs text-neutral-400 font-mono pl-6">
-              Version 0.0.4-beta · Global Real-Time News (English Default)
+              Version 0.0.5-beta · Global Real-Time News (English Default)
             </p>
 
             <a
