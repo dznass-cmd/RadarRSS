@@ -155,7 +155,23 @@ app.get('/api/rss', async (req: Request, res: Response) => {
         }
 
         try {
-          const feed = await rssParser.parseURL(url);
+          let feed: any;
+          try {
+            const resp = await fetch(url, {
+              headers: {
+                'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Safari/537.36',
+                'Accept': 'application/rss+xml, application/xml, text/xml, application/atom+xml, text/html;q=0.9, */*;q=0.8',
+              },
+              signal: AbortSignal.timeout(8000),
+            });
+            if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
+            const text = await resp.text();
+            const cleanXml = text.trim().replace(/^\uFEFF/, '');
+            feed = await rssParser.parseString(cleanXml);
+          } catch {
+            feed = await rssParser.parseURL(url);
+          }
+
           const sourceTitle = feed.title || new URL(url).hostname.replace('www.', '');
 
           const parsedItems = (feed.items || []).map((item: any, idx: number) => {
