@@ -394,7 +394,23 @@ async function startServer() {
     });
     app.use(vite.middlewares);
   } else {
-    const distPath = path.join(process.cwd(), 'dist');
+    // Resolve static assets across dev, standard electron, and portable electron
+    const candidatePaths = [
+      process.env.DIST_PATH,
+      __dirname,
+      path.join(process.cwd(), 'dist'),
+      path.join(__dirname, '..', 'dist'),
+    ].filter(Boolean) as string[];
+
+    const distPath = candidatePaths.find((p) => {
+      try {
+        return require('fs').existsSync(path.join(p, 'index.html'));
+      } catch {
+        return false;
+      }
+    }) || candidatePaths[0] || path.join(process.cwd(), 'dist');
+
+    console.log(`[RSS Realtime News Server] Serving static files from: ${distPath}`);
     app.use(express.static(distPath));
     app.get('*', (_req, res) => {
       res.sendFile(path.join(distPath, 'index.html'));
