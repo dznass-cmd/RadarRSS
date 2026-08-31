@@ -170,7 +170,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
                   type="button"
                   onClick={() => onUpdateSettings({ ...settings, language: 'en' })}
                   className={`flex items-center gap-1 px-3 py-1.5 rounded-lg text-xs font-extrabold transition-all ${
-                    (settings.language || 'en') === 'en' ? 'bg-orange-500 text-black shadow-xs' : 'text-neutral-400 hover:text-neutral-200'
+                    (settings.language || 'en') === 'en' ? 'bg-orange-500 text-black shadow-xs' : settings.theme === 'dark' ? 'text-neutral-400 hover:text-neutral-200' : 'text-neutral-500 hover:text-neutral-900'
                   }`}
                 >
                   🇬🇧 English
@@ -179,7 +179,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
                   type="button"
                   onClick={() => onUpdateSettings({ ...settings, language: 'pt' })}
                   className={`flex items-center gap-1 px-3 py-1.5 rounded-lg text-xs font-extrabold transition-all ${
-                    settings.language === 'pt' ? 'bg-orange-500 text-black shadow-xs' : 'text-neutral-400 hover:text-neutral-200'
+                    settings.language === 'pt' ? 'bg-orange-500 text-black shadow-xs' : settings.theme === 'dark' ? 'text-neutral-400 hover:text-neutral-200' : 'text-neutral-500 hover:text-neutral-900'
                   }`}
                 >
                   🇧🇷 Português
@@ -206,7 +206,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
                   type="button"
                   onClick={() => onUpdateSettings({ ...settings, theme: 'dark' })}
                   className={`flex items-center gap-1 px-3 py-1.5 rounded-lg text-xs font-extrabold transition-all ${
-                    settings.theme === 'dark' ? 'bg-neutral-800 text-white shadow-xs' : 'text-neutral-400 hover:text-neutral-200'
+                    settings.theme === 'dark' ? 'bg-neutral-800 text-white shadow-xs' : 'text-neutral-500 hover:text-neutral-900'
                   }`}
                 >
                   <Moon className="w-3.5 h-3.5 text-sky-400" />
@@ -216,7 +216,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
                   type="button"
                   onClick={() => onUpdateSettings({ ...settings, theme: 'light' })}
                   className={`flex items-center gap-1 px-3 py-1.5 rounded-lg text-xs font-extrabold transition-all ${
-                    settings.theme === 'light' ? 'bg-amber-500/20 text-amber-600 border border-amber-500/30' : 'text-neutral-400 hover:text-neutral-200'
+                    settings.theme === 'light' ? 'bg-amber-500/20 text-amber-600 border border-amber-500/30' : settings.theme === 'dark' ? 'text-neutral-400 hover:text-neutral-200' : 'text-neutral-500 hover:text-neutral-900'
                   }`}
                 >
                   <Sun className="w-3.5 h-3.5 text-amber-500" />
@@ -226,7 +226,9 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
             </div>
 
             {/* Accent Color Palette Selector */}
-            <div className="pt-2 border-t border-neutral-800/60">
+            <div className={`pt-2 border-t ${
+              settings.theme === 'dark' ? 'border-neutral-800/60' : 'border-neutral-200'
+            }`}>
               <span className="block text-[11px] font-bold uppercase tracking-wider text-neutral-400 mb-2 font-mono">
                 {t.settings.accentColor}:
               </span>
@@ -278,7 +280,9 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
           </div>
 
           {/* Browser Notifications Section */}
-          <div className="p-4 rounded-2xl border border-neutral-800 bg-neutral-950/60 space-y-3">
+          <div className={`p-4 rounded-2xl border space-y-3 ${
+            settings.theme === 'dark' ? 'border-neutral-800 bg-neutral-950/60' : 'border-neutral-200 bg-neutral-50/80'
+          }`}>
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-2.5">
                 <BellRing className="w-4 h-4 text-orange-500 shrink-0" />
@@ -296,7 +300,9 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
             </div>
 
             {/* Permission status bar & Test button */}
-            <div className="flex items-center justify-between pt-2 border-t border-neutral-800/80 text-[10px]">
+            <div className={`flex items-center justify-between pt-2 border-t text-[10px] ${
+              settings.theme === 'dark' ? 'border-neutral-800/80' : 'border-neutral-200'
+            }`}>
               <span className="flex items-center gap-1 font-mono text-neutral-400">
                 Status:
                 {permissionState === 'granted' && <span className="text-emerald-400 font-bold">● Active</span>}
@@ -363,7 +369,9 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
           </div>
 
           {/* Sound Alert Toggle */}
-          <div className="flex items-center justify-between p-4 rounded-2xl border border-neutral-800 bg-neutral-950/60">
+          <div className={`flex items-center justify-between p-4 rounded-2xl border ${
+            settings.theme === 'dark' ? 'border-neutral-800 bg-neutral-950/60' : 'border-neutral-200 bg-neutral-50/80'
+          }`}>
             <div className="flex items-center gap-2.5">
               <Volume2 className="w-4 h-4 text-orange-500 shrink-0" />
               <div>
@@ -415,12 +423,12 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
                 <span className="font-extrabold text-xs uppercase tracking-wider">RADAR RSS</span>
               </div>
               <span className="px-2 py-0.5 rounded text-[10px] font-mono bg-amber-500/20 text-amber-400 font-bold border border-amber-500/30">
-                v0.0.5-beta
+                v0.0.6-beta
               </span>
             </div>
 
             <p className="text-xs text-neutral-400 font-mono pl-6">
-              Version 0.0.5-beta · Global Real-Time News (English Default)
+              Version 0.0.6-beta · Global Real-Time News (English Default)
             </p>
 
             <a
@@ -435,7 +443,9 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
           </div>
 
           {/* Reset Defaults */}
-          <div className="pt-4 border-t border-neutral-800">
+          <div className={`pt-4 border-t ${
+            settings.theme === 'dark' ? 'border-neutral-800' : 'border-neutral-200'
+          }`}>
             <button
               onClick={() => {
                 if (window.confirm(t.settings.resetConfirm)) {

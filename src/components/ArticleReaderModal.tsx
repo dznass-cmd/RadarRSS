@@ -371,7 +371,9 @@ export const ArticleReaderModal: React.FC<ArticleReaderModalProps> = ({
                   <Plus className="w-3.5 h-3.5" />
                 </button>
 
-                <div className="h-4 w-px bg-neutral-700 mx-1" />
+                <div className={`h-4 w-px mx-1 ${
+                  theme === 'dark' ? 'bg-neutral-700' : 'bg-neutral-300'
+                }`} />
 
                 <button
                   onClick={() => setFontFamily(fontFamily === 'serif' ? 'sans' : fontFamily === 'sans' ? 'mono' : 'serif')}
@@ -434,9 +436,9 @@ export const ArticleReaderModal: React.FC<ArticleReaderModalProps> = ({
 
           {/* Article Image Banner */}
           {!isFocusMode && article.imageUrl && (
-            <div className={`w-full aspect-video rounded-2xl overflow-hidden bg-neutral-950 border ${
-              theme === 'dark' ? 'border-neutral-800' : 'border-neutral-200'
-            }`}>
+            <div className={`w-full aspect-video rounded-2xl overflow-hidden ${
+              theme === 'dark' ? 'bg-neutral-950 border-neutral-800' : 'bg-neutral-200 border-neutral-300'
+            } border`}>
               <SafeImage
                 src={article.imageUrl}
                 alt={article.title}

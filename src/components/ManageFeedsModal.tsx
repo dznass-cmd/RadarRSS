@@ -177,10 +177,14 @@ export const ManageFeedsModal: React.FC<ManageFeedsModalProps> = ({
 
           {/* Active / Inactive Feed Catalog */}
           <div>
-            <h4 className="font-black text-xs uppercase tracking-widest text-neutral-400 mb-3">
+            <h4 className={`font-black text-xs uppercase tracking-widest mb-3 ${
+              theme === 'dark' ? 'text-neutral-400' : 'text-neutral-600'
+            }`}>
               {t.manageFeeds.activeFeeds} ({feeds.length})
             </h4>
-            <div className="divide-y divide-neutral-800/80 max-h-60 overflow-y-auto pr-1">
+            <div className={`divide-y max-h-60 overflow-y-auto pr-1 ${
+              theme === 'dark' ? 'divide-neutral-800/80' : 'divide-neutral-200'
+            }`}>
               {feeds.map((feed) => (
                 <div
                   key={feed.id}
@@ -191,7 +195,9 @@ export const ManageFeedsModal: React.FC<ManageFeedsModalProps> = ({
                     <div className="min-w-0">
                       <h5 className="font-extrabold text-xs uppercase tracking-wider truncate flex items-center gap-2">
                         {feed.title}
-                        <span className="text-[9px] px-2 py-0.5 rounded font-mono font-bold bg-neutral-800 text-neutral-400 uppercase">
+                        <span className={`text-[9px] px-2 py-0.5 rounded font-mono font-bold uppercase ${
+                          theme === 'dark' ? 'bg-neutral-800 text-neutral-400' : 'bg-neutral-200 text-neutral-600'
+                        }`}>
                           {feed.category}
                         </span>
                       </h5>
@@ -205,7 +211,9 @@ export const ManageFeedsModal: React.FC<ManageFeedsModalProps> = ({
                       className={`px-3 py-1 rounded-xl text-[10px] font-black uppercase tracking-wider border transition-all cursor-pointer ${
                         feed.active
                           ? 'bg-emerald-500/20 border-emerald-500/40 text-emerald-400'
-                          : 'bg-neutral-800 border-neutral-700 text-neutral-500'
+                          : theme === 'dark'
+                            ? 'bg-neutral-800 border-neutral-700 text-neutral-500'
+                            : 'bg-neutral-200 border-neutral-300 text-neutral-500'
                       }`}
                     >
                       {feed.active ? (language === 'pt' ? 'Ativo' : 'Active') : (language === 'pt' ? 'Inativo' : 'Inactive')}
@@ -227,16 +235,26 @@ export const ManageFeedsModal: React.FC<ManageFeedsModalProps> = ({
           </div>
 
           {/* Import / Export Config */}
-          <div className="pt-2 border-t border-neutral-800 flex items-center justify-between gap-3">
+          <div className={`pt-2 border-t flex items-center justify-between gap-3 ${
+            theme === 'dark' ? 'border-neutral-800' : 'border-neutral-200'
+          }`}>
             <button
               onClick={onExportConfig}
-              className="flex items-center gap-1.5 px-3.5 py-2 rounded-xl text-xs font-black uppercase tracking-wider border border-neutral-700 hover:bg-neutral-800 transition-all text-neutral-200 cursor-pointer"
+              className={`flex items-center gap-1.5 px-3.5 py-2 rounded-xl text-xs font-black uppercase tracking-wider border transition-all cursor-pointer ${
+                theme === 'dark'
+                  ? 'border-neutral-700 hover:bg-neutral-800 text-neutral-200'
+                  : 'border-neutral-300 hover:bg-neutral-200 text-neutral-700'
+              }`}
             >
               <Download className="w-3.5 h-3.5 text-orange-500" />
               <span>{t.manageFeeds.exportConfig}</span>
             </button>
 
-            <label className="flex items-center gap-1.5 px-3.5 py-2 rounded-xl text-xs font-black uppercase tracking-wider border border-neutral-700 hover:bg-neutral-800 transition-all text-neutral-200 cursor-pointer">
+            <label className={`flex items-center gap-1.5 px-3.5 py-2 rounded-xl text-xs font-black uppercase tracking-wider border transition-all cursor-pointer ${
+              theme === 'dark'
+                ? 'border-neutral-700 hover:bg-neutral-800 text-neutral-200'
+                : 'border-neutral-300 hover:bg-neutral-200 text-neutral-700'
+            }`}>
               <Upload className="w-3.5 h-3.5 text-orange-500" />
               <span>{t.manageFeeds.importConfig}</span>
               <input

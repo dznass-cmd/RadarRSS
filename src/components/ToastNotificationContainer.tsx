@@ -163,7 +163,11 @@ const ToastCard: React.FC<ToastCardProps> = ({
             e.stopPropagation();
             onDismiss();
           }}
-          className="absolute top-2.5 right-2.5 p-1 rounded-lg text-neutral-400 hover:text-white hover:bg-neutral-800 transition-colors"
+          className={`absolute top-2.5 right-2.5 p-1 rounded-lg transition-colors ${
+            theme === 'dark'
+              ? 'text-neutral-400 hover:text-white hover:bg-neutral-800'
+              : 'text-neutral-500 hover:text-neutral-900 hover:bg-neutral-200'
+          }`}
           title="Close"
         >
           <X className="w-4 h-4" />
