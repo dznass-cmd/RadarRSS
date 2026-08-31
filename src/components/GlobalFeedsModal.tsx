@@ -172,7 +172,9 @@ export const GlobalFeedsModal: React.FC<GlobalFeedsModalProps> = ({
                           {feed.title}
                         </h4>
                       </div>
-                      <span className="text-[9px] px-2 py-0.5 rounded font-mono font-bold bg-neutral-800 text-neutral-400 uppercase shrink-0">
+                      <span className={`text-[9px] px-2 py-0.5 rounded font-mono font-bold uppercase shrink-0 ${
+                        theme === 'dark' ? 'bg-neutral-800 text-neutral-400' : 'bg-neutral-200 text-neutral-600'
+                      }`}>
                         {feed.category}
                       </span>
                     </div>
@@ -182,7 +184,9 @@ export const GlobalFeedsModal: React.FC<GlobalFeedsModalProps> = ({
                     </p>
                   </div>
 
-                  <div className="flex items-center justify-between pt-2 border-t border-neutral-800/60">
+                  <div className={`flex items-center justify-between pt-2 border-t ${
+                    theme === 'dark' ? 'border-neutral-800/60' : 'border-neutral-200'
+                  }`}>
                     <span className="text-[9px] font-mono text-neutral-500 truncate max-w-[180px]">
                       {feed.url}
                     </span>

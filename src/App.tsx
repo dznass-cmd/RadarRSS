@@ -869,7 +869,9 @@ export default function App() {
                     <h3 className={`font-bold text-sm mb-2 ${getAccent(settings.accentColor).groupTextHover} transition-colors leading-snug`}>{item.title}</h3>
                     <p className="text-xs text-neutral-400 line-clamp-3 leading-relaxed">{item.contentSnippet}</p>
                   </div>
-                  <div className="pt-3 border-t border-neutral-700/50 mt-4 flex items-center justify-between text-[11px] font-mono text-neutral-400">
+                  <div className={`pt-3 border-t mt-4 flex items-center justify-between text-[11px] font-mono text-neutral-400 ${
+                    settings.theme === 'dark' ? 'border-neutral-700/50' : 'border-neutral-200'
+                  }`}>
                     <span>{item.pubDate}</span>
                     <button
                       onClick={(e) => {
@@ -933,7 +935,7 @@ export default function App() {
             LIVE
           </span>
           <div className="overflow-hidden whitespace-nowrap text-ellipsis flex-1">
-            <span className={`${getAccent(settings.accentColor).text} font-bold`}>[RADAR ENGINE v0.0.5-beta]</span> Syncing {feeds.filter(f => f.active).length} active feeds... <span className="text-emerald-400">Online</span> • {allNewsItems.length} articles loaded • Engine: <span className="text-white font-bold">Bento Real-time Matrix</span>
+            <span className={`${getAccent(settings.accentColor).text} font-bold`}>[RADAR ENGINE v0.0.6-beta]</span> Syncing {feeds.filter(f => f.active).length} active feeds... <span className="text-emerald-400">Online</span> • {allNewsItems.length} articles loaded • Engine: <span className={`${settings.theme === 'dark' ? 'text-white' : 'text-neutral-900'} font-bold`}>Bento Real-time Matrix</span>
           </div>
         </footer>
 

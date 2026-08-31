@@ -149,28 +149,28 @@ export const DynamicBlockCard: React.FC<DynamicBlockCardProps> = ({
             <button
               onClick={() => onUpdateBlockLayout('hero')}
               title={t.createBlock.layouts.hero}
-              className={`p-1 rounded-lg transition-colors ${block.layout === 'hero' ? `${acc.bg} text-black font-extrabold` : 'hover:text-white'}`}
+              className={`p-1 rounded-lg transition-colors ${block.layout === 'hero' ? `${acc.bg} text-black font-extrabold` : theme === 'dark' ? 'hover:text-white' : 'hover:text-neutral-900'}`}
             >
               <Columns className="w-3.5 h-3.5" />
             </button>
             <button
               onClick={() => onUpdateBlockLayout('grid')}
               title={t.createBlock.layouts.grid}
-              className={`p-1 rounded-lg transition-colors ${block.layout === 'grid' ? `${acc.bg} text-black font-extrabold` : 'hover:text-white'}`}
+              className={`p-1 rounded-lg transition-colors ${block.layout === 'grid' ? `${acc.bg} text-black font-extrabold` : theme === 'dark' ? 'hover:text-white' : 'hover:text-neutral-900'}`}
             >
               <LayoutGrid className="w-3.5 h-3.5" />
             </button>
             <button
               onClick={() => onUpdateBlockLayout('list')}
               title={t.createBlock.layouts.list}
-              className={`p-1 rounded-lg transition-colors ${block.layout === 'list' ? `${acc.bg} text-black font-extrabold` : 'hover:text-white'}`}
+              className={`p-1 rounded-lg transition-colors ${block.layout === 'list' ? `${acc.bg} text-black font-extrabold` : theme === 'dark' ? 'hover:text-white' : 'hover:text-neutral-900'}`}
             >
               <List className="w-3.5 h-3.5" />
             </button>
             <button
               onClick={() => onUpdateBlockLayout('compact')}
               title={t.createBlock.layouts.compact}
-              className={`p-1 rounded-lg transition-colors ${block.layout === 'compact' ? `${acc.bg} text-black font-extrabold` : 'hover:text-white'}`}
+              className={`p-1 rounded-lg transition-colors ${block.layout === 'compact' ? `${acc.bg} text-black font-extrabold` : theme === 'dark' ? 'hover:text-white' : 'hover:text-neutral-900'}`}
             >
               <MessageSquareText className="w-3.5 h-3.5" />
             </button>
@@ -226,20 +226,26 @@ export const DynamicBlockCard: React.FC<DynamicBlockCardProps> = ({
         <div className={`p-4 border-b transition-all text-xs ${
           theme === 'dark' ? 'bg-purple-950/30 border-purple-800/40 text-purple-200' : 'bg-purple-50 border-purple-200 text-purple-900'
         }`}>
-          <div className="flex items-center justify-between mb-2 font-bold text-purple-400">
+          <div className={`flex items-center justify-between mb-2 font-bold ${
+            theme === 'dark' ? 'text-purple-400' : 'text-purple-700'
+          }`}>
             <span className="flex items-center gap-1.5">
-              <Sparkles className="w-4 h-4 text-purple-400" />
+              <Sparkles className={`w-4 h-4 ${theme === 'dark' ? 'text-purple-400' : 'text-purple-700'}`} />
               {t.reader.aiSummaryTitle}
             </span>
             <button
               onClick={() => setShowSummary(!showSummary)}
-              className="text-purple-400 hover:text-purple-200 text-[11px] underline cursor-pointer"
+              className={`text-[11px] underline cursor-pointer ${
+                theme === 'dark' ? 'text-purple-400 hover:text-purple-200' : 'text-purple-700 hover:text-purple-500'
+              }`}
             >
               {showSummary ? (language === 'pt' ? 'Ocultar' : 'Hide') : (language === 'pt' ? 'Ver Resumo' : 'Show Summary')}
             </button>
           </div>
           {showSummary && (
-            <div className="prose prose-invert max-w-none whitespace-pre-wrap leading-relaxed text-xs">
+            <div className={`max-w-none whitespace-pre-wrap leading-relaxed text-xs ${
+              theme === 'dark' ? 'prose prose-invert' : ''
+            }`}>
               {block.aiSummary}
             </div>
           )}
@@ -276,18 +282,26 @@ export const DynamicBlockCard: React.FC<DynamicBlockCardProps> = ({
                     >
                       <div>
                         {displayItems[0].imageUrl ? (
-                          <div className="relative aspect-video rounded-xl overflow-hidden mb-3 bg-neutral-950">
+                          <div className={`relative aspect-video rounded-xl overflow-hidden mb-3 ${
+                          theme === 'dark' ? 'bg-neutral-950' : 'bg-neutral-200'
+                        }`}>
                             <SafeImage 
                               src={displayItems[0].imageUrl} 
                               alt={displayItems[0].title}
                               className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
                               sourceName={displayItems[0].sourceName}
                             />
-                            <div className="absolute top-2.5 left-2.5 flex items-center gap-1.5 px-2 py-0.5 rounded-md bg-neutral-950/80 border border-neutral-700/60 backdrop-blur-md z-10">
+                            <div className={`absolute top-2.5 left-2.5 flex items-center gap-1.5 px-2 py-0.5 rounded-md backdrop-blur-md z-10 ${
+                              theme === 'dark'
+                                ? 'bg-neutral-950/80 border border-neutral-700/60'
+                                : 'bg-white/80 border border-neutral-300/60'
+                            }`}>
                               <span className={`w-3.5 h-3.5 rounded-full ${source.bg} flex items-center justify-center text-[8px] font-black text-white`}>
                                 {source.name.charAt(0)}
                               </span>
-                              <span className="text-[10px] font-bold text-neutral-100 uppercase tracking-wider">
+                              <span className={`text-[10px] font-bold uppercase tracking-wider ${
+                                theme === 'dark' ? 'text-neutral-100' : 'text-neutral-800'
+                              }`}>
                                 {source.name}
                               </span>
                             </div>
@@ -305,25 +319,43 @@ export const DynamicBlockCard: React.FC<DynamicBlockCardProps> = ({
                             {renderSentiment(displayItems[0].sentiment)}
                           </div>
                         )}
-                        <h3 className="font-extrabold text-base leading-snug text-neutral-100 group-hover:text-amber-400 transition-colors mb-2">
+                        <h3 className={`font-extrabold text-base leading-snug transition-colors mb-2 ${
+                          theme === 'dark'
+                            ? 'text-neutral-100 group-hover:text-amber-400'
+                            : 'text-neutral-900 group-hover:text-amber-600'
+                        }`}>
                           {displayItems[0].title}
                         </h3>
-                        <p className="text-xs text-neutral-400 line-clamp-2 leading-relaxed mb-2">
+                        <p className={`text-xs line-clamp-2 leading-relaxed mb-2 ${
+                          theme === 'dark' ? 'text-neutral-400' : 'text-neutral-600'
+                        }`}>
                           {displayItems[0].contentSnippet}
                         </p>
 
                         {/* Summary Pill */}
-                        <div className="mt-2 pt-2 border-t border-neutral-800/60 flex items-center gap-2">
-                          <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-emerald-950/90 border border-emerald-500/50 text-emerald-400 text-[10px] font-extrabold tracking-wide shrink-0">
+                        <div className={`mt-2 pt-2 border-t flex items-center gap-2 ${
+                          theme === 'dark' ? 'border-neutral-800/60' : 'border-neutral-200'
+                        }`}>
+                          <span className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full border text-[10px] font-extrabold tracking-wide shrink-0 ${
+                            theme === 'dark'
+                              ? 'bg-emerald-950/90 border-emerald-500/50 text-emerald-400'
+                              : 'bg-emerald-100 border-emerald-300 text-emerald-700'
+                          }`}>
                             {t.block.aiSummary}
                           </span>
-                          <span className="text-[11px] text-neutral-300 truncate">
+                          <span className={`text-[11px] truncate ${
+                            theme === 'dark' ? 'text-neutral-300' : 'text-neutral-700'
+                          }`}>
                             {displayItems[0].contentSnippet}
                           </span>
                         </div>
                       </div>
 
-                      <div className="flex items-center justify-between text-[11px] text-neutral-400 pt-3 mt-2 border-t border-neutral-800/50">
+                      <div className={`flex items-center justify-between text-[11px] pt-3 mt-2 border-t ${
+                        theme === 'dark'
+                          ? 'text-neutral-400 border-neutral-800/50'
+                          : 'text-neutral-600 border-neutral-200'
+                      }`}>
                         <span className="flex items-center gap-1 font-mono text-[10px]">
                           <Clock className="w-3 h-3 text-neutral-500" />
                           {getRelativeTime(displayItems[0].timestamp)}
@@ -396,7 +428,11 @@ export const DynamicBlockCard: React.FC<DynamicBlockCardProps> = ({
                               <span className={`w-3 h-3 rounded-full ${source.bg} flex items-center justify-center text-[7px] font-black text-white`}>
                                 {source.name.charAt(0)}
                               </span>
-                              <span className="text-[10px] font-bold text-neutral-300 group-hover:text-amber-400 uppercase tracking-wider">
+                              <span className={`text-[10px] font-bold uppercase tracking-wider ${
+                                theme === 'dark'
+                                  ? 'text-neutral-300 group-hover:text-amber-400'
+                                  : 'text-neutral-600 group-hover:text-amber-600'
+                              }`}>
                                 {source.name}
                               </span>
                             </div>
@@ -404,7 +440,11 @@ export const DynamicBlockCard: React.FC<DynamicBlockCardProps> = ({
                               {getRelativeTime(item.timestamp)}
                             </span>
                           </div>
-                          <h4 className="font-bold text-xs leading-snug group-hover:text-amber-400 text-neutral-100 line-clamp-2">
+                          <h4 className={`font-bold text-xs leading-snug line-clamp-2 ${
+                            theme === 'dark'
+                              ? 'text-neutral-100 group-hover:text-amber-400'
+                              : 'text-neutral-900 group-hover:text-amber-600'
+                          }`}>
                             {item.title}
                           </h4>
                         </div>
@@ -448,7 +488,9 @@ export const DynamicBlockCard: React.FC<DynamicBlockCardProps> = ({
                     >
                       <div>
                         {item.imageUrl && (
-                          <div className="aspect-video w-full rounded-xl overflow-hidden bg-neutral-950 mb-2.5">
+                          <div className={`aspect-video w-full rounded-xl overflow-hidden mb-2.5 ${
+                            theme === 'dark' ? 'bg-neutral-950' : 'bg-neutral-200'
+                          }`}>
                             <SafeImage 
                               src={item.imageUrl} 
                               alt={item.title} 
@@ -462,14 +504,22 @@ export const DynamicBlockCard: React.FC<DynamicBlockCardProps> = ({
                             <span className={`w-3.5 h-3.5 rounded-full ${source.bg} flex items-center justify-center text-[8px] font-black text-white shrink-0`}>
                               {source.name.charAt(0)}
                             </span>
-                            <span className="text-[10px] font-bold text-neutral-400 group-hover:text-amber-400 uppercase tracking-wider truncate">
+                            <span className={`text-[10px] font-bold uppercase tracking-wider truncate ${
+                              theme === 'dark'
+                                ? 'text-neutral-400 group-hover:text-amber-400'
+                                : 'text-neutral-600 group-hover:text-amber-600'
+                            }`}>
                               {source.name}
                             </span>
                           </div>
                           {renderSentiment(item.sentiment)}
                         </div>
 
-                        <h4 className="font-extrabold text-xs leading-snug group-hover:text-amber-400 text-neutral-100 line-clamp-3 mb-2">
+                        <h4 className={`font-extrabold text-xs leading-snug line-clamp-3 mb-2 ${
+                          theme === 'dark'
+                            ? 'text-neutral-100 group-hover:text-amber-400'
+                            : 'text-neutral-900 group-hover:text-amber-600'
+                        }`}>
                           {item.title}
                         </h4>
                         <p className="text-[11px] text-neutral-400 line-clamp-2 leading-relaxed">
@@ -477,7 +527,9 @@ export const DynamicBlockCard: React.FC<DynamicBlockCardProps> = ({
                         </p>
                       </div>
 
-                      <div className="flex items-center justify-between text-[10px] text-neutral-400 pt-3 mt-2 border-t border-neutral-800/40">
+                      <div className={`flex items-center justify-between text-[10px] text-neutral-400 pt-3 mt-2 border-t ${
+                        theme === 'dark' ? 'border-neutral-800/40' : 'border-neutral-200'
+                      }`}>
                         <span className="flex items-center gap-1 font-mono">
                           <Clock className="w-3 h-3 text-neutral-500" />
                           {getRelativeTime(item.timestamp)}
@@ -590,7 +642,9 @@ export const DynamicBlockCard: React.FC<DynamicBlockCardProps> = ({
 
             {/* COMPACT LAYOUT */}
             {block.layout === 'compact' && (
-              <div className="divide-y divide-zinc-800/40">
+              <div className={`divide-y ${
+                theme === 'dark' ? 'divide-zinc-800/40' : 'divide-neutral-200'
+              }`}>
                 {displayItems.map((item) => (
                   <div
                     key={item.id}
@@ -599,15 +653,21 @@ export const DynamicBlockCard: React.FC<DynamicBlockCardProps> = ({
                   >
                     <div className="flex items-center gap-2 min-w-0">
                       <span className="w-1.5 h-1.5 rounded-full bg-amber-500 shrink-0" />
-                      <span className="text-[10px] font-bold text-zinc-400 shrink-0">
+                      <span className={`text-[10px] font-bold shrink-0 ${
+                        theme === 'dark' ? 'text-zinc-400' : 'text-neutral-600'
+                      }`}>
                         [{item.sourceName}]
                       </span>
-                      <h4 className="font-medium text-xs truncate group-hover:text-amber-500">
+                      <h4 className={`font-medium text-xs truncate group-hover:text-amber-500 ${
+                        theme === 'dark' ? 'text-neutral-200' : 'text-neutral-800'
+                      }`}>
                         {item.title}
                       </h4>
                     </div>
 
-                    <div className="flex items-center gap-2 shrink-0 text-[10px] text-zinc-500">
+                    <div className={`flex items-center gap-2 shrink-0 text-[10px] ${
+                      theme === 'dark' ? 'text-zinc-500' : 'text-neutral-500'
+                    }`}>
                       <span>{getRelativeTime(item.timestamp)}</span>
                       <button
                         onClick={(e) => {

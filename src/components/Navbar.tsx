@@ -128,10 +128,10 @@ export const Navbar: React.FC<NavbarProps> = ({
               <span className={`font-black text-base sm:text-xl tracking-tight uppercase flex items-center ${
                 settings.theme === 'dark' ? 'text-neutral-100' : 'text-neutral-900'
               }`}>
-                RADAR<span className="text-amber-400 ml-1">RSS</span>
+                RADAR<span className={`${settings.theme === 'dark' ? 'text-amber-400' : 'text-amber-600'} ml-1`}>RSS</span>
               </span>
               <span className="text-[9px] font-black uppercase tracking-wider px-1.5 py-0.5 rounded bg-amber-500/20 text-amber-400 border border-amber-500/30 hidden xs:inline-block">
-                BETA v0.0.5
+                BETA v0.0.6
               </span>
             </div>
           </div>
@@ -153,7 +153,9 @@ export const Navbar: React.FC<NavbarProps> = ({
             {searchQuery && (
               <button
                 onClick={() => onSearchChange('')}
-                className="absolute right-2.5 top-1/2 -translate-y-1/2 text-[10px] font-bold text-neutral-400 hover:text-white"
+                className={`absolute right-2.5 top-1/2 -translate-y-1/2 text-[10px] font-bold transition-colors cursor-pointer ${
+                  settings.theme === 'dark' ? 'text-neutral-400 hover:text-white' : 'text-neutral-500 hover:text-neutral-900'
+                }`}
               >
                 ✕
               </button>
@@ -171,7 +173,9 @@ export const Navbar: React.FC<NavbarProps> = ({
                   className={`relative py-1 text-xs font-bold tracking-wide transition-colors cursor-pointer ${
                     isActive
                       ? 'text-amber-400'
-                      : 'text-neutral-400 hover:text-neutral-200'
+                      : settings.theme === 'dark'
+                        ? 'text-neutral-400 hover:text-neutral-200'
+                        : 'text-neutral-500 hover:text-neutral-900'
                   }`}
                 >
                   {tab.label}
@@ -272,7 +276,11 @@ export const Navbar: React.FC<NavbarProps> = ({
             {/* Mobile Menu Toggle */}
             <button
               onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-              className="p-2 rounded-2xl border border-neutral-800 bg-neutral-900 text-neutral-300 lg:hidden"
+              className={`p-2 rounded-2xl border lg:hidden transition-colors ${
+                settings.theme === 'dark'
+                  ? 'border-neutral-800 bg-neutral-900 text-neutral-300'
+                  : 'border-neutral-300 bg-neutral-100 text-neutral-700'
+              }`}
               title="Menu"
             >
               {mobileMenuOpen ? <X className="w-4 h-4" /> : <Menu className="w-4 h-4" />}
@@ -281,7 +289,9 @@ export const Navbar: React.FC<NavbarProps> = ({
         </div>
 
         {/* Mobile Horizontal Category Pills Bar */}
-        <div className="flex lg:hidden items-center gap-2 overflow-x-auto no-scrollbar stories-scroll-container py-2 border-t border-neutral-800/40">
+        <div className={`flex lg:hidden items-center gap-2 overflow-x-auto no-scrollbar stories-scroll-container py-2 border-t ${
+          settings.theme === 'dark' ? 'border-neutral-800/40' : 'border-neutral-200'
+        }`}>
           {categoryTabs.map((tab) => {
             const isActive = selectedCategory === tab.id;
             return (
@@ -291,7 +301,9 @@ export const Navbar: React.FC<NavbarProps> = ({
                 className={`px-3 py-1 rounded-xl text-xs font-bold whitespace-nowrap transition-all ${
                   isActive
                     ? 'bg-amber-500 text-black shadow-sm'
-                    : 'bg-neutral-900/90 text-neutral-400 border border-neutral-800/80 hover:text-white'
+                    : settings.theme === 'dark'
+                      ? 'bg-neutral-900/90 text-neutral-400 border border-neutral-800/80 hover:text-white'
+                      : 'bg-neutral-200/90 text-neutral-600 border border-neutral-300/80 hover:text-neutral-900'
                 }`}
               >
                 {tab.label}
