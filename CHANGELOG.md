@@ -5,6 +5,18 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.0.6-beta] - 2026-08-31
+
+### 🎨 Visual & Theme Fixes
+- **Comprehensive Light Theme Polish:** Fixed over 40 visual inconsistencies across all components, resolving invisible text, hardcoded dark palette colors, and missing theme-aware conditionals.
+- **Enhanced Component Contrast:** Updated `DynamicBlockCard`, `Navbar`, `SettingsModal`, `ManageFeedsModal`, `GlobalFeedsModal`, `ArticleReaderModal`, `ToastNotificationContainer`, and footer/bookmark cards to support seamless Light and Dark mode switching.
+- **Refined Accents & Borders:** Adjusted active states, borders, and badge styling for optimal legibility regardless of chosen theme and accent palette.
+
+### 🤖 CI/CD & Build Pipeline
+- **Automated Android APK Workflow:** Added GitHub Actions workflow (`release-android.yml`) to automatically compile debug APKs with Capacitor and Java 17 compatibility patches and attach them to GitHub Releases.
+
+---
+
 ## [0.0.5] (Beta) - 2026-08-30
 
 ### 🚀 Highlights & Major Improvements
