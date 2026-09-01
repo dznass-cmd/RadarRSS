@@ -5,6 +5,21 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.0.7] - 2026-09-01
+
+### 🤖 Direct Google Gemini AI Integration (Client-Side & Mobile)
+- **Direct Gemini REST API (`gemini-2.5-flash`):** Enabled direct client-side generative AI calls for article summaries, smart dynamic block curation, and language translation without requiring the Node.js backend server.
+- **Custom Gemini API Key Configuration:** Added dedicated settings field for users to configure their own Google Gemini API key with local persistent storage.
+- **Graceful Client Fallback:** Added smart local editorial digest fallback when running natively on Android without an API key.
+
+### 📱 Mobile & Android Enhancements
+- **Native Backup & Restore Sharing:** Integrated `@capacitor/share` to export configuration JSON directly into the Android native share sheet (Drive, WhatsApp, Files, etc.).
+- **Smooth Auto-scrolling Breaking Ticker:** Implemented continuous seamless marquee auto-scroll with frame-synchronized animation and hover/touch pause.
+- **Modern In-App Toast Feedback:** Replaced browser dialog popups with elegant status toast notifications.
+- **Standalone Android Build Script:** Added `build-apk.sh` script to streamline APK compilation directly inside Termux.
+
+---
+
 ## [0.0.6-beta] - 2026-08-31
 
 ### 🎨 Visual & Theme Fixes
