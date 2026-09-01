@@ -1,6 +1,6 @@
 import { NewsItem } from '../types';
 
-const BOOKMARKS_KEY = 'radarrss_saved_articles_v1';
+const BOOKMARKS_KEY = 'radar_rss_bookmarks_v1';
 
 export function getSavedBookmarks(): NewsItem[] {
   try {

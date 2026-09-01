@@ -20,7 +20,7 @@ import {
 import { NewsItem, AccentColor } from '../types';
 import { getAccent } from '../utils/theme';
 import { SafeImage } from './SafeImage';
-import { summarizeBlockWithAi, translateWithAi } from '../services/apiAdapter';
+import { summarizeBlockWithAi, translateWithAi, isNativePlatform } from '../services/apiAdapter';
 import { shareArticle } from '../services/shareService';
 import { Language, getTranslation } from '../i18n/translations';
 import { showError } from '../utils/errorHandler';
@@ -548,6 +548,12 @@ export const ArticleReaderModal: React.FC<ArticleReaderModalProps> = ({
               href={article.link}
               target="_blank"
               rel="noopener noreferrer"
+              onClick={(e) => {
+                if (isNativePlatform()) {
+                  e.preventDefault();
+                  window.open(article.link, '_system');
+                }
+              }}
               className={`w-full flex items-center justify-center gap-2 py-3.5 px-4 rounded-2xl font-black uppercase tracking-wider text-xs ${acc.bg} ${acc.bgHover} text-black shadow-xl transition-all`}
             >
               <span>{t.reader.openOriginal} ({article.sourceName})</span>

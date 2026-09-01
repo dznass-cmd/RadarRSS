@@ -66,7 +66,7 @@ export const DynamicBlockCard: React.FC<DynamicBlockCardProps> = ({
 
   const displayItems = items.slice(0, block.itemCount);
 
-  // Helper for source badge icon and colors
+  // Helper for source badge icon and colors (stable reference, pure function)
   const getSourceBadge = (sourceName: string) => {
     const s = sourceName.toLowerCase();
     if (s.includes('g1')) return { bg: 'bg-red-600', text: 'text-white', dot: 'bg-red-500', name: 'G1' };
@@ -255,9 +255,37 @@ export const DynamicBlockCard: React.FC<DynamicBlockCardProps> = ({
       {/* Block Body Content */}
       <div className="p-4 flex-1">
         {isLoading && displayItems.length === 0 ? (
-          <div className="py-12 text-center text-zinc-500 text-xs flex flex-col items-center justify-center gap-2">
-            <RefreshCw className="w-6 h-6 animate-spin text-amber-500" />
-            <span>{t.block.generatingSummary}</span>
+          <div className="py-8 space-y-4">
+            {/* Loading Skeleton */}
+            <div className="flex items-center gap-3 animate-pulse">
+              <div className={`w-20 h-20 rounded-xl ${theme === 'dark' ? 'bg-neutral-800' : 'bg-neutral-200'}`} />
+              <div className="flex-1 space-y-2">
+                <div className={`h-3 w-16 rounded ${theme === 'dark' ? 'bg-neutral-800' : 'bg-neutral-200'}`} />
+                <div className={`h-4 w-full rounded ${theme === 'dark' ? 'bg-neutral-800' : 'bg-neutral-200'}`} />
+                <div className={`h-4 w-3/4 rounded ${theme === 'dark' ? 'bg-neutral-800' : 'bg-neutral-200'}`} />
+                <div className={`h-3 w-1/2 rounded ${theme === 'dark' ? 'bg-neutral-800' : 'bg-neutral-200'}`} />
+              </div>
+            </div>
+            <div className="flex items-center gap-3 animate-pulse">
+              <div className={`w-20 h-20 rounded-xl ${theme === 'dark' ? 'bg-neutral-800' : 'bg-neutral-200'}`} />
+              <div className="flex-1 space-y-2">
+                <div className={`h-3 w-20 rounded ${theme === 'dark' ? 'bg-neutral-800' : 'bg-neutral-200'}`} />
+                <div className={`h-4 w-full rounded ${theme === 'dark' ? 'bg-neutral-800' : 'bg-neutral-200'}`} />
+                <div className={`h-3 w-2/3 rounded ${theme === 'dark' ? 'bg-neutral-800' : 'bg-neutral-200'}`} />
+              </div>
+            </div>
+            <div className="flex items-center gap-3 animate-pulse">
+              <div className={`w-20 h-20 rounded-xl ${theme === 'dark' ? 'bg-neutral-800' : 'bg-neutral-200'}`} />
+              <div className="flex-1 space-y-2">
+                <div className={`h-3 w-14 rounded ${theme === 'dark' ? 'bg-neutral-800' : 'bg-neutral-200'}`} />
+                <div className={`h-4 w-5/6 rounded ${theme === 'dark' ? 'bg-neutral-800' : 'bg-neutral-200'}`} />
+                <div className={`h-3 w-3/5 rounded ${theme === 'dark' ? 'bg-neutral-800' : 'bg-neutral-200'}`} />
+              </div>
+            </div>
+            <div className="flex items-center justify-center gap-2 pt-2">
+              <RefreshCw className="w-4 h-4 animate-spin text-amber-500" />
+              <span className="text-[11px] font-mono text-neutral-400">{t.block.generatingSummary}</span>
+            </div>
           </div>
         ) : displayItems.length === 0 ? (
           <div className="py-12 text-center text-zinc-500 text-xs">

@@ -387,6 +387,30 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
             />
           </div>
 
+          {/* Google Gemini AI API Key */}
+          <div className={`p-4 rounded-2xl border space-y-2 ${
+            settings.theme === 'dark' ? 'border-neutral-800 bg-neutral-950/60' : 'border-neutral-200 bg-neutral-50/80'
+          }`}>
+            <div className="flex items-center gap-2">
+              <Sparkles className="w-4 h-4 text-purple-400 shrink-0" />
+              <div>
+                <span className="block text-xs font-black uppercase tracking-wider">{t.settings.geminiApiKey}</span>
+                <span className="text-[10px] text-neutral-400 font-mono">{t.settings.geminiApiKeyDesc}</span>
+              </div>
+            </div>
+            <input
+              type="password"
+              value={settings.geminiApiKey || ''}
+              onChange={(e) => onUpdateSettings({ ...settings, geminiApiKey: e.target.value })}
+              placeholder={t.settings.geminiApiKeyPlaceholder}
+              className={`w-full px-3 py-2.5 text-xs font-mono rounded-xl border outline-none transition-all ${
+                settings.theme === 'dark'
+                  ? 'bg-neutral-900 border-neutral-800 text-neutral-200 focus:border-purple-500'
+                  : 'bg-white border-neutral-300 text-neutral-800 focus:border-purple-500'
+              }`}
+            />
+          </div>
+
           {/* Layout Grid Columns */}
           <div>
             <label className="block text-xs font-black uppercase tracking-wider mb-2 flex items-center gap-1.5">

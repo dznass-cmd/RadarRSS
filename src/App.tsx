@@ -14,11 +14,12 @@ import { DEFAULT_BLOCKS } from './data/defaultBlocks';
 import { DynamicBlock, NewsItem, RssFeed, AppSettings, BlockLayout, ToastItem } from './types';
 import { getAccent } from './utils/theme';
 import { Bookmark, Sparkles, Plus, Radio, Layers, RefreshCw, Archive, Trash2, CheckCircle2 } from 'lucide-react';
-import { fetchRssFeeds, isNativePlatform } from './services/apiAdapter';
+import { fetchRssFeeds, isNativePlatform, summarizeBlockWithAi } from './services/apiAdapter';
 import { getTranslation } from './i18n/translations';
 import { App as CapApp } from '@capacitor/app';
 import { StatusBar, Style } from '@capacitor/status-bar';
 import { Haptics, ImpactStyle } from '@capacitor/haptics';
+import { Share } from '@capacitor/share';
 
 const STORAGE_KEYS = {
   BLOCKS: 'radar_rss_blocks_v1',
@@ -104,6 +105,15 @@ export default function App() {
   const [isRefreshing, setIsRefreshing] = useState<boolean>(false);
   const [lastUpdated, setLastUpdated] = useState<Date | null>(null);
   const [searchQuery, setSearchQuery] = useState<string>('');
+  const [debouncedSearchQuery, setDebouncedSearchQuery] = useState<string>('');
+
+  // Debounce search input to avoid re-rendering on every keystroke
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setDebouncedSearchQuery(searchQuery);
+    }, 250);
+    return () => clearTimeout(timer);
+  }, [searchQuery]);
   const [showBookmarksOnly, setShowBookmarksOnly] = useState<boolean>(false);
   const [showArchiveOnly, setShowArchiveOnly] = useState<boolean>(false);
   const [selectedCategory, setSelectedCategory] = useState<string>('all');
@@ -332,11 +342,17 @@ export default function App() {
   // --- Mobile Pull-to-Refresh State & Gesture ---
   const [pullDistance, setPullDistance] = useState<number>(0);
   const [isPullRefreshing, setIsPullRefreshing] = useState<boolean>(false);
+  const pullDistanceRef = useRef<number>(0);
   const touchStartXRef = useRef<number>(0);
   const touchStartYRef = useRef<number>(0);
   const hasTriggeredHapticRef = useRef<boolean>(false);
   const isPullingActiveRef = useRef<boolean>(false);
   const isHorizontalGestureRef = useRef<boolean>(false);
+
+  // Keep ref in sync with state
+  useEffect(() => {
+    pullDistanceRef.current = pullDistance;
+  }, [pullDistance]);
 
   useEffect(() => {
     const handleTouchStart = (e: TouchEvent) => {
@@ -402,7 +418,7 @@ export default function App() {
         return;
       }
       isPullingActiveRef.current = false;
-      if (pullDistance >= 55) {
+      if (pullDistanceRef.current >= 55) {
         setIsPullRefreshing(true);
         setPullDistance(55);
         fetchAllFeeds().finally(() => {
@@ -427,7 +443,6 @@ export default function App() {
     fetchAllFeeds,
     isRefreshing,
     isPullRefreshing,
-    pullDistance,
     selectedArticle,
     isSettingsOpen,
     isManageFeedsOpen,
@@ -515,8 +530,8 @@ export default function App() {
     }
 
     // Search query filter overrides if active
-    if (searchQuery.trim()) {
-      const q = searchQuery.toLowerCase();
+    if (debouncedSearchQuery.trim()) {
+      const q = debouncedSearchQuery.toLowerCase();
       list = list.filter(
         (it) =>
           it.title.toLowerCase().includes(q) ||
@@ -553,7 +568,7 @@ export default function App() {
     }
 
     return list;
-  }, [allNewsItems, feeds, searchQuery, showArchiveOnly, archivedArticleIds]);
+  }, [allNewsItems, feeds, debouncedSearchQuery, showArchiveOnly, archivedArticleIds]);
 
   // Generate AI Summary for Block
   const handleGenerateAISummaryForBlock = async (block: DynamicBlock) => {
@@ -562,27 +577,32 @@ export default function App() {
 
     setGeneratingAiBlockId(block.id);
     try {
-      const res = await fetch('/api/gemini/summarize', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          items: items.slice(0, 8),
-          topic: block.title,
-        }),
-      });
-      const data = await res.json();
-      if (data.success) {
+      const data = await summarizeBlockWithAi(items.slice(0, 8), block.title);
+      if (data.success && data.summary) {
         setBlocks((prev) =>
           prev.map((b) =>
             b.id === block.id ? { ...b, aiSummary: data.summary, aiSummaryDate: Date.now() } : b
           )
         );
+        addToast({
+          title: '🤖 Resumo por IA Gerado',
+          message: `Resumo atualizado para o bloco "${block.title}".`,
+          type: 'info',
+        });
       } else {
-        alert(data.error || 'Erro ao gerar resumo da IA.');
+        addToast({
+          title: 'IA Indisponível',
+          message: data.error || 'Erro ao gerar resumo da IA.',
+          type: 'warning',
+        });
       }
-    } catch (err) {
+    } catch (err: any) {
       console.error(err);
-      alert('Falha ao comunicar com a IA.');
+      addToast({
+        title: 'Erro na IA',
+        message: 'Falha ao comunicar com o serviço de IA.',
+        type: 'warning',
+      });
     } finally {
       setGeneratingAiBlockId(null);
     }
@@ -602,9 +622,7 @@ export default function App() {
   };
 
   const handleDeleteBlock = (blockId: string) => {
-    if (confirm('Tem certeza que deseja excluir este bloco dinâmico?')) {
-      setBlocks((prev) => prev.filter((b) => b.id !== blockId));
-    }
+    setBlocks((prev) => prev.filter((b) => b.id !== blockId));
   };
 
   const handleUpdateBlockLayout = (blockId: string, layout: BlockLayout) => {
@@ -629,20 +647,53 @@ export default function App() {
   };
 
   // Export / Import Config
-  const handleExportConfig = () => {
+  const handleExportConfig = async () => {
     const configData = {
       blocks,
       feeds,
       settings,
       exportedAt: new Date().toISOString(),
     };
-    const blob = new Blob([JSON.stringify(configData, null, 2)], { type: 'application/json' });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = `radar_rss_backup_${Date.now()}.json`;
-    a.click();
-    URL.revokeObjectURL(url);
+    const jsonString = JSON.stringify(configData, null, 2);
+
+    if (isNativePlatform()) {
+      try {
+        await Share.share({
+          title: 'Radar RSS Backup',
+          text: jsonString,
+          dialogTitle: 'Exportar Backup Radar RSS',
+        });
+        addToast({
+          title: 'Backup Exportado',
+          message: 'Configurações exportadas com sucesso!',
+          type: 'success',
+        });
+        return;
+      } catch (err: any) {
+        if (err.name === 'AbortError') return;
+      }
+    }
+
+    try {
+      const blob = new Blob([jsonString], { type: 'application/json' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `radar_rss_backup_${Date.now()}.json`;
+      a.click();
+      URL.revokeObjectURL(url);
+      addToast({
+        title: 'Backup Exportado',
+        message: 'Arquivo JSON gerado e salvo!',
+        type: 'success',
+      });
+    } catch {
+      addToast({
+        title: 'Erro ao Exportar',
+        message: 'Não foi possível salvar o arquivo de backup.',
+        type: 'warning',
+      });
+    }
   };
 
   const handleImportConfig = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -656,9 +707,17 @@ export default function App() {
         if (parsed.blocks && Array.isArray(parsed.blocks)) setBlocks(parsed.blocks);
         if (parsed.feeds && Array.isArray(parsed.feeds)) setFeeds(parsed.feeds);
         if (parsed.settings) setSettings(parsed.settings);
-        alert('Configurações importadas com sucesso!');
+        addToast({
+          title: 'Backup Restaurado',
+          message: 'Configurações e fontes importadas com sucesso!',
+          type: 'success',
+        });
       } catch (err) {
-        alert('Arquivo de backup JSON inválido.');
+        addToast({
+          title: 'Falha na Importação',
+          message: 'Arquivo de backup JSON inválido ou corrompido.',
+          type: 'warning',
+        });
       }
     };
     reader.readAsText(file);

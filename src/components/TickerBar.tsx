@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useRef, useEffect, useState } from 'react';
 import { NewsItem, AccentColor } from '../types';
 import { getAccent } from '../utils/theme';
 import { Language, getTranslation } from '../i18n/translations';
@@ -15,8 +15,35 @@ export const TickerBar: React.FC<TickerBarProps> = ({ items, onSelectArticle, th
   if (!items || items.length === 0) return null;
 
   const t = getTranslation(language);
-  // Take top 12 newest articles
+  const scrollRef = useRef<HTMLDivElement>(null);
+  const [isPaused, setIsPaused] = useState(false);
+  const [isHovered, setIsHovered] = useState(false);
+  // Take top 12 newest articles, doubled for seamless loop
   const breakingItems = items.slice(0, 12);
+  const doubledItems = [...breakingItems, ...breakingItems];
+
+  // Auto-scroll animation
+  useEffect(() => {
+    const el = scrollRef.current;
+    if (!el || isPaused || isHovered) return;
+
+    let animId: number;
+    let scrollPos = el.scrollLeft;
+    const speed = 0.5; // px per frame
+
+    const tick = () => {
+      scrollPos += speed;
+      // Reset when we've scrolled through the first set
+      if (scrollPos >= el.scrollWidth / 2) {
+        scrollPos = 0;
+      }
+      el.scrollLeft = scrollPos;
+      animId = requestAnimationFrame(tick);
+    };
+
+    animId = requestAnimationFrame(tick);
+    return () => cancelAnimationFrame(animId);
+  }, [isPaused, isHovered, breakingItems.length]);
 
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-4">
@@ -31,12 +58,19 @@ export const TickerBar: React.FC<TickerBarProps> = ({ items, onSelectArticle, th
           <span className="text-amber-400 font-black">{t.ticker.breaking}</span>
         </div>
 
-        {/* Horizontal Scrolling Headlines */}
-        <div className="flex-1 overflow-x-auto no-scrollbar stories-scroll-container whitespace-nowrap flex items-center gap-5 py-0.5">
-          {breakingItems.map((item, idx) => (
+        {/* Horizontal Scrolling Headlines with auto-scroll */}
+        <div
+          ref={scrollRef}
+          onMouseEnter={() => setIsHovered(true)}
+          onMouseLeave={() => setIsHovered(false)}
+          className="flex-1 overflow-x-auto no-scrollbar stories-scroll-container whitespace-nowrap flex items-center gap-5 py-0.5"
+        >
+          {doubledItems.map((item, idx) => (
             <button
-              key={item.id}
+              key={`${item.id}-${idx}`}
               onClick={() => onSelectArticle(item)}
+              onMouseEnter={() => setIsHovered(true)}
+              onMouseLeave={() => setIsHovered(false)}
               className="inline-flex items-center gap-2 group cursor-pointer text-left transition-colors shrink-0"
             >
               <span className={`font-semibold text-xs transition-colors max-w-sm sm:max-w-md truncate ${
@@ -49,9 +83,7 @@ export const TickerBar: React.FC<TickerBarProps> = ({ items, onSelectArticle, th
               }`}>
                 [{item.sourceName}]
               </span>
-              {idx < breakingItems.length - 1 && (
-                <span className="text-amber-500/60 font-bold ml-3 text-sm select-none">•</span>
-              )}
+              <span className="text-amber-500/60 font-bold ml-3 text-sm select-none">•</span>
             </button>
           ))}
         </div>
