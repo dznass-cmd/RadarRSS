@@ -33,6 +33,9 @@ jobs:
       - name: Instalar dependências
         run: npm ci
 
+      - name: Build Web Assets
+        run: npm run build
+
       - name: Sync Capacitor
         run: npx cap sync android
 
@@ -43,7 +46,9 @@ jobs:
             node_modules/@capacitor/android/capacitor/build.gradle
 
       - name: Build debug APK
-        run: ./gradlew assembleDebug
+        run: |
+          chmod +x ./gradlew
+          ./gradlew assembleDebug
         working-directory: android
 
       - name: Get version tag
