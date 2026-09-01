@@ -92,6 +92,8 @@ export const CreateBlockModal: React.FC<CreateBlockModalProps> = ({
     },
   ];
 
+  const [validationError, setValidationError] = useState<string | null>(null);
+
   useEffect(() => {
     if (isOpen) {
       setTitle(initialBlock?.title || '');
@@ -100,6 +102,7 @@ export const CreateBlockModal: React.FC<CreateBlockModalProps> = ({
       setLayout(initialBlock?.layout || 'grid');
       setItemCount(initialBlock?.itemCount || 6);
       setAutoRefreshSec(initialBlock?.autoRefreshSec || 120);
+      setValidationError(null);
     }
   }, [initialBlock, isOpen]);
 
@@ -108,7 +111,7 @@ export const CreateBlockModal: React.FC<CreateBlockModalProps> = ({
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (!title.trim()) {
-      alert(t.createBlock.validationTitle);
+      setValidationError(t.createBlock.validationTitle);
       return;
     }
 
@@ -187,6 +190,11 @@ export const CreateBlockModal: React.FC<CreateBlockModalProps> = ({
 
           {/* Title */}
           <div>
+            {validationError && (
+              <div className="mb-2 p-2.5 rounded-xl bg-red-500/10 border border-red-500/30 text-red-400 text-xs font-bold">
+                ⚠️ {validationError}
+              </div>
+            )}
             <label className="block text-xs font-black uppercase tracking-wider mb-1.5">
               {t.createBlock.blockTitle}
             </label>

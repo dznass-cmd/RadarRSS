@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { ToastItem, AccentColor, NewsItem } from '../types';
 import { getAccent } from '../utils/theme';
 import { BellRing, Flame, X, ChevronRight } from 'lucide-react';
@@ -60,19 +60,48 @@ const ToastCard: React.FC<ToastCardProps> = ({
   onSelectArticle,
 }) => {
   const t = getTranslation(language);
+  const [isExiting, setIsExiting] = useState(false);
+  const [progress, setProgress] = useState(100);
+  const DISMISS_MS = 7000;
 
+  // Auto-dismiss with progress bar
   useEffect(() => {
+    const start = Date.now();
+    let animId: number;
+
+    const tick = () => {
+      const elapsed = Date.now() - start;
+      const remaining = Math.max(0, 100 - (elapsed / DISMISS_MS) * 100);
+      setProgress(remaining);
+      if (remaining > 0) {
+        animId = requestAnimationFrame(tick);
+      }
+    };
+
+    animId = requestAnimationFrame(tick);
     const timer = setTimeout(() => {
-      onDismiss();
-    }, 7000);
-    return () => clearTimeout(timer);
+      setIsExiting(true);
+      setTimeout(onDismiss, 300); // Wait for exit animation
+    }, DISMISS_MS);
+
+    return () => {
+      clearTimeout(timer);
+      cancelAnimationFrame(animId);
+    };
   }, [onDismiss]);
 
   const handleClick = () => {
     if (toast.article && onSelectArticle) {
       onSelectArticle(toast.article);
-      onDismiss();
+      setIsExiting(true);
+      setTimeout(onDismiss, 300);
     }
+  };
+
+  const handleDismiss = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    setIsExiting(true);
+    setTimeout(onDismiss, 300);
   };
 
   const isBreaking = toast.type === 'breaking' || toast.title.includes('URGENTE') || toast.title.includes('BREAKING');
@@ -80,7 +109,12 @@ const ToastCard: React.FC<ToastCardProps> = ({
   return (
     <div
       onClick={handleClick}
-      className={`pointer-events-auto rounded-2xl border p-4 shadow-2xl transition-all duration-300 transform animate-in slide-in-from-top-4 fade-in cursor-pointer group relative overflow-hidden backdrop-blur-md ${
+      style={{
+        opacity: isExiting ? 0 : 1,
+        transform: isExiting ? 'translateX(100%) scale(0.95)' : 'translateX(0) scale(1)',
+        transition: 'opacity 0.3s ease, transform 0.3s cubic-bezier(0.2, 0.9, 0.3, 1)',
+      }}
+      className={`pointer-events-auto rounded-2xl border p-4 shadow-2xl cursor-pointer group relative overflow-hidden backdrop-blur-md ${
         isBreaking
           ? theme === 'dark'
             ? `bg-neutral-900/95 border-red-500/80 text-white shadow-red-500/10`
@@ -88,13 +122,20 @@ const ToastCard: React.FC<ToastCardProps> = ({
           : theme === 'dark'
           ? `bg-neutral-900/95 border-neutral-700/80 text-white`
           : `bg-white/95 border-neutral-200 text-neutral-900`
-      }`}
-    >
+      }`}>
       {/* Top Accent Line */}
       <div
         className={`absolute top-0 left-0 right-0 h-1 ${
-          isBreaking ? 'bg-gradient-to-r from-red-500 via-orange-500 to-amber-500 animate-pulse' : acc.bg
-        }`}
+          isBreaking ? 'bg-gradient-to-r from-red-500 via-orange-500 to-amber-500' : acc.bg
+        }`} />
+
+      {/* Auto-dismiss progress bar */}
+      <div
+        className="absolute bottom-0 left-0 h-0.5 transition-none"
+        style={{
+          width: `${progress}%`,
+          backgroundColor: isBreaking ? '#ef4444' : '#f59e0b',
+        }}
       />
 
       <div className="flex items-start gap-3">
@@ -112,8 +153,7 @@ const ToastCard: React.FC<ToastCardProps> = ({
           <div
             className={`w-10 h-10 rounded-xl flex items-center justify-center shrink-0 ${
               isBreaking ? 'bg-red-500/20 text-red-500 border border-red-500/40' : `${acc.bgLight} ${acc.text}`
-            }`}
-          >
+            }`}>
             {isBreaking ? (
               <Flame className="w-5 h-5 animate-pulse" />
             ) : (
@@ -130,8 +170,7 @@ const ToastCard: React.FC<ToastCardProps> = ({
                 isBreaking
                   ? 'bg-red-500 text-white font-extrabold animate-pulse'
                   : `${acc.bg} text-black font-extrabold`
-              }`}
-            >
+              }`}>
               {isBreaking ? t.toast.breakingTitle : t.toast.radarTitle}
             </span>
             <span className="text-[10px] font-mono text-neutral-400">
@@ -159,10 +198,7 @@ const ToastCard: React.FC<ToastCardProps> = ({
 
         {/* Close Button */}
         <button
-          onClick={(e) => {
-            e.stopPropagation();
-            onDismiss();
-          }}
+          onClick={handleDismiss}
           className={`absolute top-2.5 right-2.5 p-1 rounded-lg transition-colors ${
             theme === 'dark'
               ? 'text-neutral-400 hover:text-white hover:bg-neutral-800'

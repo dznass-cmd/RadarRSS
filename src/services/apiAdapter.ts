@@ -189,32 +189,163 @@ export async function validateRssFeed(url: string): Promise<{ success: boolean; 
   return await res.json();
 }
 
-// 3. AI Summarize Block
-export async function summarizeBlockWithAi(items: NewsItem[], topic?: string): Promise<{ success: boolean; summary?: string; error?: string }> {
-  const res = await fetch('/api/gemini/summarize', {
+function getGeminiApiKey(): string | null {
+  try {
+    const raw = localStorage.getItem('radar_rss_settings_v1');
+    if (raw) {
+      const parsed = JSON.parse(raw);
+      if (parsed.geminiApiKey && typeof parsed.geminiApiKey === 'string' && parsed.geminiApiKey.trim()) {
+        return parsed.geminiApiKey.trim();
+      }
+    }
+  } catch {}
+  return null;
+}
+
+async function generateContentWithGeminiDirect(prompt: string, apiKey: string): Promise<string> {
+  const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${encodeURIComponent(apiKey)}`;
+  const response = await fetch(url, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ items, topic }),
+    body: JSON.stringify({
+      contents: [{ parts: [{ text: prompt }] }],
+    }),
   });
-  return await res.json();
+
+  if (!response.ok) {
+    const errData = await response.json().catch(() => ({}));
+    throw new Error(errData.error?.message || `HTTP ${response.status}: Falha na API Gemini`);
+  }
+
+  const data = await response.json();
+  const text = data.candidates?.[0]?.content?.parts?.[0]?.text;
+  if (!text) throw new Error('Nenhuma resposta recebida do Gemini.');
+  return text;
+}
+
+// 3. AI Summarize Block
+export async function summarizeBlockWithAi(items: NewsItem[], topic?: string): Promise<{ success: boolean; summary?: string; error?: string }> {
+  const apiKey = getGeminiApiKey();
+
+  if (apiKey) {
+    try {
+      const prompt = `Você é o analista editorial inteligente do Radar RSS. Sintetize as notícias abaixo em 3 a 4 tópicos analíticos e objetivos, destacando tendências e impactos. Use emojis nos tópicos.\nTópico: ${topic || 'Geral'}\nNotícias:\n${items.map(i => `- [${i.sourceName}] ${i.title}: ${i.contentSnippet}`).join('\n')}`;
+      const summary = await generateContentWithGeminiDirect(prompt, apiKey);
+      return { success: true, summary };
+    } catch (err: any) {
+      console.warn('[Gemini Direct Summary Error]:', err);
+      if (!isNativePlatform()) {
+        // Fallback to local server if available on desktop
+      } else {
+        return { success: false, error: err.message || 'Erro ao conectar à API Gemini.' };
+      }
+    }
+  }
+
+  if (isNativePlatform()) {
+    // Client-side smart digest fallback for mobile when no API key is provided
+    const digest = [
+      `📌 **Síntese Editorial (${items.length} manchetes):**`,
+      ...items.slice(0, 4).map((i) => `• **${i.sourceName}**: ${i.title}`),
+      `\n💡 *Insira sua chave gratuita da Google Gemini em Configurações para resumos analíticos avançados.*`,
+    ].join('\n');
+    return { success: true, summary: digest };
+  }
+
+  try {
+    const res = await fetch('/api/gemini/summarize', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ items, topic }),
+    });
+    return await res.json();
+  } catch (err: any) {
+    return { success: false, error: err.message || 'Falha ao conectar com o servidor.' };
+  }
 }
 
 // 4. AI Curate Block
 export async function curateBlockWithAi(userPrompt: string): Promise<{ success: boolean; blockConfig?: any; error?: string }> {
-  const res = await fetch('/api/gemini/curate', {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ userPrompt }),
-  });
-  return await res.json();
+  const apiKey = getGeminiApiKey();
+
+  if (apiKey) {
+    try {
+      const prompt = `Analise a solicitação do usuário para criar um bloco dinâmico no Radar RSS: "${userPrompt}".\nRetorne APENAS um objeto JSON válido (sem tags markdown nem explicações) no formato: {"title": "string", "categoryFilter": "tech"|"brazil"|"world"|"finance"|"sports"|"entertainment"|"ai"|"all", "filterKeyword": "string ou undefined", "layout": "hero"|"grid"|"compact"|"list"|"media-wall"|"ticker", "itemCount": 6}`;
+      const rawResponse = await generateContentWithGeminiDirect(prompt, apiKey);
+      const cleanJson = rawResponse.replace(/```json/gi, '').replace(/```/g, '').trim();
+      const blockConfig = JSON.parse(cleanJson);
+      return { success: true, blockConfig };
+    } catch (err: any) {
+      console.warn('[Gemini Direct Curate Error]:', err);
+      if (isNativePlatform()) {
+        // Fallback to client heuristic
+      }
+    }
+  }
+
+  if (isNativePlatform()) {
+    const lower = userPrompt.toLowerCase();
+    let categoryFilter = 'all';
+    if (/ia|inteligencia artificial|ai|machine learning|gpt|gemini|deep learning/i.test(lower)) categoryFilter = 'ai';
+    else if (/tech|tecnologia|software|programação|apple|google|gadget/i.test(lower)) categoryFilter = 'tech';
+    else if (/brasil|política|governo|stf|nacional/i.test(lower)) categoryFilter = 'brazil';
+    else if (/mercado|economia|dolar|bolsa|ações|invest|cripto|bitcoin/i.test(lower)) categoryFilter = 'finance';
+    else if (/esporte|futebol|f1|basquete|jogos/i.test(lower)) categoryFilter = 'sports';
+    else if (/cinema|filme|música|cultura|série/i.test(lower)) categoryFilter = 'entertainment';
+
+    return {
+      success: true,
+      blockConfig: {
+        title: `🤖 ${userPrompt.slice(0, 28)}`,
+        categoryFilter,
+        filterKeyword: userPrompt,
+        layout: 'grid',
+        itemCount: 6,
+      },
+    };
+  }
+
+  try {
+    const res = await fetch('/api/gemini/curate', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ userPrompt }),
+    });
+    return await res.json();
+  } catch (err: any) {
+    return { success: false, error: err.message || 'Falha ao conectar com o servidor.' };
+  }
 }
 
 // 5. AI Translate Text
 export async function translateWithAi(title: string, content: string): Promise<{ success: boolean; translation?: string; error?: string }> {
-  const res = await fetch('/api/gemini/translate', {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ title, content }),
-  });
-  return await res.json();
+  const apiKey = getGeminiApiKey();
+
+  if (apiKey) {
+    try {
+      const prompt = `Traduza o seguinte título e artigo para o Português com clareza e fluidez jornalística:\n\nTítulo: ${title}\nConteúdo: ${content}`;
+      const translation = await generateContentWithGeminiDirect(prompt, apiKey);
+      return { success: true, translation };
+    } catch (err: any) {
+      return { success: false, error: err.message || 'Erro ao traduzir com a API Gemini.' };
+    }
+  }
+
+  if (isNativePlatform()) {
+    return {
+      success: false,
+      error: 'Insira sua chave gratuita da Google Gemini em Configurações para traduzir no Android.',
+    };
+  }
+
+  try {
+    const res = await fetch('/api/gemini/translate', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ title, content }),
+    });
+    return await res.json();
+  } catch (err: any) {
+    return { success: false, error: err.message || 'Falha ao conectar com o servidor.' };
+  }
 }

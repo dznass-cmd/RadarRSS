@@ -60,6 +60,7 @@ export interface AppSettings {
   browserNotifications: boolean;
   breakingKeywords: string[];
   layoutCols: number; // 1, 2, 3
+  geminiApiKey?: string;
 }
 
 export interface ToastItem {
