@@ -21,11 +21,11 @@ jobs:
           node-version: 22
           cache: npm
 
-      - name: Configurar Java 17
+      - name: Configurar Java 21
         uses: actions/setup-java@v4
         with:
           distribution: temurin
-          java-version: 17
+          java-version: 21
 
       - name: Configurar Android SDK
         uses: android-actions/setup-android@v3
@@ -38,12 +38,6 @@ jobs:
 
       - name: Sync Capacitor
         run: npx cap sync android
-
-      - name: Patch Java 21 → 17 compatibility
-        run: |
-          sed -i 's/JavaVersion.VERSION_21/JavaVersion.VERSION_17/g' \
-            android/app/capacitor.build.gradle \
-            node_modules/@capacitor/android/capacitor/build.gradle
 
       - name: Build debug APK
         run: |
