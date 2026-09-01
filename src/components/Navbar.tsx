@@ -131,7 +131,7 @@ export const Navbar: React.FC<NavbarProps> = ({
                 RADAR<span className={`${settings.theme === 'dark' ? 'text-amber-400' : 'text-amber-600'} ml-1`}>RSS</span>
               </span>
               <span className="text-[9px] font-black uppercase tracking-wider px-1.5 py-0.5 rounded bg-amber-500/20 text-amber-400 border border-amber-500/30 hidden xs:inline-block">
-                BETA v0.0.6
+                v0.0.7
               </span>
             </div>
           </div>
