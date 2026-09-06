@@ -42,6 +42,12 @@ Powered by **Google Gemini Artificial Intelligence**, Radar RSS synthesizes exec
 ## ✨ Key Features
 
 - ⚡ **Real-Time Feed Aggregation:** High-throughput async ingestion of national and international RSS/Atom feeds with continuous background updates.
+- 🧩 **Cross-Feed Story Clustering & Deduplication:**
+  - Automatically identifies and consolidates identical news events reported across multiple outlets (e.g. Reuters, The Verge, TechCrunch) into a unified story cluster.
+  - Multi-signal similarity engine: token overlap, n-grams, named entity/number matching, action divergence protection (preventing false merges like "announces new iPhone" vs "raises iPhone price"), temporal decay, and canonical URL normalization.
+  - Multi-source UI badge ("3 fontes"), expandable coverage drawer, and interactive source switcher inside the reader.
+  - Consolidated multi-source AI executive briefings synthesizing all reporting viewpoints into a unified briefing without duplicates.
+  - User-configurable clustering strategies (Balanced, Conservative, Aggressive) and time windows in Settings.
 - 🧠 **Smart AI Curation (Google Gemini):**
   - Instant executive bullet summaries per topic or article.
   - Contextual urgency evaluation with automatic **Breaking News** badges and sound alerts.

@@ -13,9 +13,13 @@ import {
   X,
   Smile,
   Frown,
-  Clock
+  Clock,
+  Layers,
+  ExternalLink,
+  ChevronDown,
+  ChevronUp,
 } from 'lucide-react';
-import { DynamicBlock, NewsItem, BlockLayout, AccentColor } from '../types';
+import { DynamicBlock, NewsItem, NewsStory, BlockLayout, AccentColor } from '../types';
 import { getAccent } from '../utils/theme';
 import { SafeImage } from './SafeImage';
 import { shareArticle } from '../services/shareService';
@@ -111,6 +115,113 @@ export const DynamicBlockCard: React.FC<DynamicBlockCardProps> = ({
     if (diffHours < 24) return `${diffHours}${t.block.hoursAgo}`;
     const diffDays = Math.floor(diffHours / 24);
     return `${diffDays}d`;
+  };
+
+  const [expandedStoryIds, setExpandedStoryIds] = useState<Set<string>>(new Set());
+
+  const toggleSources = (storyId: string, e?: React.MouseEvent) => {
+    if (e) e.stopPropagation();
+    setExpandedStoryIds((prev) => {
+      const next = new Set(prev);
+      if (next.has(storyId)) next.delete(storyId);
+      else next.add(storyId);
+      return next;
+    });
+  };
+
+  const renderMultiSourceWidget = (item: NewsItem) => {
+    const story = item as NewsStory;
+    if (!story.isCluster || story.sourcesCount <= 1) return null;
+    const isExpanded = expandedStoryIds.has(story.id);
+
+    return (
+      <div className={`mt-2.5 pt-2 border-t border-dashed ${
+        theme === 'dark' ? 'border-neutral-800' : 'border-neutral-200'
+      }`}>
+        <div className="flex items-center justify-between gap-2 flex-wrap text-[11px]">
+          <div className="flex items-center gap-1.5 flex-wrap min-w-0">
+            <span className={`inline-flex items-center gap-1 font-black uppercase text-[9px] px-2 py-0.5 rounded-md ${
+              theme === 'dark' ? 'bg-amber-500/20 text-amber-400 border border-amber-500/30' : 'bg-amber-100 text-amber-800 border border-amber-300'
+            }`}>
+              <Layers className="w-3 h-3" />
+              <span>{t.block.sourcesCount.replace('{count}', String(story.sourcesCount))}</span>
+            </span>
+            <span className="text-[10px] text-neutral-400 truncate max-w-[220px]">
+              {story.uniqueSources.map((s) => s.sourceName).join(' · ')}
+            </span>
+          </div>
+
+          <button
+            onClick={(e) => toggleSources(story.id, e)}
+            className={`inline-flex items-center gap-1 text-[10px] font-bold ${acc.text} hover:underline cursor-pointer shrink-0`}
+          >
+            <span>{isExpanded ? t.block.hideSources : t.block.viewSources.replace('{count}', String(story.sourcesCount))}</span>
+            {isExpanded ? <ChevronUp className="w-3 h-3" /> : <ChevronDown className="w-3 h-3" />}
+          </button>
+        </div>
+
+        {isExpanded && (
+          <div className={`mt-2 p-2 rounded-2xl border space-y-1.5 animate-in fade-in duration-150 ${
+            theme === 'dark' ? 'bg-neutral-900/90 border-neutral-800 text-neutral-200' : 'bg-neutral-50 border-neutral-200 text-neutral-800'
+          }`}>
+            <span className="block text-[9px] font-mono font-bold uppercase tracking-wider text-neutral-400 px-1 mb-1">
+              {t.reader.storyCoverage} ({story.sourcesCount}):
+            </span>
+            {story.uniqueSources.map((src, idx) => {
+              const srcBadge = getSourceBadge(src.sourceName);
+              return (
+                <div
+                  key={idx}
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    const fullArt = story.articles.find((a) => a.link === src.link) || {
+                      ...story,
+                      title: src.title,
+                      link: src.link,
+                      sourceName: src.sourceName,
+                      sourceId: src.sourceId,
+                      contentSnippet: src.contentSnippet,
+                      pubDate: src.pubDate,
+                      timestamp: src.timestamp,
+                    };
+                    onSelectArticle(fullArt);
+                  }}
+                  className={`p-2 rounded-xl border flex items-center justify-between gap-2.5 transition-colors cursor-pointer ${
+                    theme === 'dark'
+                      ? 'bg-neutral-950/70 border-neutral-800/80 hover:border-amber-500/40 hover:bg-neutral-900'
+                      : 'bg-white border-neutral-200 hover:border-amber-500/40 hover:bg-neutral-100'
+                  }`}
+                >
+                  <div className="min-w-0 flex-1">
+                    <div className="flex items-center gap-1.5 mb-1">
+                      <span className={`w-3 h-3 rounded-full ${srcBadge.bg} flex items-center justify-center text-[7px] font-black text-white`}>
+                        {srcBadge.name.charAt(0)}
+                      </span>
+                      <span className="font-extrabold text-[10px] text-amber-500">{src.sourceName}</span>
+                      <span className="text-[9px] text-neutral-400 font-mono">• {getRelativeTime(src.timestamp)}</span>
+                    </div>
+                    <div className="text-xs font-semibold leading-snug line-clamp-1">{src.title}</div>
+                  </div>
+
+                  <a
+                    href={src.link}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    onClick={(e) => e.stopPropagation()}
+                    title={t.block.viewOriginal}
+                    className={`p-1.5 rounded-lg border text-neutral-400 hover:text-amber-400 transition-colors cursor-pointer shrink-0 ${
+                      theme === 'dark' ? 'hover:bg-neutral-800 border-neutral-700' : 'hover:bg-neutral-200 border-neutral-300'
+                    }`}
+                  >
+                    <ExternalLink className="w-3.5 h-3.5" />
+                  </a>
+                </div>
+              );
+            })}
+          </div>
+        )}
+      </div>
+    );
   };
 
   return (
@@ -377,6 +488,8 @@ export const DynamicBlockCard: React.FC<DynamicBlockCardProps> = ({
                             {displayItems[0].contentSnippet}
                           </span>
                         </div>
+
+                        {renderMultiSourceWidget(displayItems[0])}
                       </div>
 
                       <div className={`flex items-center justify-between text-[11px] pt-3 mt-2 border-t ${
@@ -463,6 +576,12 @@ export const DynamicBlockCard: React.FC<DynamicBlockCardProps> = ({
                               }`}>
                                 {source.name}
                               </span>
+                              {(item as NewsStory).isCluster && (item as NewsStory).sourcesCount > 1 && (
+                                <span className="inline-flex items-center gap-0.5 text-[8px] font-mono font-bold px-1.5 py-0.2 rounded bg-amber-500/20 text-amber-400 border border-amber-500/30">
+                                  <Layers className="w-2.5 h-2.5" />
+                                  {(item as NewsStory).sourcesCount} {t.block.sources}
+                                </span>
+                              )}
                             </div>
                             <span className="text-[10px] font-mono text-neutral-400">
                               {getRelativeTime(item.timestamp)}
@@ -553,6 +672,7 @@ export const DynamicBlockCard: React.FC<DynamicBlockCardProps> = ({
                         <p className="text-[11px] text-neutral-400 line-clamp-2 leading-relaxed">
                           {item.contentSnippet}
                         </p>
+                        {renderMultiSourceWidget(item)}
                       </div>
 
                       <div className={`flex items-center justify-between text-[10px] text-neutral-400 pt-3 mt-2 border-t ${
@@ -635,6 +755,7 @@ export const DynamicBlockCard: React.FC<DynamicBlockCardProps> = ({
                       <p className="text-[11px] text-zinc-500 dark:text-zinc-400 truncate">
                         {item.contentSnippet}
                       </p>
+                      {renderMultiSourceWidget(item)}
                     </div>
 
                     <div className="flex items-center gap-1 shrink-0">
@@ -691,6 +812,12 @@ export const DynamicBlockCard: React.FC<DynamicBlockCardProps> = ({
                       }`}>
                         {item.title}
                       </h4>
+                      {(item as NewsStory).isCluster && (item as NewsStory).sourcesCount > 1 && (
+                        <span className="inline-flex items-center gap-1 text-[9px] font-mono font-bold px-1.5 py-0.2 rounded bg-amber-500/20 text-amber-400 border border-amber-500/30 shrink-0">
+                          <Layers className="w-2.5 h-2.5" />
+                          {(item as NewsStory).sourcesCount} {t.block.sources}
+                        </span>
+                      )}
                     </div>
 
                     <div className={`flex items-center gap-2 shrink-0 text-[10px] ${
@@ -741,9 +868,17 @@ export const DynamicBlockCard: React.FC<DynamicBlockCardProps> = ({
                     }`}
                   >
                     <div>
-                      <span className="text-[10px] font-bold text-amber-500 block mb-1">
-                        {item.sourceName}
-                      </span>
+                      <div className="flex items-center justify-between gap-1 mb-1">
+                        <span className="text-[10px] font-bold text-amber-500 truncate">
+                          {item.sourceName}
+                        </span>
+                        {(item as NewsStory).isCluster && (item as NewsStory).sourcesCount > 1 && (
+                          <span className="inline-flex items-center gap-0.5 text-[8px] font-mono font-bold px-1.5 py-0.2 rounded bg-amber-500/20 text-amber-400 border border-amber-500/30 shrink-0">
+                            <Layers className="w-2.5 h-2.5" />
+                            {(item as NewsStory).sourcesCount} {t.block.sources}
+                          </span>
+                        )}
+                      </div>
                       <h4 className="font-bold text-xs line-clamp-2 group-hover:text-amber-500">
                         {item.title}
                       </h4>

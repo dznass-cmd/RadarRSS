@@ -51,6 +51,38 @@ export interface DynamicBlock {
 
 export type AccentColor = 'orange' | 'emerald' | 'cyan' | 'purple' | 'red' | 'amber' | 'blue' | 'pink';
 
+export interface ClusterSource {
+  sourceName: string;
+  sourceId: string;
+  link: string;
+  title: string;
+  timestamp: number;
+  pubDate: string;
+  author?: string;
+  imageUrl?: string;
+  contentSnippet: string;
+  contentHtml?: string;
+}
+
+export interface NewsStory extends NewsItem {
+  articles: NewsItem[];
+  sourcesCount: number;
+  uniqueSources: ClusterSource[];
+  isCluster: boolean;
+  clusterId: string;
+  consolidatedAiSummary?: string;
+}
+
+export type ClusteringStrategy = 'balanced' | 'conservative' | 'aggressive';
+
+export interface DeduplicationSettings {
+  enabled: boolean;
+  similarityThreshold: number; // 0.0 to 1.0 (e.g. 0.62)
+  timeWindowHours: number; // hours e.g. 48
+  maxArticlesPerCluster: number; // e.g. 10
+  strategy: ClusteringStrategy;
+}
+
 export interface AppSettings {
   language?: 'en' | 'pt';
   theme: 'dark' | 'light';
@@ -61,6 +93,7 @@ export interface AppSettings {
   breakingKeywords: string[];
   layoutCols: number; // 1, 2, 3
   geminiApiKey?: string;
+  deduplication?: DeduplicationSettings;
 }
 
 export interface ToastItem {

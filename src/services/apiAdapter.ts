@@ -363,13 +363,19 @@ async function generateContentWithGeminiDirect(prompt: string, apiKey: string): 
 }
 
 // 3. AI Summarize Block
-export async function summarizeBlockWithAi(items: NewsItem[], topic?: string): Promise<{ success: boolean; summary?: string; error?: string }> {
+export async function summarizeBlockWithAi(
+  items: NewsItem[],
+  topic?: string,
+  isMultiSourceStory?: boolean
+): Promise<{ success: boolean; summary?: string; error?: string }> {
   const apiKey = getGeminiApiKey();
 
   if (apiKey) {
     try {
       const headlines = items.map(i => `- [${i.sourceName}] ${i.title}${i.contentSnippet ? ': ' + i.contentSnippet : ''}`).join('\n');
-      const prompt = `Você é o analista editorial inteligente do Radar RSS. Sintetize as notícias abaixo em 3 a 4 tópicos analíticos e objetivos, destacando tendências e impactos. Use emojis nos tópicos.\nTópico: ${topic || 'Geral'}\nNotícias:\n${headlines}`;
+      const prompt = isMultiSourceStory
+        ? `Você é o analista editorial sênior do Radar RSS. Esta é uma história relevante coberta por múltiplas fontes informativas:\nTópico: ${topic || 'Geral'}\nNotícias e perspectivas das fontes:\n${headlines}\n\nGere um briefing executivo consolidado em 3 a 5 tópicos em bullet points com emojis que integre os fatos cruciais de todas as fontes acima sem repetições nem contradições.`
+        : `Você é o analista editorial inteligente do Radar RSS. Sintetize as notícias abaixo em 3 a 4 tópicos analíticos e objetivos, destacando tendências e impactos. Use emojis nos tópicos.\nTópico: ${topic || 'Geral'}\nNotícias:\n${headlines}`;
       const summary = await generateContentWithGeminiDirect(prompt, apiKey);
       return { success: true, summary };
     } catch (err: any) {
@@ -392,7 +398,7 @@ export async function summarizeBlockWithAi(items: NewsItem[], topic?: string): P
     const res = await fetch('/api/gemini/summarize', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ items, topic }),
+      body: JSON.stringify({ items, topic, isMultiSourceStory }),
     });
     return await res.json();
   } catch (err: any) {
