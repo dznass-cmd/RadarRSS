@@ -320,7 +320,7 @@ Manchetes:
 ${headlinesText}`;
 
     const response = await ai.models.generateContent({
-      model: 'gemini-3.6-flash',
+      model: 'gemini-2.0-flash',
       contents: prompt,
     });
 
@@ -351,7 +351,7 @@ Responda APENAS em formato JSON válido com este esquema:
 }`;
 
     const response = await ai.models.generateContent({
-      model: 'gemini-3.6-flash',
+      model: 'gemini-2.0-flash',
       contents: prompt,
       config: {
         responseMimeType: 'application/json',
@@ -373,7 +373,7 @@ app.post('/api/gemini/translate', async (req: Request, res: Response) => {
     const ai = getGeminiClient();
 
     const response = await ai.models.generateContent({
-      model: 'gemini-3.6-flash',
+      model: 'gemini-2.0-flash',
       contents: `Traduz o título e conteúdo a seguir de forma fluida para o português do Brasil:\nTítulo: ${title}\nConteúdo: ${content}`,
     });
 

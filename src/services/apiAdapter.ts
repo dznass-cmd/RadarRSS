@@ -242,25 +242,124 @@ function getGeminiApiKey(): string | null {
   return null;
 }
 
-async function generateContentWithGeminiDirect(prompt: string, apiKey: string): Promise<string> {
-  const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${encodeURIComponent(apiKey)}`;
-  const response = await fetch(url, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({
-      contents: [{ parts: [{ text: prompt }] }],
-    }),
-  });
-
-  if (!response.ok) {
-    const errData = await response.json().catch(() => ({}));
-    throw new Error(errData.error?.message || `HTTP ${response.status}: Falha na API Gemini`);
+async function geminiRequest(endpoint: string, method: 'GET' | 'POST', body?: any, apiKeyOverride?: string): Promise<any> {
+  const apiKey = apiKeyOverride || getGeminiApiKey();
+  if (!apiKey) {
+    throw new Error('Chave de API do Gemini não configurada.');
   }
 
-  const data = await response.json();
-  const text = data.candidates?.[0]?.content?.parts?.[0]?.text;
-  if (!text) throw new Error('Nenhuma resposta recebida do Gemini.');
-  return text;
+  const separator = endpoint.includes('?') ? '&' : '?';
+  const url = `https://generativelanguage.googleapis.com/v1beta/${endpoint}${separator}key=${encodeURIComponent(apiKey)}`;
+
+  if (isNativePlatform()) {
+    try {
+      const res = await CapacitorHttp.request({
+        url,
+        method,
+        headers: {
+          'Content-Type': 'application/json',
+          'Accept': 'application/json',
+        },
+        data: body,
+        connectTimeout: 15000,
+        readTimeout: 20000,
+      });
+
+      let parsedData = res.data;
+      if (typeof parsedData === 'string') {
+        try {
+          parsedData = JSON.parse(parsedData);
+        } catch {}
+      }
+
+      if (res.status < 200 || res.status >= 300) {
+        const errorMsg = parsedData?.error?.message || `Erro HTTP ${res.status} na API Gemini`;
+        throw new Error(errorMsg);
+      }
+
+      return parsedData;
+    } catch (nativeErr: any) {
+      throw new Error(nativeErr.message || 'Falha na requisição nativa ao Gemini.');
+    }
+  }
+
+  const response = await fetch(url, {
+    method,
+    headers: {
+      'Content-Type': 'application/json',
+      'Accept': 'application/json',
+    },
+    body: body ? JSON.stringify(body) : undefined,
+  });
+
+  const data = await response.json().catch(() => ({}));
+  if (!response.ok) {
+    throw new Error(data?.error?.message || `Erro HTTP ${response.status} na API Gemini`);
+  }
+
+  return data;
+}
+
+export async function validateGeminiApiKey(apiKey: string): Promise<{ valid: boolean; message: string }> {
+  const cleanKey = apiKey.trim();
+  if (!cleanKey) {
+    return { valid: false, message: 'Por favor, insira a chave da API.' };
+  }
+
+  try {
+    const data = await geminiRequest('models', 'GET', undefined, cleanKey);
+    if (data && Array.isArray(data.models)) {
+      return {
+        valid: true,
+        message: 'Chave Gemini validada com sucesso! Resumos e traduções ativados.',
+      };
+    }
+    return { valid: true, message: 'Chave Gemini conectada com sucesso!' };
+  } catch (err: any) {
+    const rawMsg = err.message || '';
+    if (rawMsg.includes('API_KEY_INVALID') || rawMsg.includes('not valid')) {
+      return { valid: false, message: 'Chave de API inválida. Verifique sua chave no Google AI Studio.' };
+    }
+    if (rawMsg.includes('QUOTA_EXCEEDED') || rawMsg.includes('exhausted')) {
+      return { valid: false, message: 'Limite de cota gratuito da Google API excedido.' };
+    }
+    if (rawMsg.includes('PERMISSION_DENIED')) {
+      return { valid: false, message: 'Permissão negada para esta chave no Google Cloud.' };
+    }
+    return { valid: false, message: rawMsg || 'Falha ao validar chave com o Google.' };
+  }
+}
+
+async function generateContentWithGeminiDirect(prompt: string, apiKey: string): Promise<string> {
+  const candidateModels = ['gemini-2.0-flash', 'gemini-1.5-flash'];
+  let lastError: any = null;
+
+  for (const model of candidateModels) {
+    try {
+      const data = await geminiRequest(
+        `models/${model}:generateContent`,
+        'POST',
+        {
+          contents: [{ parts: [{ text: prompt }] }],
+        },
+        apiKey
+      );
+
+      const text = data?.candidates?.[0]?.content?.parts?.[0]?.text;
+      if (text) {
+        return text;
+      }
+    } catch (err: any) {
+      lastError = err;
+      const msg = (err.message || '').toLowerCase();
+      if (msg.includes('not found') || msg.includes('404')) {
+        continue;
+      }
+      throw err;
+    }
+  }
+
+  throw lastError || new Error('Nenhuma resposta recebida do Gemini.');
 }
 
 // 3. AI Summarize Block
@@ -269,16 +368,13 @@ export async function summarizeBlockWithAi(items: NewsItem[], topic?: string): P
 
   if (apiKey) {
     try {
-      const prompt = `Você é o analista editorial inteligente do Radar RSS. Sintetize as notícias abaixo em 3 a 4 tópicos analíticos e objetivos, destacando tendências e impactos. Use emojis nos tópicos.\nTópico: ${topic || 'Geral'}\nNotícias:\n${items.map(i => `- [${i.sourceName}] ${i.title}: ${i.contentSnippet}`).join('\n')}`;
+      const headlines = items.map(i => `- [${i.sourceName}] ${i.title}${i.contentSnippet ? ': ' + i.contentSnippet : ''}`).join('\n');
+      const prompt = `Você é o analista editorial inteligente do Radar RSS. Sintetize as notícias abaixo em 3 a 4 tópicos analíticos e objetivos, destacando tendências e impactos. Use emojis nos tópicos.\nTópico: ${topic || 'Geral'}\nNotícias:\n${headlines}`;
       const summary = await generateContentWithGeminiDirect(prompt, apiKey);
       return { success: true, summary };
     } catch (err: any) {
       console.warn('[Gemini Direct Summary Error]:', err);
-      if (!isNativePlatform()) {
-        // Fallback to local server if available on desktop
-      } else {
-        return { success: false, error: err.message || 'Erro ao conectar à API Gemini.' };
-      }
+      return { success: false, error: err.message || 'Erro ao conectar à API Gemini.' };
     }
   }
 

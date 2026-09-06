@@ -8,6 +8,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [0.0.8-beta] - 2026-09-06
 
 ### 📱 Android & Native Mobile Stability
+- **Google Gemini AI Direct API Fix & Key Validation:** Fixed model identifier from non-existent `gemini-2.5-flash`/`gemini-3.6-flash` to official `gemini-2.0-flash` (with fallback to `gemini-1.5-flash`), migrated mobile network calls to native `CapacitorHttp` to eliminate WebView restrictions, and added interactive "Validar Chave" button with instant visual status feedback and direct link to obtain a free API key in Settings.
 - **Native Android System Notifications (`@capacitor/local-notifications`):** Integrated native system notifications for Android (status bar & heads-up shade alerts), configuring high-importance notification channel (`radar_rss_news`), Android 13+ `POST_NOTIFICATIONS` runtime permission, deep link to article on tap, and permission status indicators in Settings.
 - **Native Android CORS Bypass (`CapacitorHttp`):** Integrated native HTTP request handling via `@capacitor/core` to directly fetch RSS/Atom feeds, eliminating browser CORS blocking on external news feeds without proxy dependence.
 - **Resilient Mobile Timeout & User-Agent:** Increased feed connection and read timeout to 10–15s to handle high-latency cellular networks (3G/4G/5G), and configured realistic Android mobile User-Agent.

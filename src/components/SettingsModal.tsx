@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { X, Settings, RotateCcw, Volume2, Clock, LayoutGrid, BellRing, Sparkles, AlertTriangle, Send, Info, Sun, Moon, Palette, Globe } from 'lucide-react';
+import { X, Settings, RotateCcw, Volume2, Clock, LayoutGrid, BellRing, Sparkles, AlertTriangle, Send, Info, Sun, Moon, Palette, Globe, CheckCircle2, Eye, EyeOff } from 'lucide-react';
 import { AppSettings, AccentColor } from '../types';
 import { getTranslation } from '../i18n/translations';
 import {
@@ -7,6 +7,7 @@ import {
   requestNotificationPermission,
   sendNativeNotification,
 } from '../services/notificationService';
+import { validateGeminiApiKey } from '../services/apiAdapter';
 
 interface SettingsModalProps {
   isOpen: boolean;
@@ -44,6 +45,9 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
 }) => {
   const [keywordInput, setKeywordInput] = useState('');
   const [permissionState, setPermissionState] = useState<'granted' | 'denied' | 'prompt' | 'unsupported'>('prompt');
+  const [isValidatingGemini, setIsValidatingGemini] = useState<boolean>(false);
+  const [geminiValidation, setGeminiValidation] = useState<{ status: 'idle' | 'valid' | 'invalid'; message?: string }>({ status: 'idle' });
+  const [showApiKey, setShowApiKey] = useState<boolean>(false);
   const t = getTranslation(settings.language);
 
   useEffect(() => {
@@ -95,6 +99,56 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
         message: success ? t.toast.testMessage : `${t.toast.testMessage} (In-App)`,
         type: 'info',
       });
+    }
+  };
+
+  const handleValidateGemini = async () => {
+    const keyToTest = (settings.geminiApiKey || '').trim();
+    if (!keyToTest) {
+      const msg = settings.language === 'en' ? 'Please insert your Gemini API Key first.' : 'Insira a chave da API antes de testar.';
+      setGeminiValidation({ status: 'invalid', message: msg });
+      if (onTriggerToast) {
+        onTriggerToast({ title: 'Google Gemini AI', message: msg, type: 'warning' });
+      }
+      return;
+    }
+
+    setIsValidatingGemini(true);
+    setGeminiValidation({ status: 'idle' });
+
+    try {
+      const result = await validateGeminiApiKey(keyToTest);
+      if (result.valid) {
+        setGeminiValidation({ status: 'valid', message: result.message });
+        if (onTriggerToast) {
+          onTriggerToast({
+            title: 'Google Gemini AI',
+            message: result.message,
+            type: 'success',
+          });
+        }
+      } else {
+        setGeminiValidation({ status: 'invalid', message: result.message });
+        if (onTriggerToast) {
+          onTriggerToast({
+            title: 'Google Gemini AI',
+            message: result.message,
+            type: 'warning',
+          });
+        }
+      }
+    } catch (err: any) {
+      const errMsg = err.message || t.settings.apiKeyInvalid;
+      setGeminiValidation({ status: 'invalid', message: errMsg });
+      if (onTriggerToast) {
+        onTriggerToast({
+          title: 'Google Gemini AI',
+          message: errMsg,
+          type: 'warning',
+        });
+      }
+    } finally {
+      setIsValidatingGemini(false);
     }
   };
 
@@ -380,27 +434,84 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
           </div>
 
           {/* Google Gemini AI API Key */}
-          <div className={`p-4 rounded-2xl border space-y-2 ${
+          <div className={`p-4 rounded-2xl border space-y-3 ${
             settings.theme === 'dark' ? 'border-neutral-800 bg-neutral-950/60' : 'border-neutral-200 bg-neutral-50/80'
           }`}>
-            <div className="flex items-center gap-2">
-              <Sparkles className="w-4 h-4 text-purple-400 shrink-0" />
-              <div>
-                <span className="block text-xs font-black uppercase tracking-wider">{t.settings.geminiApiKey}</span>
-                <span className="text-[10px] text-neutral-400 font-mono">{t.settings.geminiApiKeyDesc}</span>
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-2">
+                <Sparkles className="w-4 h-4 text-purple-400 shrink-0" />
+                <div>
+                  <span className="block text-xs font-black uppercase tracking-wider">{t.settings.geminiApiKey}</span>
+                  <span className="text-[10px] text-neutral-400 font-mono">{t.settings.geminiApiKeyDesc}</span>
+                </div>
               </div>
+              <a
+                href="https://aistudio.google.com/app/apikey"
+                target="_blank"
+                rel="noreferrer"
+                className="text-[10px] text-purple-400 hover:text-purple-300 font-bold underline shrink-0 flex items-center gap-1"
+              >
+                {t.settings.getKeyFree}
+              </a>
             </div>
-            <input
-              type="password"
-              value={settings.geminiApiKey || ''}
-              onChange={(e) => onUpdateSettings({ ...settings, geminiApiKey: e.target.value })}
-              placeholder={t.settings.geminiApiKeyPlaceholder}
-              className={`w-full px-3 py-2.5 text-xs font-mono rounded-xl border outline-none transition-all ${
-                settings.theme === 'dark'
-                  ? 'bg-neutral-900 border-neutral-800 text-neutral-200 focus:border-purple-500'
-                  : 'bg-white border-neutral-300 text-neutral-800 focus:border-purple-500'
-              }`}
-            />
+
+            <div className="flex items-center gap-2">
+              <div className="relative flex-1">
+                <input
+                  type={showApiKey ? 'text' : 'password'}
+                  value={settings.geminiApiKey || ''}
+                  onChange={(e) => {
+                    onUpdateSettings({ ...settings, geminiApiKey: e.target.value });
+                    if (geminiValidation.status !== 'idle') {
+                      setGeminiValidation({ status: 'idle' });
+                    }
+                  }}
+                  placeholder={t.settings.geminiApiKeyPlaceholder}
+                  className={`w-full px-3 py-2.5 pr-9 text-xs font-mono rounded-xl border outline-none transition-all ${
+                    settings.theme === 'dark'
+                      ? 'bg-neutral-900 border-neutral-800 text-neutral-200 focus:border-purple-500'
+                      : 'bg-white border-neutral-300 text-neutral-800 focus:border-purple-500'
+                  }`}
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowApiKey(!showApiKey)}
+                  className="absolute right-2.5 top-1/2 -translate-y-1/2 text-neutral-500 hover:text-neutral-300 p-1"
+                  title={showApiKey ? 'Ocultar chave' : 'Mostrar chave'}
+                >
+                  {showApiKey ? <EyeOff className="w-3.5 h-3.5" /> : <Eye className="w-3.5 h-3.5" />}
+                </button>
+              </div>
+
+              <button
+                type="button"
+                onClick={handleValidateGemini}
+                disabled={isValidatingGemini}
+                className="px-3 py-2.5 rounded-xl bg-purple-500/20 border border-purple-500/40 text-purple-400 hover:bg-purple-500/30 disabled:opacity-50 font-bold text-xs flex items-center gap-1.5 transition-colors shrink-0"
+              >
+                {isValidatingGemini ? (
+                  <RotateCcw className="w-3.5 h-3.5 animate-spin" />
+                ) : (
+                  <CheckCircle2 className="w-3.5 h-3.5" />
+                )}
+                <span>{isValidatingGemini ? t.settings.validatingApiKey : t.settings.testApiKey}</span>
+              </button>
+            </div>
+
+            {/* Validation Feedback Status Message */}
+            {geminiValidation.status === 'valid' && (
+              <div className="flex items-center gap-2 p-2.5 rounded-xl bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 text-xs font-medium">
+                <CheckCircle2 className="w-4 h-4 shrink-0 text-emerald-400" />
+                <span>{geminiValidation.message || t.settings.apiKeyValid}</span>
+              </div>
+            )}
+
+            {geminiValidation.status === 'invalid' && (
+              <div className="flex items-center gap-2 p-2.5 rounded-xl bg-red-500/10 border border-red-500/30 text-red-400 text-xs font-medium">
+                <AlertTriangle className="w-4 h-4 shrink-0 text-red-400" />
+                <span>{geminiValidation.message || t.settings.apiKeyInvalid}</span>
+              </div>
+            )}
           </div>
 
           {/* Layout Grid Columns */}
