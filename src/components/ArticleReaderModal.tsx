@@ -16,8 +16,9 @@ import {
   ChevronLeft,
   ChevronRight,
   ArrowLeft,
+  Layers,
 } from 'lucide-react';
-import { NewsItem, AccentColor } from '../types';
+import { NewsItem, NewsStory, AccentColor } from '../types';
 import { getAccent } from '../utils/theme';
 import { SafeImage } from './SafeImage';
 import { summarizeBlockWithAi, translateWithAi, isNativePlatform } from '../services/apiAdapter';
@@ -61,6 +62,7 @@ export const ArticleReaderModal: React.FC<ArticleReaderModalProps> = ({
   const [translatedText, setTranslatedText] = useState<string | null>(null);
   const [isTranslating, setIsTranslating] = useState<boolean>(false);
   const [copied, setCopied] = useState<boolean>(false);
+  const [activeSourceIndex, setActiveSourceIndex] = useState<number>(0);
 
   // Gesture & Swipe Tracking State
   const [swipeOffsetX, setSwipeOffsetX] = useState<number>(0);
@@ -76,6 +78,7 @@ export const ArticleReaderModal: React.FC<ArticleReaderModalProps> = ({
 
   useEffect(() => {
     // Reset state when article changes
+    setActiveSourceIndex(0);
     setAiSummary(null);
     setTranslatedText(null);
     setIsFocusMode(false);
@@ -145,6 +148,20 @@ export const ArticleReaderModal: React.FC<ArticleReaderModalProps> = ({
     isHorizontalGestureRef.current = false;
   };
 
+  const story = article as NewsStory | null;
+  const isMultiSource = !!story && !!story.isCluster && story.sourcesCount > 1;
+  const currentSource = isMultiSource && story?.uniqueSources && story.uniqueSources[activeSourceIndex]
+    ? story.uniqueSources[activeSourceIndex]
+    : null;
+
+  const displayTitle = currentSource ? currentSource.title : article?.title || '';
+  const displaySnippet = currentSource ? currentSource.contentSnippet : article?.contentSnippet || '';
+  const displayLink = currentSource ? currentSource.link : article?.link || '';
+  const displaySourceName = currentSource ? currentSource.sourceName : article?.sourceName || '';
+  const displayAuthor = currentSource ? currentSource.author : article?.author;
+  const displayPubDate = currentSource ? currentSource.pubDate : article?.pubDate || '';
+  const displayImage = currentSource?.imageUrl || article?.imageUrl;
+
   // Web Speech API Text-to-Speech
   const handleToggleTts = () => {
     if (!('speechSynthesis' in window)) {
@@ -156,7 +173,7 @@ export const ArticleReaderModal: React.FC<ArticleReaderModalProps> = ({
       window.speechSynthesis.cancel();
       setIsPlayingTts(false);
     } else {
-      const textToRead = `${article.title}. ${article.contentSnippet}`;
+      const textToRead = `${displayTitle}. ${displaySnippet}`;
       const utterance = new SpeechSynthesisUtterance(textToRead);
       utterance.lang = language === 'pt' ? 'pt-BR' : 'en-US';
       utterance.rate = 1.0;
@@ -169,11 +186,15 @@ export const ArticleReaderModal: React.FC<ArticleReaderModalProps> = ({
     }
   };
 
-  // Generate AI Executive Summary with Gemini
+  // Generate AI Executive Summary with Gemini (Consolidated for multi-source stories)
   const handleGenerateAiSummary = async () => {
+    if (!article) return;
     try {
       setIsGeneratingAi(true);
-      const data = await summarizeBlockWithAi([article], article.title);
+      const itemsToSummarize = isMultiSource && story?.articles && story.articles.length > 0
+        ? story.articles
+        : [article];
+      const data = await summarizeBlockWithAi(itemsToSummarize, displayTitle, isMultiSource);
       if (data.success && data.summary) {
         setAiSummary(data.summary);
       } else {
@@ -190,7 +211,7 @@ export const ArticleReaderModal: React.FC<ArticleReaderModalProps> = ({
   const handleTranslate = async () => {
     try {
       setIsTranslating(true);
-      const data = await translateWithAi(article.title, article.contentSnippet);
+      const data = await translateWithAi(displayTitle, displaySnippet);
       if (data.success && data.translation) {
         setTranslatedText(data.translation);
       } else {
@@ -206,10 +227,10 @@ export const ArticleReaderModal: React.FC<ArticleReaderModalProps> = ({
   // Share / Copy Link
   const handleShare = async () => {
     const res = await shareArticle({
-      title: article.title,
-      text: article.contentSnippet,
-      url: article.link,
-      dialogTitle: `${article.title} - RADAR RSS`,
+      title: displayTitle,
+      text: displaySnippet,
+      url: displayLink,
+      dialogTitle: `${displayTitle} - RADAR RSS`,
     });
     if (res.method === 'clipboard') {
       setCopied(true);
@@ -307,11 +328,11 @@ export const ArticleReaderModal: React.FC<ArticleReaderModalProps> = ({
             )}
 
             <span className={`px-2.5 py-1 rounded text-[10px] font-black uppercase ${acc.bg} text-black tracking-wider shrink-0`}>
-              {article.sourceName}
+              {displaySourceName}
             </span>
             <span className="text-[10px] font-mono text-neutral-400 hidden sm:flex items-center gap-1">
               <Clock className="w-3.5 h-3.5 text-neutral-500" />
-              {article.pubDate}
+              {displayPubDate}
             </span>
 
             {/* Story Navigation Next */}
@@ -430,16 +451,56 @@ export const ArticleReaderModal: React.FC<ArticleReaderModalProps> = ({
             </div>
           )}
 
+          {/* Multi-Source Coverage Selector Tabs */}
+          {isMultiSource && story && story.uniqueSources && story.uniqueSources.length > 1 && (
+            <div className={`p-3.5 rounded-2xl border ${
+              theme === 'dark' ? 'bg-neutral-950/70 border-neutral-800' : 'bg-neutral-50 border-neutral-200'
+            }`}>
+              <div className="flex items-center justify-between gap-2 mb-2.5">
+                <span className={`text-[11px] font-black uppercase tracking-wider flex items-center gap-1.5 ${acc.textDark}`}>
+                  <Layers className="w-3.5 h-3.5" />
+                  {t.reader.sourcesCovering.replace('{count}', String(story.sourcesCount))}
+                </span>
+                <span className="text-[10px] font-mono text-neutral-400">
+                  {t.reader.switchSource}
+                </span>
+              </div>
+              <div className="flex flex-wrap gap-1.5">
+                {story.uniqueSources.map((src, idx) => {
+                  const isActive = idx === activeSourceIndex;
+                  return (
+                    <button
+                      key={`${src.sourceId}-${idx}`}
+                      onClick={() => setActiveSourceIndex(idx)}
+                      className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-all flex items-center gap-1.5 border cursor-pointer ${
+                        isActive
+                          ? `${acc.bg} text-black border-transparent shadow-sm font-black scale-105`
+                          : theme === 'dark'
+                            ? 'bg-neutral-900 border-neutral-700 text-neutral-300 hover:bg-neutral-800'
+                            : 'bg-white border-neutral-300 text-neutral-700 hover:bg-neutral-100'
+                      }`}
+                    >
+                      <span>{src.sourceName}</span>
+                      <span className="text-[10px] opacity-70">
+                        {new Date(src.pubDate).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                      </span>
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
+          )}
+
           {/* Article Image Banner */}
-          {!isFocusMode && article.imageUrl && (
+          {!isFocusMode && displayImage && (
             <div className={`w-full aspect-video rounded-2xl overflow-hidden ${
               theme === 'dark' ? 'bg-neutral-950 border-neutral-800' : 'bg-neutral-200 border-neutral-300'
             } border`}>
               <SafeImage
-                src={article.imageUrl}
-                alt={article.title}
+                src={displayImage}
+                alt={displayTitle}
                 className="w-full h-full object-cover"
-                sourceName={article.sourceName}
+                sourceName={displaySourceName}
               />
             </div>
           )}
@@ -447,11 +508,11 @@ export const ArticleReaderModal: React.FC<ArticleReaderModalProps> = ({
           {/* Title & Author */}
           <div>
             <h2 className={`${isFocusMode ? 'text-2xl sm:text-3xl font-black' : 'text-xl sm:text-2xl font-black'} leading-tight mb-3 ${getFontFamilyClass()}`}>
-              {article.title}
+              {displayTitle}
             </h2>
-            {article.author && (
+            {displayAuthor && (
               <p className="text-xs text-neutral-400 font-mono">
-                {t.reader.by} {article.author}
+                {t.reader.by} {displayAuthor}
               </p>
             )}
           </div>
@@ -483,7 +544,13 @@ export const ArticleReaderModal: React.FC<ArticleReaderModalProps> = ({
               className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-black uppercase tracking-wider ${acc.bg} text-black ${acc.bgHover} transition-all cursor-pointer`}
             >
               <Sparkles className={`w-4 h-4 ${isGeneratingAi ? 'animate-spin' : ''}`} />
-              <span>{isGeneratingAi ? t.reader.generating : t.reader.generateSummary}</span>
+              <span>
+                {isGeneratingAi
+                  ? t.reader.generating
+                  : isMultiSource
+                    ? t.reader.generateConsolidatedSummary.replace('{count}', String(story?.sourcesCount || 2))
+                    : t.reader.generateSummary}
+              </span>
             </button>
 
             {/* AI Translate Button */}
@@ -530,7 +597,7 @@ export const ArticleReaderModal: React.FC<ArticleReaderModalProps> = ({
           <div className={`prose max-w-none ${getFontSizeClass()} ${getFontFamilyClass()} ${
             theme === 'dark' ? 'prose-invert text-neutral-200' : 'text-neutral-800'
           }`}>
-            {article.contentSnippet}
+            {displaySnippet}
           </div>
 
           {/* Swipe Navigation Hint */}
@@ -541,7 +608,7 @@ export const ArticleReaderModal: React.FC<ArticleReaderModalProps> = ({
           {/* Source Link CTA Button */}
           <div className="pt-2">
             <a
-              href={article.link}
+              href={displayLink}
               target="_blank"
               rel="noopener noreferrer"
               onClick={(e) => {
@@ -552,7 +619,7 @@ export const ArticleReaderModal: React.FC<ArticleReaderModalProps> = ({
               }}
               className={`w-full flex items-center justify-center gap-2 py-3.5 px-4 rounded-2xl font-black uppercase tracking-wider text-xs ${acc.bg} ${acc.bgHover} text-black shadow-xl transition-all`}
             >
-              <span>{t.reader.openOriginal} ({article.sourceName})</span>
+              <span>{t.reader.openOriginal} ({displaySourceName})</span>
               <ExternalLink className="w-4 h-4" />
             </a>
           </div>

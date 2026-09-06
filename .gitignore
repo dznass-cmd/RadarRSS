@@ -6,6 +6,7 @@ coverage/
 .DS_Store
 *.log
 *.zip
+*.apk
 .env*
 !.env.example
 .freebuff/

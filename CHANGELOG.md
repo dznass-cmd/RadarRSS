@@ -5,6 +5,35 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.0.9-beta] - 2026-09-06
+
+### 🚀 Highlights & Major Features
+- **🧩 Cross-Feed News Deduplication & Story Clustering ("News Cluster"):**
+  - High-performance multi-signal similarity engine ($O(N \cdot k)$ via temporal inverted index):
+    - Normalized token overlap & n-grams with multilingual stopword removal (PT, EN, ES).
+    - Canonical URL normalization (automatic removal of tracking parameters `utm_*`, `ref`, `fbclid`, anchors `#`, and protocol normalization).
+    - Named entity and numerical identifier matching (models, percentages, years, currency).
+    - Semantic action divergence protection (preventing false clustering between distinct events like *"announces new iPhone"* vs *"raises iPhone prices"*).
+    - Exponential temporal decay function ($e^{-\lambda \Delta t}$) respecting the configured correlation window.
+    - Short headline guardrail requiring snippet overlap confirmation for titles under 3 tokens.
+  - Multi-source UI badge (`3 fontes`) displaying combined news coverage (e.g. `Reuters · The Verge · TechCrunch`).
+  - Expandable source drawer in news cards for viewing individual outlet headlines, publication timestamps, and direct external links.
+  - Interactive source switching tabs inside the Article Reader modal, seamlessly toggling title, full text, author, and outlet attribution without losing reading state.
+  - Synchronized read/unread and bookmark state across all constituent article IDs in a cluster.
+- **🧠 Consolidated Multi-Source AI Executive Briefing (Google Gemini):**
+  - Updated Gemini executive summarization engine to synthesize facts, quotes, and perspectives across all constituent outlets of a story cluster into a unified bulleted briefing without redundancies or hallucinations.
+  - Graceful fallback when AI is disabled or for single-source articles.
+- **⚙️ Configurable Deduplication Preferences:**
+  - Dedicated settings section with real-time toggle (on/off).
+  - Strategy selector: Balanced (0.58), Conservative (0.72, zero false positives), and Aggressive (0.45).
+  - Configurable temporal correlation window (12h, 24h, 48h, 72h) and maximum sources per story cluster.
+- **⚡ Electron Desktop Architecture & Launch Optimizations:**
+  - Disabled ASAR compression (`"asar": false`), enabling Express and Node.js to access and serve static web assets natively from physical disk paths.
+  - Eliminated single-instance lock deadlocks and added second-instance window restoration and focus.
+  - Graceful `did-fail-load` fallback directly to local `index.html`.
+
+---
+
 ## [0.0.8-beta] - 2026-09-06
 
 ### 📱 Android & Native Mobile Stability

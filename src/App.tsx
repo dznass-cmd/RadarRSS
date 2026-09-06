@@ -20,6 +20,7 @@ import {
   sendNativeNotification,
   addNotificationActionListener,
 } from './services/notificationService';
+import { clusterNewsItems } from './services/clustering/newsClusterService';
 import { getTranslation } from './i18n/translations';
 import { App as CapApp } from '@capacitor/app';
 import { StatusBar, Style } from '@capacitor/status-bar';
@@ -87,7 +88,8 @@ export default function App() {
 
   const [settings, setSettings] = useState<AppSettings>(() => {
     const saved = localStorage.getItem(STORAGE_KEYS.SETTINGS);
-    return saved ? JSON.parse(saved) : {
+    const parsed = saved ? JSON.parse(saved) : null;
+    return {
       language: 'en',
       theme: 'dark',
       globalRefreshSec: 60,
@@ -95,6 +97,14 @@ export default function App() {
       browserNotifications: true,
       breakingKeywords: ['Breaking', 'Urgent', 'Alert', 'Exclusive', 'Developing', 'Bomba', 'Urgente', 'Última Hora'],
       layoutCols: 2,
+      deduplication: {
+        enabled: true,
+        similarityThreshold: 0.58,
+        timeWindowHours: 48,
+        maxArticlesPerCluster: 12,
+        strategy: 'balanced',
+      },
+      ...parsed,
     };
   });
 
@@ -258,6 +268,10 @@ export default function App() {
     setArchivedArticleIds((prev) => {
       const next = new Set(prev);
       next.add(item.id);
+      const story = item as any;
+      if (story.articles && Array.isArray(story.articles)) {
+        story.articles.forEach((a: NewsItem) => next.add(a.id));
+      }
       return next;
     });
   }, []);
@@ -284,11 +298,15 @@ export default function App() {
   const handleToggleArchiveItem = useCallback((item: NewsItem) => {
     setArchivedArticleIds((prev) => {
       const next = new Set(prev);
-      if (next.has(item.id)) {
-        next.delete(item.id);
-      } else {
-        next.add(item.id);
-      }
+      const story = item as any;
+      const ids = (story.articles && Array.isArray(story.articles))
+        ? story.articles.map((a: NewsItem) => a.id)
+        : [item.id];
+      const isArchived = next.has(item.id);
+      ids.forEach((id: string) => {
+        if (isArchived) next.delete(id);
+        else next.add(id);
+      });
       return next;
     });
   }, []);
@@ -608,8 +626,9 @@ export default function App() {
       }
     }
 
-    return list;
-  }, [allNewsItems, feeds, debouncedSearchQuery, showArchiveOnly, archivedArticleIds]);
+    // Cluster items into unified multi-source stories
+    return clusterNewsItems(list, settings.deduplication);
+  }, [allNewsItems, feeds, debouncedSearchQuery, showArchiveOnly, archivedArticleIds, settings.deduplication]);
 
   // Generate AI Summary for Block
   const handleGenerateAISummaryForBlock = async (block: DynamicBlock) => {
@@ -1035,7 +1054,7 @@ export default function App() {
             LIVE
           </span>
           <div className="overflow-hidden whitespace-nowrap text-ellipsis flex-1">
-            <span className={`${getAccent(settings.accentColor).text} font-bold`}>[RADAR ENGINE v0.0.8-beta]</span> Syncing {feeds.filter(f => f.active).length} active feeds... <span className="text-emerald-400">Online</span> • {allNewsItems.length} articles loaded • Engine: <span className={`${settings.theme === 'dark' ? 'text-white' : 'text-neutral-900'} font-bold`}>Bento Real-time Matrix</span>
+            <span className={`${getAccent(settings.accentColor).text} font-bold`}>[RADAR ENGINE v0.0.9-beta]</span> Syncing {feeds.filter(f => f.active).length} active feeds... <span className="text-emerald-400">Online</span> • {allNewsItems.length} articles loaded • Engine: <span className={`${settings.theme === 'dark' ? 'text-white' : 'text-neutral-900'} font-bold`}>Bento Real-time Matrix</span>
           </div>
         </footer>
 

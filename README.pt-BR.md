@@ -42,6 +42,12 @@ Utilizando o poder dos modelos de **Inteligência Artificial do Google Gemini**,
 ## ✨ Principais Recursos
 
 - ⚡ **Feed em Tempo Real:** Agregação rápida de múltiplos feeds RSS (nacionais e internacionais) com atualização contínua e sem bloqueio.
+- 🧩 **Agrupamento e Deduplicação Inteligente de Notícias (Story Clusters):**
+  - Identifica e unifica a cobertura do mesmo fato reportado por múltiplos veículos (ex: Reuters, The Verge, TechCrunch) em uma única história organizada.
+  - Motor de similaridade multi-sinal: sobreposição de tokens, n-grams, entidades nomeadas/números, proteção contra divergência de ação (evitando falsos positivos como "lança novo iPhone" vs "aumenta preço do iPhone"), decaimento temporal e URLs canônicas.
+  - Badge visual de múltiplas fontes ("3 fontes"), gaveta expansível para comparar coberturas e alternador de fonte dentro do leitor.
+  - Briefing executivo consolidado com Gemini sintetizando as diferentes perspectivas em um único resumo.
+  - Estratégias configuráveis nas preferências (Equilibrado, Conservador, Agressivo) e janela de tempo customizável.
 - 🧠 **Curadoria Inteligente com Google Gemini:**
   - Resumos automáticos em tópicos diretos e objetivos.
   - Análise contextual e detecção de urgência (*Breaking News*).

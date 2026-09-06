@@ -299,18 +299,38 @@ function getGeminiClient() {
 // 4. AI Block Summarizer Endpoint
 app.post('/api/gemini/summarize', async (req: Request, res: Response) => {
   try {
-    const { items, topic } = req.body;
+    const { items, topic, isMultiSourceStory } = req.body;
     if (!items || !Array.isArray(items) || items.length === 0) {
       return res.status(400).json({ success: false, error: 'Itens de notícias inválidos' });
     }
 
     const ai = getGeminiClient();
 
-    const headlinesText = items.slice(0, 10).map((it: any, idx: number) => 
-      `${idx + 1}. [${it.sourceName}] "${it.title}" - ${it.contentSnippet}`
-    ).join('\n');
+    let prompt: string;
 
-    const prompt = `Você é um editor sênior de jornalismo executivo. 
+    if (isMultiSourceStory && items.length > 1) {
+      const sourcesText = items.slice(0, 10).map((it: any, idx: number) => 
+        `Fonte ${idx + 1}: [${it.sourceName}] "${it.title}"\nTrecho da cobertura: ${it.contentSnippet || ''}`
+      ).join('\n\n');
+
+      prompt = `Você é um editor sênior de jornalismo investigativo e executivo.
+As ${items.length} fontes abaixo cobrem o MESMO ACONTECIMENTO ("${topic || 'História Consolidada'}"):
+
+${sourcesText}
+
+Gere um resumo jornalístico consolidado em português (PT-BR) contendo:
+1. **Resumo Consolidado**: Síntese direta e objetiva dos fatos centrais confirmados pelas fontes (2 a 3 frases).
+2. **Fatos Compartilhados**: Pontos comuns acordados pelas diferentes coberturas.
+3. **Nuances e Detalhes Específicos**: Destaques, dados ou declarações adicionais trazidos por fontes específicas (mencione os veículos correspondentes).
+4. **Veredito do Radar**: Avaliação neutra e conclusiva do impacto do acontecimento.
+
+IMPORTANTE: Limite-se aos fatos citados pelas fontes acima. Não invente informações.`;
+    } else {
+      const headlinesText = items.slice(0, 10).map((it: any, idx: number) => 
+        `${idx + 1}. [${it.sourceName}] "${it.title}" - ${it.contentSnippet}`
+      ).join('\n');
+
+      prompt = `Você é um editor sênior de jornalismo executivo. 
 Analise as manchetes abaixo do tópico "${topic || 'Geral'}" e gere um briefing em português (PT-BR) contendo:
 1. Um resumo executivo direto de 2 a 3 frases destacando os pontos principais.
 2. 3 a 5 tópicos em bullet points com as tendências ou acontecimentos mais relevantes.
@@ -318,6 +338,7 @@ Analise as manchetes abaixo do tópico "${topic || 'Geral'}" e gere um briefing 
 
 Manchetes:
 ${headlinesText}`;
+    }
 
     const response = await ai.models.generateContent({
       model: 'gemini-2.0-flash',

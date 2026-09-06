@@ -21,6 +21,7 @@ if (!gotTheLock) {
   app.on('second-instance', () => {
     if (mainWindow) {
       if (mainWindow.isMinimized()) mainWindow.restore();
+      mainWindow.show();
       mainWindow.focus();
     }
   });
@@ -54,16 +55,21 @@ async function waitForServer(url, timeoutMs = 12000) {
 }
 
 app.whenReady().then(async () => {
-  // Create the main window immediately for zero perceived startup lag
+  const iconPath = path.join(app.getAppPath(), 'build', 'icon.ico');
+  let hasIcon = false;
+  try { hasIcon = require('fs').existsSync(iconPath); } catch (_) {}
+
   mainWindow = new BrowserWindow({
     width: 1380,
     height: 880,
     minWidth: 940,
     minHeight: 600,
+    center: true,
+    show: true,
     autoHideMenuBar: true,
     backgroundColor: '#0a0b0e',
     title: 'Radar RSS',
-    icon: path.join(app.getAppPath(), 'build', 'icon.ico'),
+    ...(hasIcon ? { icon: iconPath } : {}),
     webPreferences: {
       contextIsolation: true,
       nodeIntegration: false,
@@ -85,6 +91,19 @@ app.whenReady().then(async () => {
 
   mainWindow.on('closed', () => {
     mainWindow = null;
+  });
+
+  mainWindow.webContents.on('did-fail-load', (_event, errorCode, errorDescription, validatedURL) => {
+    console.error(`[Electron Main] Failed to load ${validatedURL}: ${errorCode} - ${errorDescription}`);
+    if (mainWindow && typeof validatedURL === 'string' && !validatedURL.startsWith('file://')) {
+      const fallbackFile = path.join(app.getAppPath(), 'dist', 'index.html');
+      mainWindow.loadFile(fallbackFile);
+    }
+  });
+
+  mainWindow.once('ready-to-show', () => {
+    mainWindow.show();
+    mainWindow.focus();
   });
 
   const port = await getFreePort();
@@ -109,6 +128,8 @@ app.whenReady().then(async () => {
     } else {
       mainWindow.loadURL(`file://${path.join(distDir, 'index.html')}`);
     }
+    mainWindow.show();
+    mainWindow.focus();
   }
 
   setupAutoUpdater();
@@ -118,8 +139,12 @@ app.whenReady().then(async () => {
 // Only the installed (NSIS) app self-updates. The portable .exe cannot be
 // updated in place, and dev builds should never check for updates.
 function setupAutoUpdater() {
-  if (!app.isPackaged || process.env.PORTABLE_EXECUTABLE_DIR) {
-    console.log('[AutoUpdater] Disabled (unpacked or portable build)');
+  const appUpdateFile = path.join(process.resourcesPath || '', 'app-update.yml');
+  let hasAppUpdate = false;
+  try { hasAppUpdate = require('fs').existsSync(appUpdateFile); } catch (_) {}
+
+  if (!app.isPackaged || process.env.PORTABLE_EXECUTABLE_DIR || !hasAppUpdate) {
+    console.log('[AutoUpdater] Disabled (unpacked, portable build, or no app-update.yml)');
     return;
   }
 

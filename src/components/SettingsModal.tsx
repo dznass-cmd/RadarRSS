@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import { X, Settings, RotateCcw, Volume2, Clock, LayoutGrid, BellRing, Sparkles, AlertTriangle, Send, Info, Sun, Moon, Palette, Globe, CheckCircle2, Eye, EyeOff } from 'lucide-react';
-import { AppSettings, AccentColor } from '../types';
+import { X, Settings, RotateCcw, Volume2, Clock, LayoutGrid, BellRing, Sparkles, AlertTriangle, Send, Info, Sun, Moon, Palette, Globe, CheckCircle2, Eye, EyeOff, Layers } from 'lucide-react';
+import { AppSettings, AccentColor, DeduplicationSettings } from '../types';
 import { getTranslation } from '../i18n/translations';
 import {
   checkNotificationPermission,
@@ -325,6 +325,154 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
             </select>
           </div>
 
+          {/* Smart Deduplication & News Clustering */}
+          <div className={`p-4 rounded-2xl border space-y-3.5 ${
+            settings.theme === 'dark' ? 'border-neutral-800 bg-neutral-950/60' : 'border-neutral-200 bg-neutral-50/80'
+          }`}>
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-2.5">
+                <Layers className="w-4 h-4 text-orange-500 shrink-0" />
+                <div>
+                  <span className="block text-xs font-black uppercase tracking-wider">{t.settings.deduplication}</span>
+                  <span className="text-[10px] text-neutral-400 font-mono">{t.settings.deduplicationDesc}</span>
+                </div>
+              </div>
+              <input
+                type="checkbox"
+                checked={settings.deduplication?.enabled ?? true}
+                onChange={(e) => {
+                  const current = settings.deduplication ?? {
+                    enabled: true,
+                    similarityThreshold: 0.58,
+                    timeWindowHours: 48,
+                    maxArticlesPerCluster: 12,
+                    strategy: 'balanced' as const,
+                  };
+                  onUpdateSettings({
+                    ...settings,
+                    deduplication: { ...current, enabled: e.target.checked },
+                  });
+                }}
+                className="w-4 h-4 accent-orange-500 rounded cursor-pointer"
+              />
+            </div>
+
+            {(settings.deduplication?.enabled ?? true) && (
+              <div className={`pt-3 border-t space-y-3 ${
+                settings.theme === 'dark' ? 'border-neutral-800/60' : 'border-neutral-200'
+              }`}>
+                {/* Clustering Strategy */}
+                <div>
+                  <label className="block text-[11px] font-bold uppercase tracking-wider text-neutral-400 mb-1.5 font-mono">
+                    {t.settings.clusteringStrategy}:
+                  </label>
+                  <div className="grid grid-cols-3 gap-1.5">
+                    {[
+                      { id: 'conservative', label: t.settings.strategyConservative.split(' ')[0] },
+                      { id: 'balanced', label: t.settings.strategyBalanced.split(' ')[0] },
+                      { id: 'aggressive', label: t.settings.strategyAggressive.split(' ')[0] },
+                    ].map((st) => {
+                      const currentStrategy = settings.deduplication?.strategy ?? 'balanced';
+                      const isSelected = currentStrategy === st.id;
+                      return (
+                        <button
+                          key={st.id}
+                          type="button"
+                          onClick={() => {
+                            const current = settings.deduplication ?? {
+                              enabled: true,
+                              similarityThreshold: 0.58,
+                              timeWindowHours: 48,
+                              maxArticlesPerCluster: 12,
+                              strategy: 'balanced' as const,
+                            };
+                            onUpdateSettings({
+                              ...settings,
+                              deduplication: { ...current, strategy: st.id as any },
+                            });
+                          }}
+                          className={`py-1.5 px-2 rounded-xl text-[10px] font-black uppercase tracking-wider border transition-all cursor-pointer ${
+                            isSelected
+                              ? 'bg-orange-500 text-black border-orange-500 font-extrabold'
+                              : settings.theme === 'dark'
+                              ? 'border-neutral-800 bg-neutral-900/60 text-neutral-400 hover:border-neutral-700'
+                              : 'border-neutral-200 bg-white text-neutral-600'
+                          }`}
+                        >
+                          {st.label}
+                        </button>
+                      );
+                    })}
+                  </div>
+                </div>
+
+                {/* Time correlation window & Max sources */}
+                <div className="grid grid-cols-2 gap-2">
+                  <div>
+                    <label className="block text-[10px] font-bold uppercase tracking-wider text-neutral-400 mb-1 font-mono">
+                      {t.settings.timeWindow}:
+                    </label>
+                    <select
+                      value={settings.deduplication?.timeWindowHours ?? 48}
+                      onChange={(e) => {
+                        const current = settings.deduplication ?? {
+                          enabled: true,
+                          similarityThreshold: 0.58,
+                          timeWindowHours: 48,
+                          maxArticlesPerCluster: 12,
+                          strategy: 'balanced' as const,
+                        };
+                        onUpdateSettings({
+                          ...settings,
+                          deduplication: { ...current, timeWindowHours: Number(e.target.value) },
+                        });
+                      }}
+                      className={`w-full px-2.5 py-1.5 text-[11px] font-bold rounded-xl border outline-none ${
+                        settings.theme === 'dark' ? 'bg-neutral-950 border-neutral-800 text-neutral-200' : 'bg-white border-neutral-200 text-neutral-800'
+                      }`}
+                    >
+                      <option value={12}>12h</option>
+                      <option value={24}>24h</option>
+                      <option value={48}>48h (Default)</option>
+                      <option value={72}>72h</option>
+                      <option value={120}>5 days</option>
+                    </select>
+                  </div>
+
+                  <div>
+                    <label className="block text-[10px] font-bold uppercase tracking-wider text-neutral-400 mb-1 font-mono">
+                      {t.settings.maxSourcesPerStory}:
+                    </label>
+                    <select
+                      value={settings.deduplication?.maxArticlesPerCluster ?? 12}
+                      onChange={(e) => {
+                        const current = settings.deduplication ?? {
+                          enabled: true,
+                          similarityThreshold: 0.58,
+                          timeWindowHours: 48,
+                          maxArticlesPerCluster: 12,
+                          strategy: 'balanced' as const,
+                        };
+                        onUpdateSettings({
+                          ...settings,
+                          deduplication: { ...current, maxArticlesPerCluster: Number(e.target.value) },
+                        });
+                      }}
+                      className={`w-full px-2.5 py-1.5 text-[11px] font-bold rounded-xl border outline-none ${
+                        settings.theme === 'dark' ? 'bg-neutral-950 border-neutral-800 text-neutral-200' : 'bg-white border-neutral-200 text-neutral-800'
+                      }`}
+                    >
+                      <option value={5}>5 sources</option>
+                      <option value={8}>8 sources</option>
+                      <option value={12}>12 sources (Default)</option>
+                      <option value={20}>20 sources</option>
+                    </select>
+                  </div>
+                </div>
+              </div>
+            )}
+          </div>
+
           {/* Browser Notifications Section */}
           <div className={`p-4 rounded-2xl border space-y-3 ${
             settings.theme === 'dark' ? 'border-neutral-800 bg-neutral-950/60' : 'border-neutral-200 bg-neutral-50/80'
@@ -550,12 +698,12 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
                 <span className="font-extrabold text-xs uppercase tracking-wider">RADAR RSS</span>
               </div>
               <span className="px-2 py-0.5 rounded text-[10px] font-mono bg-amber-500/20 text-amber-400 font-bold border border-amber-500/30">
-                v0.0.8-beta
+                v0.0.9-beta
               </span>
             </div>
 
             <p className="text-xs text-neutral-400 font-mono pl-6">
-              Version 0.0.8-beta · Global Real-Time News (English Default)
+              Version 0.0.9-beta · Global Real-Time News (English Default)
             </p>
 
             <a
