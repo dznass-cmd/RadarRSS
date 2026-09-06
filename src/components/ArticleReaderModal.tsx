@@ -121,9 +121,7 @@ export const ArticleReaderModal: React.FC<ArticleReaderModalProps> = ({
 
     // Swipe Left-to-Right (diffX > 75px)
     if (swipeOffsetX > 75) {
-      try {
-        Haptics.impact({ style: ImpactStyle.Light });
-      } catch (_) { }
+      Haptics.impact({ style: ImpactStyle.Light }).catch(() => { });
 
       if (hasPrev && onPrevArticle) {
         onPrevArticle();
@@ -133,9 +131,7 @@ export const ArticleReaderModal: React.FC<ArticleReaderModalProps> = ({
     }
     // Swipe Right-to-Left (diffX < -75px)
     else if (swipeOffsetX < -75) {
-      try {
-        Haptics.impact({ style: ImpactStyle.Light });
-      } catch (_) { }
+      Haptics.impact({ style: ImpactStyle.Light }).catch(() => { });
 
       if (hasNext && onNextArticle) {
         onNextArticle();

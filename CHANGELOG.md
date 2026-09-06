@@ -5,6 +5,19 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.0.8-beta] - 2026-09-06
+
+### 📱 Android & Native Mobile Stability
+- **Native Android CORS Bypass (`CapacitorHttp`):** Integrated native HTTP request handling via `@capacitor/core` to directly fetch RSS/Atom feeds, eliminating browser CORS blocking on external news feeds without proxy dependence.
+- **Resilient Mobile Timeout & User-Agent:** Increased feed connection and read timeout to 10–15s to handle high-latency cellular networks (3G/4G/5G), and configured realistic Android mobile User-Agent.
+- **Enhanced Atom & Dublin Core Feed Parser:** Fixed `<link rel="alternate">` retrieval and added support for `<id>` and `<dc:date>` in client-side XML parser.
+- **Stable Android Back Button Lifecycle:** Migrated modal state management to `activeModalsRef` to eliminate listener thrashing and memory leaks, adding a 2-second confirmation on root screen to prevent accidental exits.
+- **Thread-safe Haptic Feedback:** Wrapped all `Haptics.impact()` calls with `.catch(() => {})` to eliminate unhandled promise rejections on devices without haptic hardware.
+- **Edge-to-Edge Safe Area Inset Fix:** Removed conflicting inline `padding: 0` on `<body>` in `index.html` to allow native status bar and gesture navigation safe-area insets (`--sat`, `--sab`) to apply correctly.
+- **Dynamic Java 21 Check in Build Script:** Updated `build-apk.sh` to dynamically detect installed Java version, preventing unnecessary downgrades on OpenJDK 21 environments.
+
+---
+
 ## [0.0.7] - 2026-09-01
 
 ### 🤖 Direct Google Gemini AI Integration (Client-Side & Mobile)

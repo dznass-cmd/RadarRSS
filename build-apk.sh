@@ -51,11 +51,16 @@ echo "📱 Step 3/5: Syncing Capacitor..."
 npx cap sync android
 echo "✅ Capacitor synced"
 
-# Step 4: Patch Java 21 -> 17 compatibility
+# Step 4: Check Java version compatibility
 echo ""
-echo "🩹 Step 4/5: Patching Java version (21 -> 17)..."
-find android node_modules/@capacitor -type f \( -name "*.gradle" \) -exec sed -i 's/JavaVersion.VERSION_21/JavaVersion.VERSION_17/g' {} + 2>/dev/null || true
-echo "✅ Java version patched"
+JAVA_MAJOR=$(java -version 2>&1 | awk -F '"' '/version/ {print $2}' | cut -d'.' -f1)
+if [ -n "$JAVA_MAJOR" ] && [ "$JAVA_MAJOR" -lt 21 ]; then
+  echo "🩹 Step 4/5: Java $JAVA_MAJOR detected. Patching Java version (21 -> 17)..."
+  find android node_modules/@capacitor -type f \( -name "*.gradle" \) -exec sed -i 's/JavaVersion.VERSION_21/JavaVersion.VERSION_17/g' {} + 2>/dev/null || true
+  echo "✅ Java version patched to 17"
+else
+  echo "✅ Step 4/5: Java $JAVA_MAJOR detected, maintaining native Java 21 compatibility"
+fi
 
 # Step 5: Build debug APK
 echo ""
