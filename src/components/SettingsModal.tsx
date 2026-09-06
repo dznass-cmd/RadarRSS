@@ -1,7 +1,12 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { X, Settings, RotateCcw, Volume2, Clock, LayoutGrid, BellRing, Sparkles, AlertTriangle, Send, Info, Sun, Moon, Palette, Globe } from 'lucide-react';
 import { AppSettings, AccentColor } from '../types';
 import { getTranslation } from '../i18n/translations';
+import {
+  checkNotificationPermission,
+  requestNotificationPermission,
+  sendNativeNotification,
+} from '../services/notificationService';
 
 interface SettingsModalProps {
   isOpen: boolean;
@@ -38,18 +43,26 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
   onTriggerToast,
 }) => {
   const [keywordInput, setKeywordInput] = useState('');
+  const [permissionState, setPermissionState] = useState<'granted' | 'denied' | 'prompt' | 'unsupported'>('prompt');
   const t = getTranslation(settings.language);
+
+  useEffect(() => {
+    if (!isOpen) return;
+    checkNotificationPermission().then((status) => {
+      setPermissionState(status);
+    });
+  }, [isOpen]);
 
   if (!isOpen) return null;
 
-  const notificationSupported = typeof window !== 'undefined' && 'Notification' in window && typeof Notification === 'function';
-  const permissionState = notificationSupported ? Notification.permission : 'unsupported';
-
   const handleToggleNotification = async (enabled: boolean) => {
-    if (enabled && notificationSupported && Notification.permission !== 'granted') {
-      try {
-        const result = await Notification.requestPermission();
-        if (result !== 'granted') {
+    if (enabled) {
+      const current = await checkNotificationPermission();
+      if (current !== 'granted') {
+        const granted = await requestNotificationPermission();
+        const updatedStatus = await checkNotificationPermission();
+        setPermissionState(updatedStatus);
+        if (!granted) {
           if (onTriggerToast) {
             onTriggerToast({
               title: t.toast.notificationsDenied,
@@ -60,47 +73,26 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
           onUpdateSettings({ ...settings, browserNotifications: false });
           return;
         }
-      } catch (err) {
-        console.warn('Notification permission error:', err);
       }
     }
     onUpdateSettings({ ...settings, browserNotifications: enabled });
   };
 
   const handleTestNotification = async () => {
-    let nativeTriggered = false;
+    const success = await sendNativeNotification({
+      title: t.toast.testTitle,
+      body: t.toast.testMessage,
+      id: 'radar-rss-test-' + Date.now(),
+      imageUrl: 'https://images.unsplash.com/photo-1504711434969-e33886168f5c?auto=format&fit=crop&w=120&q=80',
+    });
 
-    if (notificationSupported) {
-      try {
-        let perm = Notification.permission;
-        if (perm === 'default') {
-          perm = await Notification.requestPermission();
-        }
-        if (perm === 'granted') {
-          try {
-            const notif = new Notification(t.toast.testTitle, {
-              body: t.toast.testMessage,
-              icon: 'https://images.unsplash.com/photo-1504711434969-e33886168f5c?auto=format&fit=crop&w=120&q=80',
-              tag: 'radar-rss-test-' + Date.now(),
-            });
-            notif.onclick = () => {
-              window.focus();
-              notif.close();
-            };
-            nativeTriggered = true;
-          } catch (e) {
-            console.warn('Native notification failed:', e);
-          }
-        }
-      } catch (err) {
-        console.warn('Notification API error:', err);
-      }
-    }
+    const status = await checkNotificationPermission();
+    setPermissionState(status);
 
     if (onTriggerToast) {
       onTriggerToast({
         title: t.toast.testTitle,
-        message: t.toast.testMessage,
+        message: success ? t.toast.testMessage : `${t.toast.testMessage} (In-App)`,
         type: 'info',
       });
     }
@@ -307,7 +299,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
                 Status:
                 {permissionState === 'granted' && <span className="text-emerald-400 font-bold">● Active</span>}
                 {permissionState === 'denied' && <span className="text-red-400 font-bold">● Blocked by OS</span>}
-                {permissionState === 'default' && <span className="text-amber-400 font-bold">● Pending</span>}
+                {(permissionState === 'prompt' || (permissionState as string) === 'default') && <span className="text-amber-400 font-bold">● Pending</span>}
                 {permissionState === 'unsupported' && <span className="text-neutral-500 font-bold">● Unsupported</span>}
               </span>
 

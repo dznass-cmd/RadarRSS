@@ -15,6 +15,11 @@ import { DynamicBlock, NewsItem, RssFeed, AppSettings, BlockLayout, ToastItem } 
 import { getAccent } from './utils/theme';
 import { Bookmark, Sparkles, Plus, Radio, Layers, RefreshCw, Archive, Trash2, CheckCircle2 } from 'lucide-react';
 import { fetchRssFeeds, isNativePlatform, summarizeBlockWithAi } from './services/apiAdapter';
+import {
+  initializeNotificationChannels,
+  sendNativeNotification,
+  addNotificationActionListener,
+} from './services/notificationService';
 import { getTranslation } from './i18n/translations';
 import { App as CapApp } from '@capacitor/app';
 import { StatusBar, Style } from '@capacitor/status-bar';
@@ -176,7 +181,7 @@ export default function App() {
     }
   }, [settings.soundAlerts]);
 
-  // Trigger notification (both Toast Banner & Native Browser Notification safely)
+  // Trigger notification (both Toast Banner & Native OS/Browser Notification safely)
   const triggerNativeNotification = useCallback((item: NewsItem) => {
     // 1. Always show in-app toast for visual guarantee
     addToast({
@@ -190,26 +195,21 @@ export default function App() {
     // 2. Play audio alert sound if enabled
     playAudioChime();
 
-    // 3. Try native browser notification safely if allowed and enabled
-    if (settings.browserNotifications && typeof window !== 'undefined' && 'Notification' in window && typeof Notification === 'function') {
-      try {
-        if (Notification.permission === 'granted') {
-          const notif = new Notification(`⚡ URGENTE: ${item.sourceName}`, {
-            body: item.title,
-            icon: item.imageUrl || 'https://images.unsplash.com/photo-1504711434969-e33886168f5c?auto=format&fit=crop&w=120&q=80',
-            tag: item.id,
-          });
-
-          notif.onclick = () => {
-            window.focus();
-            setSelectedArticle(item);
-            setArchivedArticleIds((prev) => new Set(prev).add(item.id));
-            notif.close();
-          };
-        }
-      } catch (err) {
-        console.warn('[Native Notification suppressed by browser/iframe]:', err);
-      }
+    // 3. Native system notification (Android status bar / Web Notification)
+    if (settings.browserNotifications) {
+      sendNativeNotification({
+        title: `⚡ URGENTE: ${item.sourceName}`,
+        body: item.title,
+        id: item.id,
+        imageUrl: item.imageUrl || 'https://images.unsplash.com/photo-1504711434969-e33886168f5c?auto=format&fit=crop&w=120&q=80',
+        article: item,
+        onClick: () => {
+          setSelectedArticle(item);
+          setArchivedArticleIds((prev) => new Set(prev).add(item.id));
+        },
+      }).catch((err) => {
+        console.warn('[Native Notification error]:', err);
+      });
     }
   }, [settings.browserNotifications, addToast, playAudioChime]);
 
@@ -526,6 +526,20 @@ export default function App() {
 
     return () => {
       backListener.then((handle) => handle.remove());
+    };
+  }, []);
+
+  // Inicialização de canais de notificação nativos e listener de toque
+  useEffect(() => {
+    initializeNotificationChannels();
+
+    const cleanupListener = addNotificationActionListener((article) => {
+      setSelectedArticle(article);
+      setArchivedArticleIds((prev) => new Set(prev).add(article.id));
+    });
+
+    return () => {
+      cleanupListener();
     };
   }, []);
 

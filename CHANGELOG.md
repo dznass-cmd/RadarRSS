@@ -8,6 +8,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [0.0.8-beta] - 2026-09-06
 
 ### 📱 Android & Native Mobile Stability
+- **Native Android System Notifications (`@capacitor/local-notifications`):** Integrated native system notifications for Android (status bar & heads-up shade alerts), configuring high-importance notification channel (`radar_rss_news`), Android 13+ `POST_NOTIFICATIONS` runtime permission, deep link to article on tap, and permission status indicators in Settings.
 - **Native Android CORS Bypass (`CapacitorHttp`):** Integrated native HTTP request handling via `@capacitor/core` to directly fetch RSS/Atom feeds, eliminating browser CORS blocking on external news feeds without proxy dependence.
 - **Resilient Mobile Timeout & User-Agent:** Increased feed connection and read timeout to 10–15s to handle high-latency cellular networks (3G/4G/5G), and configured realistic Android mobile User-Agent.
 - **Enhanced Atom & Dublin Core Feed Parser:** Fixed `<link rel="alternate">` retrieval and added support for `<id>` and `<dc:date>` in client-side XML parser.
