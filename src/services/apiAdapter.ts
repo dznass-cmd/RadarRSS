@@ -1,4 +1,4 @@
-import { Capacitor } from '@capacitor/core';
+import { Capacitor, CapacitorHttp } from '@capacitor/core';
 import { NewsItem, RssFeed } from '../types';
 
 export const isNativePlatform = (): boolean => {
@@ -82,36 +82,76 @@ function extractImageFromXmlItem(itemXml: Element, defaultBaseUrl?: string): str
 
 // Client-side RSS Parser for native Android direct fetching
 async function parseRssClientSide(url: string): Promise<NewsItem[]> {
-  const response = await fetch(url, {
-    headers: {
-      'Accept': 'application/rss+xml, application/xml, text/xml, */*',
-    },
-    signal: AbortSignal.timeout(4500),
-  });
-  const text = await response.text();
+  let text = '';
+
+  // 1. Tenta CapacitorHttp nativo primeiro no Android para bypass completo de CORS
+  if (isNativePlatform()) {
+    try {
+      const res = await CapacitorHttp.get({
+        url,
+        headers: {
+          'Accept': 'application/rss+xml, application/xml, text/xml, */*',
+          'User-Agent': 'Mozilla/5.0 (Linux; Android 14) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Mobile Safari/537.36 RadarRSS/0.0.7',
+        },
+        connectTimeout: 10000,
+        readTimeout: 15000,
+      });
+      if (typeof res.data === 'string') {
+        text = res.data;
+      } else if (res.data) {
+        text = typeof res.data === 'object' ? JSON.stringify(res.data) : String(res.data);
+      }
+    } catch (httpErr) {
+      console.warn('[CapacitorHttp failed, trying fetch fallback]:', httpErr);
+    }
+  }
+
+  // 2. Fallback para fetch com timeout estendido de 10s
+  if (!text) {
+    const response = await fetch(url, {
+      headers: {
+        'Accept': 'application/rss+xml, application/xml, text/xml, */*',
+      },
+      signal: AbortSignal.timeout(10000),
+    });
+    text = await response.text();
+  }
+
   const parser = new DOMParser();
   const xml = parser.parseFromString(text, 'text/xml');
 
-  const channelTitle = xml.querySelector('channel > title')?.textContent ||
-    xml.querySelector('feed > title')?.textContent ||
+  const channelTitle = xml.querySelector('channel > title')?.textContent?.trim() ||
+    xml.querySelector('feed > title')?.textContent?.trim() ||
     new URL(url).hostname;
 
   const items = Array.from(xml.querySelectorAll('item, entry'));
 
   return items.map((item, idx) => {
     const title = item.querySelector('title')?.textContent?.trim() || 'Sem título';
-    const link = item.querySelector('link')?.textContent?.trim() ||
-      item.querySelector('link')?.getAttribute('href') ||
+    
+    // Suporte aprimorado a links em RSS 2.0 e Atom feeds
+    const linkElem = item.querySelector('link[rel="alternate"]') ||
+      item.querySelector('link:not([rel])') ||
+      item.querySelector('link');
+    const link = linkElem?.getAttribute('href')?.trim() ||
+      linkElem?.textContent?.trim() ||
       url;
+
     const rawSnippet = (item.querySelector('description')?.textContent ||
       item.querySelector('summary')?.textContent ||
       item.querySelector('content')?.textContent || '').replace(/<[^>]*>?/gm, '').trim();
     const cleanSnippet = rawSnippet.slice(0, 300) + (rawSnippet.length > 300 ? '...' : '');
+
     const pubDateStr = item.querySelector('pubDate')?.textContent ||
       item.querySelector('published')?.textContent ||
-      item.querySelector('updated')?.textContent;
+      item.querySelector('updated')?.textContent ||
+      item.querySelector('dc\\:date')?.textContent;
     const timestamp = pubDateStr ? new Date(pubDateStr).getTime() : Date.now();
-    const guid = item.querySelector('guid')?.textContent?.trim() || link;
+    
+    // Suporte a identificador único (guid em RSS e id em Atom)
+    const guid = item.querySelector('guid')?.textContent?.trim() ||
+      item.querySelector('id')?.textContent?.trim() ||
+      link;
     const imageUrl = extractImageFromXmlItem(item, url);
 
     // Simple sentiment analyzer

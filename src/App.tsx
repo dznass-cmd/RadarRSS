@@ -403,9 +403,7 @@ export default function App() {
         setPullDistance(distance);
         if (distance >= 55 && !hasTriggeredHapticRef.current) {
           hasTriggeredHapticRef.current = true;
-          try {
-            Haptics.impact({ style: ImpactStyle.Light });
-          } catch (_) { }
+          Haptics.impact({ style: ImpactStyle.Light }).catch(() => { });
         }
       } else {
         setPullDistance(0);
@@ -456,41 +454,8 @@ export default function App() {
     fetchAllFeeds();
   }, [fetchAllFeeds]);
 
-  // Native Mobile Android Lifecycle (Back Button & Status Bar)
-  useEffect(() => {
-    if (isNativePlatform()) {
-      StatusBar.setBackgroundColor({ color: settings.theme === 'dark' ? '#0a0b0e' : '#f4f4f5' }).catch(() => { });
-      StatusBar.setStyle({ style: settings.theme === 'dark' ? Style.Dark : Style.Light }).catch(() => { });
-
-      const backListener = CapApp.addListener('backButton', ({ canGoBack }) => {
-        if (selectedArticle) {
-          setSelectedArticle(null);
-        } else if (isManageFeedsOpen) {
-          setIsManageFeedsOpen(false);
-        } else if (isCreateBlockOpen) {
-          setIsCreateBlockOpen(false);
-        } else if (isGlobalFeedsOpen) {
-          setIsGlobalFeedsOpen(false);
-        } else if (isAICuratorOpen) {
-          setIsAICuratorOpen(false);
-        } else if (isSettingsOpen) {
-          setIsSettingsOpen(false);
-        } else if (showBookmarksOnly) {
-          setShowBookmarksOnly(false);
-        } else if (showArchiveOnly) {
-          setShowArchiveOnly(false);
-        } else if (canGoBack) {
-          window.history.back();
-        } else {
-          CapApp.exitApp();
-        }
-      });
-
-      return () => {
-        backListener.then((handle) => handle.remove());
-      };
-    }
-  }, [
+  // Ref para rastrear modais abertos sem recriar o listener do botão Voltar
+  const activeModalsRef = useRef({
     selectedArticle,
     isManageFeedsOpen,
     isCreateBlockOpen,
@@ -499,8 +464,70 @@ export default function App() {
     isSettingsOpen,
     showBookmarksOnly,
     showArchiveOnly,
-    settings.theme,
-  ]);
+  });
+
+  useEffect(() => {
+    activeModalsRef.current = {
+      selectedArticle,
+      isManageFeedsOpen,
+      isCreateBlockOpen,
+      isGlobalFeedsOpen,
+      isAICuratorOpen,
+      isSettingsOpen,
+      showBookmarksOnly,
+      showArchiveOnly,
+    };
+  });
+
+  // Atualização da barra de status no Android nativo conforme o tema
+  useEffect(() => {
+    if (isNativePlatform()) {
+      StatusBar.setBackgroundColor({ color: settings.theme === 'dark' ? '#0a0b0e' : '#f4f4f5' }).catch(() => { });
+      StatusBar.setStyle({ style: settings.theme === 'dark' ? Style.Dark : Style.Light }).catch(() => { });
+    }
+  }, [settings.theme]);
+
+  // Listener estável do botão Voltar do Android
+  useEffect(() => {
+    if (!isNativePlatform()) return;
+
+    let lastBackPressTime = 0;
+
+    const backListener = CapApp.addListener('backButton', ({ canGoBack }) => {
+      const state = activeModalsRef.current;
+      if (state.selectedArticle) {
+        setSelectedArticle(null);
+      } else if (state.isManageFeedsOpen) {
+        setIsManageFeedsOpen(false);
+      } else if (state.isCreateBlockOpen) {
+        setIsCreateBlockOpen(false);
+      } else if (state.isGlobalFeedsOpen) {
+        setIsGlobalFeedsOpen(false);
+      } else if (state.isAICuratorOpen) {
+        setIsAICuratorOpen(false);
+      } else if (state.isSettingsOpen) {
+        setIsSettingsOpen(false);
+      } else if (state.showBookmarksOnly) {
+        setShowBookmarksOnly(false);
+      } else if (state.showArchiveOnly) {
+        setShowArchiveOnly(false);
+      } else if (canGoBack) {
+        window.history.back();
+      } else {
+        const now = Date.now();
+        if (now - lastBackPressTime < 2000) {
+          CapApp.exitApp();
+        } else {
+          lastBackPressTime = now;
+          Haptics.impact({ style: ImpactStyle.Light }).catch(() => { });
+        }
+      }
+    });
+
+    return () => {
+      backListener.then((handle) => handle.remove());
+    };
+  }, []);
 
   // Bookmarks helper lookup
   const bookmarkedIds = useMemo(() => {
@@ -994,7 +1021,7 @@ export default function App() {
             LIVE
           </span>
           <div className="overflow-hidden whitespace-nowrap text-ellipsis flex-1">
-            <span className={`${getAccent(settings.accentColor).text} font-bold`}>[RADAR ENGINE v0.0.7]</span> Syncing {feeds.filter(f => f.active).length} active feeds... <span className="text-emerald-400">Online</span> • {allNewsItems.length} articles loaded • Engine: <span className={`${settings.theme === 'dark' ? 'text-white' : 'text-neutral-900'} font-bold`}>Bento Real-time Matrix</span>
+            <span className={`${getAccent(settings.accentColor).text} font-bold`}>[RADAR ENGINE v0.0.8-beta]</span> Syncing {feeds.filter(f => f.active).length} active feeds... <span className="text-emerald-400">Online</span> • {allNewsItems.length} articles loaded • Engine: <span className={`${settings.theme === 'dark' ? 'text-white' : 'text-neutral-900'} font-bold`}>Bento Real-time Matrix</span>
           </div>
         </footer>
 
