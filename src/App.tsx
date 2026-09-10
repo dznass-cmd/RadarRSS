@@ -205,7 +205,7 @@ export default function App() {
     // 2. Play audio alert sound if enabled
     playAudioChime();
 
-    // 3. Native system notification (Android status bar / Web Notification)
+    // 3. Native system notification (Windows Toast / Android status bar / Web Notification)
     if (settings.browserNotifications) {
       sendNativeNotification({
         title: `⚡ URGENTE: ${item.sourceName}`,
@@ -221,7 +221,12 @@ export default function App() {
         console.warn('[Native Notification error]:', err);
       });
     }
-  }, [settings.browserNotifications, addToast, playAudioChime]);
+
+    // 4. Flash taskbar frame on Windows if configured
+    if (settings.flashTaskbarOnBreaking !== false && window.electronAPI) {
+      window.electronAPI.flashFrame(true).catch(() => {});
+    }
+  }, [settings.browserNotifications, settings.flashTaskbarOnBreaking, addToast, playAudioChime]);
 
   // --- Modal States ---
   const [selectedArticle, setSelectedArticle] = useState<NewsItem | null>(null);
@@ -471,6 +476,109 @@ export default function App() {
   useEffect(() => {
     fetchAllFeeds();
   }, [fetchAllFeeds]);
+
+  // Electron IPC Integration (Bandeja / Atalhos Nativos / Notificações)
+  useEffect(() => {
+    if (!window.electronAPI) return;
+
+    const unsubRefresh = window.electronAPI.onRefreshFeeds(() => {
+      fetchAllFeeds();
+    });
+
+    const unsubSettings = window.electronAPI.onOpenSettings(() => {
+      setIsSettingsOpen(true);
+    });
+
+    const unsubSearch = window.electronAPI.onFocusSearch(() => {
+      const searchInput = document.querySelector<HTMLInputElement>('input[data-search-input="true"]') ||
+                          document.querySelector<HTMLInputElement>('header input[type="text"]');
+      if (searchInput) {
+        searchInput.focus();
+        searchInput.select();
+      }
+    });
+
+    const unsubBookmarks = window.electronAPI.onToggleBookmarks(() => {
+      setShowBookmarksOnly((prev) => !prev);
+    });
+
+    const unsubCreateBlock = window.electronAPI.onOpenCreateBlock(() => {
+      setEditingBlock(null);
+      setIsCreateBlockOpen(true);
+    });
+
+    const unsubTheme = window.electronAPI.onToggleTheme(() => {
+      setSettings((prev) => ({
+        ...prev,
+        theme: prev.theme === 'dark' ? 'light' : 'dark',
+      }));
+    });
+
+    const unsubArticle = window.electronAPI.onNavigateToArticle((article: NewsItem) => {
+      handleSelectArticle(article);
+    });
+
+    return () => {
+      unsubRefresh();
+      unsubSettings();
+      unsubSearch();
+      unsubBookmarks();
+      unsubCreateBlock();
+      unsubTheme();
+      unsubArticle();
+    };
+  }, [fetchAllFeeds, handleSelectArticle]);
+
+  // Atalhos Globais de Teclado Desktop (Esc, Ctrl+F, Ctrl+,, Ctrl+B, F5)
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      // Escape: fecha o modal ou leitor que estiver ativo no topo
+      if (e.key === 'Escape') {
+        const state = activeModalsRef.current;
+        if (state.selectedArticle) {
+          setSelectedArticle(null);
+        } else if (state.isSettingsOpen) {
+          setIsSettingsOpen(false);
+        } else if (state.isCreateBlockOpen) {
+          setIsCreateBlockOpen(false);
+        } else if (state.isManageFeedsOpen) {
+          setIsManageFeedsOpen(false);
+        } else if (state.isGlobalFeedsOpen) {
+          setIsGlobalFeedsOpen(false);
+        } else if (state.isAICuratorOpen) {
+          setIsAICuratorOpen(false);
+        } else if (searchQuery) {
+          setSearchQuery('');
+        }
+        return;
+      }
+
+      // Evita disparar atalhos de letra única se o usuário estiver digitando em campo de texto
+      const target = e.target as HTMLElement | null;
+      const isInput = target && (target.tagName === 'INPUT' || target.tagName === 'TEXTAREA' || target.isContentEditable);
+
+      if ((e.ctrlKey || e.metaKey) && !e.altKey) {
+        if (e.key.toLowerCase() === 'f') {
+          e.preventDefault();
+          const searchInput = document.querySelector<HTMLInputElement>('input[data-search-input="true"]') ||
+                              document.querySelector<HTMLInputElement>('header input[type="text"]');
+          if (searchInput) {
+            searchInput.focus();
+            searchInput.select();
+          }
+        } else if (e.key === ',') {
+          e.preventDefault();
+          setIsSettingsOpen((prev) => !prev);
+        } else if (e.key.toLowerCase() === 'b' && !isInput) {
+          e.preventDefault();
+          setShowBookmarksOnly((prev) => !prev);
+        }
+      }
+    };
+
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [searchQuery]);
 
   // Ref para rastrear modais abertos sem recriar o listener do botão Voltar
   const activeModalsRef = useRef({
@@ -1054,7 +1162,7 @@ export default function App() {
             LIVE
           </span>
           <div className="overflow-hidden whitespace-nowrap text-ellipsis flex-1">
-            <span className={`${getAccent(settings.accentColor).text} font-bold`}>[RADAR ENGINE v0.0.9-beta]</span> Syncing {feeds.filter(f => f.active).length} active feeds... <span className="text-emerald-400">Online</span> • {allNewsItems.length} articles loaded • Engine: <span className={`${settings.theme === 'dark' ? 'text-white' : 'text-neutral-900'} font-bold`}>Bento Real-time Matrix</span>
+            <span className={`${getAccent(settings.accentColor).text} font-bold`}>[RADAR ENGINE v0.1.0]</span> Syncing {feeds.filter(f => f.active).length} active feeds... <span className="text-emerald-400">Online</span> • {allNewsItems.length} articles loaded • Engine: <span className={`${settings.theme === 'dark' ? 'text-white' : 'text-neutral-900'} font-bold`}>Bento Real-time Matrix</span>
           </div>
         </footer>
 

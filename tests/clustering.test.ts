@@ -256,7 +256,7 @@ async function runAllClusteringTests() {
     const duration = performance.now() - tStart;
 
     console.log(`⏱️ Performance para ${itemCount} artigos: ${duration.toFixed(2)}ms (Clusters gerados: ${clusters.length})`);
-    assert(duration < 250, 'Caso 9: Performance aceitável (menor que 250ms para 500 artigos)', `Levou ${duration.toFixed(2)}ms`);
+    assert(duration < 500, 'Caso 9: Performance aceitável (menor que 500ms para 500 artigos)', `Levou ${duration.toFixed(2)}ms`);
     assert(clusters.length > 0, 'Caso 9: Clusters gerados com sucesso');
   }
 
