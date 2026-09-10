@@ -3,6 +3,7 @@
 // and opens the app in a native window with full Windows integration.
 const { app, BrowserWindow, shell, dialog, Menu, Tray, ipcMain, Notification, screen, clipboard, nativeImage } = require('electron');
 const { autoUpdater } = require('electron-updater');
+const { execFile } = require('child_process');
 const path = require('path');
 const fs = require('fs');
 const net = require('net');
@@ -14,21 +15,28 @@ app.setAppUserModelId('com.dznasscmd.radarrss');
 
 function getAppIconPaths() {
   const appPath = app.getAppPath();
+  const exeDir = path.dirname(process.execPath);
   const searchDirs = [
     path.join(appPath, 'build'),
     path.join(__dirname, '..', 'build'),
-    path.join(path.dirname(process.execPath), 'resources', 'app', 'build'),
+    path.join(exeDir, 'resources', 'app', 'build'),
+    path.join(exeDir, 'resources', 'build'),
+    path.join(process.resourcesPath || '', 'app', 'build'),
     path.join(process.resourcesPath || '', 'build'),
+    path.join(appPath, 'public'),
+    path.join(__dirname, '..', 'public'),
   ];
 
   let icoPath = null;
   let pngPath = null;
 
   for (const dir of searchDirs) {
-    const ico = path.join(dir, 'icon.ico');
-    const png = path.join(dir, 'icon.png');
-    if (!icoPath && fs.existsSync(ico)) icoPath = ico;
-    if (!pngPath && fs.existsSync(png)) pngPath = png;
+    try {
+      const ico = path.join(dir, 'icon.ico');
+      const png = path.join(dir, 'icon.png');
+      if (!icoPath && fs.existsSync(ico)) icoPath = ico;
+      if (!pngPath && fs.existsSync(png)) pngPath = png;
+    } catch (_) {}
   }
 
   return {
@@ -38,20 +46,75 @@ function getAppIconPaths() {
   };
 }
 
-function registerWindowsShortcut(icoPath) {
+function registerWindowsAumid(icoPath, pngPath) {
+  if (process.platform !== 'win32') return;
+  const aumidKey = 'HKCU\\Software\\Classes\\AppUserModelId\\com.dznasscmd.radarrss';
+  const iconPath = (icoPath && fs.existsSync(icoPath)) ? `${icoPath},0` : (pngPath || process.execPath);
+
+  try {
+    execFile('reg.exe', ['add', aumidKey, '/v', 'DisplayName', '/d', 'Radar RSS', '/f'], (err) => {
+      if (err) debugLog('Notice: reg add DisplayName failed:', err?.message || err);
+    });
+    execFile('reg.exe', ['add', aumidKey, '/v', 'IconUri', '/d', iconPath, '/f'], (err) => {
+      if (err) debugLog('Notice: reg add IconUri failed:', err?.message || err);
+    });
+    execFile('reg.exe', ['add', aumidKey, '/v', 'IconBackgroundColor', '/d', '0', '/f'], (err) => {
+      if (err) debugLog('Notice: reg add IconBackgroundColor failed:', err?.message || err);
+    });
+    execFile('reg.exe', ['add', aumidKey, '/v', 'ShowInSettings', '/t', 'REG_DWORD', '/d', '1', '/f'], (err) => {
+      if (err) debugLog('Notice: reg add ShowInSettings failed:', err?.message || err);
+    });
+  } catch (err) {
+    debugLog('Notice: registerWindowsAumid error:', err?.message || err);
+  }
+}
+
+function refreshWindowsIconCache() {
+  if (process.platform !== 'win32') return;
+  try {
+    execFile('ie4uinit.exe', ['-show'], (err) => {
+      if (err) debugLog('Notice: ie4uinit failed:', err?.message || err);
+    });
+  } catch (err) {
+    debugLog('Notice: refreshWindowsIconCache error:', err?.message || err);
+  }
+}
+
+function registerWindowsShortcut(icoPath, pngPath) {
   if (process.platform !== 'win32') return;
   try {
     const programsDir = path.join(app.getPath('appData'), 'Microsoft', 'Windows', 'Start Menu', 'Programs');
     const shortcutPath = path.join(programsDir, 'Radar RSS.lnk');
-    shell.writeShortcutLink(shortcutPath, 'create', {
-      target: process.execPath,
-      args: '',
+    const staleElectronShortcut = path.join(programsDir, 'Electron.lnk');
+
+    // Clean up stale electron development shortcut if present
+    if (fs.existsSync(staleElectronShortcut)) {
+      try { fs.unlinkSync(staleElectronShortcut); } catch (_) {}
+    }
+
+    // Always remove existing shortcut first to ensure clean creation and update of COM properties
+    if (fs.existsSync(shortcutPath)) {
+      try {
+        fs.unlinkSync(shortcutPath);
+      } catch (e) {
+        debugLog('Could not unlink existing shortcut, proceeding:', e?.message || e);
+      }
+    }
+
+    const iconToUse = (icoPath && fs.existsSync(icoPath)) ? icoPath : (pngPath || process.execPath);
+    const targetPath = app.isPackaged ? process.execPath : process.execPath;
+    const targetArgs = app.isPackaged ? '' : `"${app.getAppPath()}"`;
+
+    const op = fs.existsSync(shortcutPath) ? 'replace' : 'create';
+    shell.writeShortcutLink(shortcutPath, op, {
+      target: targetPath,
+      args: targetArgs,
       description: 'Radar RSS - Leitor de Notícias Inteligente',
-      icon: icoPath || process.execPath,
+      icon: iconToUse,
       iconIndex: 0,
       appUserModelId: 'com.dznasscmd.radarrss',
     });
-    debugLog('Created/verified Start Menu shortcut with AppUserModelId at:', shortcutPath);
+    debugLog('Created/verified Start Menu shortcut with AppUserModelId at:', shortcutPath, 'icon:', iconToUse);
   } catch (err) {
     debugLog('Notice: Could not write Start Menu shortcut:', err?.message || err);
   }
@@ -438,13 +501,31 @@ function setupIpcHandlers() {
     if (!Notification.isSupported()) return false;
     try {
       const { pngPath, icoPath } = getAppIconPaths();
-      // On Windows 10/11, notification toasts require PNG or JPEG format
-      const notifIcon = options.icon || pngPath || icoPath;
+
+      let notifIcon = undefined;
+      if (options.icon) {
+        try {
+          const img = typeof options.icon === 'string' ? nativeImage.createFromPath(options.icon) : options.icon;
+          if (img && !img.isEmpty()) notifIcon = img;
+        } catch (_) {}
+      }
+      if (!notifIcon && pngPath && fs.existsSync(pngPath)) {
+        try {
+          const img = nativeImage.createFromPath(pngPath);
+          if (img && !img.isEmpty()) notifIcon = img;
+        } catch (_) {}
+      }
+      if (!notifIcon && icoPath && fs.existsSync(icoPath)) {
+        try {
+          const img = nativeImage.createFromPath(icoPath);
+          if (img && !img.isEmpty()) notifIcon = img;
+        } catch (_) {}
+      }
 
       const notif = new Notification({
         title: options.title || 'Radar RSS',
         body: options.body || '',
-        icon: notifIcon || undefined,
+        icon: notifIcon,
         silent: options.silent || false,
       });
 
@@ -509,7 +590,9 @@ function setupIpcHandlers() {
 
 app.whenReady().then(async () => {
   const { icoPath, pngPath, primaryIcon } = getAppIconPaths();
-  registerWindowsShortcut(icoPath || pngPath);
+  registerWindowsAumid(icoPath, pngPath);
+  registerWindowsShortcut(icoPath, pngPath);
+  refreshWindowsIconCache();
 
   let appNativeImage = null;
   if (primaryIcon) {
@@ -545,6 +628,11 @@ app.whenReady().then(async () => {
     initialY = undefined;
   }
 
+  // On Windows, passing the raw .ico file path gives the crispest native multi-resolution icons
+  const windowIcon = (process.platform === 'win32' && icoPath && fs.existsSync(icoPath))
+    ? icoPath
+    : (appNativeImage || primaryIcon || undefined);
+
   mainWindow = new BrowserWindow({
     x: initialX,
     y: initialY,
@@ -557,7 +645,7 @@ app.whenReady().then(async () => {
     autoHideMenuBar: true,
     backgroundColor: '#0a0b0e',
     title: 'Radar RSS',
-    icon: appNativeImage || primaryIcon || undefined,
+    icon: windowIcon,
     webPreferences: {
       preload: path.join(__dirname, 'preload.cjs'),
       contextIsolation: true,
@@ -566,7 +654,7 @@ app.whenReady().then(async () => {
     },
   });
 
-  if (appNativeImage && !appNativeImage.isEmpty()) {
+  if (process.platform !== 'win32' && appNativeImage && !appNativeImage.isEmpty()) {
     try {
       mainWindow.setIcon(appNativeImage);
     } catch (_) {}
