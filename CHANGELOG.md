@@ -5,6 +5,19 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.1.0] - 2026-09-10
+
+### 🚀 Highlights & Major Features
+- **🪟 Full Windows Desktop Experience (Electron Integration):**
+  - **System Tray & Background Mode:** Minimize to system tray on close, quick context menu (Refresh Feeds, Auto-start toggle, Minimize toggle, Check for Updates, Quit), and single/double-click restore.
+  - **Native Windows Notifications:** Registered `AppUserModelId` (`com.dznasscmd.radarrss`) with Start Menu shortcut linking for rich Action Center alerts with click-to-open article navigation and taskbar alert flashing (`flashFrame`).
+  - **Multi-Resolution Windows Icons:** Full `.ico` generation with 7 standard sizes (16, 24, 32, 48, 64, 128, 256 px) sampled from the official Radar RSS design with bicubic filtering, preventing Electron icon fallbacks.
+  - **Window State Persistence:** Automatically remembers dimensions, position, and maximized state with multi-monitor disconnect safety fallback.
+  - **Desktop Keyboard Shortcuts:** <kbd>F5</kbd>/<kbd>Ctrl+R</kbd> (smooth feed refresh), <kbd>Ctrl+F</kbd> (global search focus), <kbd>Ctrl+,</kbd> (settings), <kbd>Ctrl+B</kbd> (bookmarks), <kbd>Ctrl+N</kbd> (new block), <kbd>Ctrl+D</kbd> (theme toggle), <kbd>Esc</kbd> (close modal/cancel search).
+  - **Native Context Menu:** Right-click context menus for text input editing, Google search on selection, and external link handling.
+  - **Desktop Settings & Preferences:** Dedicated "Desktop (Windows)" settings card in SettingsModal with full English/Portuguese i18n.
+  - **Secure Preload Architecture:** `contextIsolation: true`, `nodeIntegration: false`, and safe bidirectional IPC via `contextBridge`.
+
 ## [0.0.9-beta] - 2026-09-06
 
 ### 🚀 Highlights & Major Features

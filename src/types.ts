@@ -94,6 +94,9 @@ export interface AppSettings {
   layoutCols: number; // 1, 2, 3
   geminiApiKey?: string;
   deduplication?: DeduplicationSettings;
+  minimizeToTray?: boolean;
+  launchOnStartup?: boolean;
+  flashTaskbarOnBreaking?: boolean;
 }
 
 export interface ToastItem {
@@ -105,3 +108,38 @@ export interface ToastItem {
   timestamp?: number;
   type?: 'breaking' | 'info' | 'success' | 'warning';
 }
+
+export interface ElectronNotificationOptions {
+  title: string;
+  body: string;
+  icon?: string;
+  silent?: boolean;
+  article?: NewsItem;
+}
+
+export interface ElectronAPI {
+  isElectron: boolean;
+  platform: string;
+  showNotification: (options: ElectronNotificationOptions) => Promise<boolean>;
+  flashFrame: (flag: boolean) => Promise<void>;
+  getAutoStart: () => Promise<boolean>;
+  setAutoStart: (enabled: boolean) => Promise<boolean>;
+  getMinimizeToTray: () => Promise<boolean>;
+  setMinimizeToTray: (enabled: boolean) => Promise<boolean>;
+  checkForUpdates: () => Promise<any>;
+  openExternal: (url: string) => Promise<void>;
+  onNavigateToArticle: (callback: (article: NewsItem) => void) => () => void;
+  onRefreshFeeds: (callback: () => void) => () => void;
+  onOpenSettings: (callback: () => void) => () => void;
+  onFocusSearch: (callback: () => void) => () => void;
+  onToggleBookmarks: (callback: () => void) => () => void;
+  onOpenCreateBlock: (callback: () => void) => () => void;
+  onToggleTheme: (callback: () => void) => () => void;
+}
+
+declare global {
+  interface Window {
+    electronAPI?: ElectronAPI;
+  }
+}
+

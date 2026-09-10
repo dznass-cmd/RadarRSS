@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { X, Settings, RotateCcw, Volume2, Clock, LayoutGrid, BellRing, Sparkles, AlertTriangle, Send, Info, Sun, Moon, Palette, Globe, CheckCircle2, Eye, EyeOff, Layers } from 'lucide-react';
+import { X, Settings, RotateCcw, Volume2, Clock, LayoutGrid, BellRing, Sparkles, AlertTriangle, Send, Info, Sun, Moon, Palette, Globe, CheckCircle2, Eye, EyeOff, Layers, Monitor, Keyboard } from 'lucide-react';
 import { AppSettings, AccentColor, DeduplicationSettings } from '../types';
 import { getTranslation } from '../i18n/translations';
 import {
@@ -48,6 +48,9 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
   const [isValidatingGemini, setIsValidatingGemini] = useState<boolean>(false);
   const [geminiValidation, setGeminiValidation] = useState<{ status: 'idle' | 'valid' | 'invalid'; message?: string }>({ status: 'idle' });
   const [showApiKey, setShowApiKey] = useState<boolean>(false);
+  const [autoStart, setAutoStart] = useState<boolean>(settings.launchOnStartup ?? false);
+  const [minimizeToTray, setMinimizeToTray] = useState<boolean>(settings.minimizeToTray ?? true);
+  const isElectron = typeof window !== 'undefined' && Boolean(window.electronAPI?.isElectron);
   const t = getTranslation(settings.language);
 
   useEffect(() => {
@@ -55,7 +58,11 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
     checkNotificationPermission().then((status) => {
       setPermissionState(status);
     });
-  }, [isOpen]);
+    if (isElectron && window.electronAPI) {
+      window.electronAPI.getAutoStart().then((enabled) => setAutoStart(enabled)).catch(() => {});
+      window.electronAPI.getMinimizeToTray().then((enabled) => setMinimizeToTray(enabled)).catch(() => {});
+    }
+  }, [isOpen, isElectron]);
 
   if (!isOpen) return null;
 
@@ -170,6 +177,27 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
       ...settings,
       breakingKeywords: settings.breakingKeywords.filter((kw) => kw !== kwToRemove),
     });
+  };
+
+  const handleToggleMinimizeToTray = async (enabled: boolean) => {
+    setMinimizeToTray(enabled);
+    if (isElectron && window.electronAPI) {
+      await window.electronAPI.setMinimizeToTray(enabled);
+    }
+    onUpdateSettings({ ...settings, minimizeToTray: enabled });
+  };
+
+  const handleToggleAutoStart = async (enabled: boolean) => {
+    setAutoStart(enabled);
+    if (isElectron && window.electronAPI) {
+      const updated = await window.electronAPI.setAutoStart(enabled);
+      setAutoStart(updated);
+    }
+    onUpdateSettings({ ...settings, launchOnStartup: enabled });
+  };
+
+  const handleToggleFlashTaskbar = (enabled: boolean) => {
+    onUpdateSettings({ ...settings, flashTaskbarOnBreaking: enabled });
   };
 
   return (
@@ -581,6 +609,108 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
             />
           </div>
 
+          {/* Windows Desktop Integration Section */}
+          {isElectron && (
+            <div className={`p-4 rounded-2xl border space-y-4 ${
+              settings.theme === 'dark' ? 'border-neutral-800 bg-neutral-950/60' : 'border-neutral-200 bg-neutral-50/80'
+            }`}>
+              <div className="flex items-center gap-2">
+                <Monitor className="w-4 h-4 text-orange-500 shrink-0" />
+                <span className="font-extrabold text-xs uppercase tracking-wider">
+                  {t.settings.desktop.title}
+                </span>
+              </div>
+
+              {/* Minimize to Tray */}
+              <div className="flex items-center justify-between pt-1">
+                <div className="pr-3">
+                  <span className="block text-xs font-bold">{t.settings.desktop.minimizeToTray}</span>
+                  <span className="text-[10px] text-neutral-400 font-mono block">
+                    {t.settings.desktop.minimizeToTrayDesc}
+                  </span>
+                </div>
+                <input
+                  type="checkbox"
+                  checked={minimizeToTray}
+                  onChange={(e) => handleToggleMinimizeToTray(e.target.checked)}
+                  className="w-4 h-4 accent-orange-500 rounded cursor-pointer shrink-0"
+                />
+              </div>
+
+              {/* Launch on Startup */}
+              <div className={`flex items-center justify-between pt-3 border-t ${
+                settings.theme === 'dark' ? 'border-neutral-800/80' : 'border-neutral-200'
+              }`}>
+                <div className="pr-3">
+                  <span className="block text-xs font-bold">{t.settings.desktop.launchOnStartup}</span>
+                  <span className="text-[10px] text-neutral-400 font-mono block">
+                    {t.settings.desktop.launchOnStartupDesc}
+                  </span>
+                </div>
+                <input
+                  type="checkbox"
+                  checked={autoStart}
+                  onChange={(e) => handleToggleAutoStart(e.target.checked)}
+                  className="w-4 h-4 accent-orange-500 rounded cursor-pointer shrink-0"
+                />
+              </div>
+
+              {/* Flash Taskbar */}
+              <div className={`flex items-center justify-between pt-3 border-t ${
+                settings.theme === 'dark' ? 'border-neutral-800/80' : 'border-neutral-200'
+              }`}>
+                <div className="pr-3">
+                  <span className="block text-xs font-bold">{t.settings.desktop.flashTaskbar}</span>
+                  <span className="text-[10px] text-neutral-400 font-mono block">
+                    {t.settings.desktop.flashTaskbarDesc}
+                  </span>
+                </div>
+                <input
+                  type="checkbox"
+                  checked={settings.flashTaskbarOnBreaking ?? true}
+                  onChange={(e) => handleToggleFlashTaskbar(e.target.checked)}
+                  className="w-4 h-4 accent-orange-500 rounded cursor-pointer shrink-0"
+                />
+              </div>
+
+              {/* Desktop Shortcuts Cheat Sheet */}
+              <div className={`pt-3 border-t space-y-2 ${
+                settings.theme === 'dark' ? 'border-neutral-800/80' : 'border-neutral-200'
+              }`}>
+                <div className="flex items-center gap-1.5 text-[11px] font-bold text-neutral-300">
+                  <Keyboard className="w-3.5 h-3.5 text-orange-400" />
+                  <span>{t.settings.desktop.shortcutsTitle}</span>
+                </div>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-1.5 text-[10px] font-mono">
+                  <div className="flex items-center justify-between p-1.5 rounded-lg bg-neutral-900/60 border border-neutral-800/60">
+                    <span className="text-neutral-400 truncate mr-2">{t.settings.desktop.shortcutRefresh}</span>
+                    <kbd className="px-1.5 py-0.5 rounded bg-neutral-800 text-orange-400 font-bold shrink-0">F5 / Ctrl+R</kbd>
+                  </div>
+                  <div className="flex items-center justify-between p-1.5 rounded-lg bg-neutral-900/60 border border-neutral-800/60">
+                    <span className="text-neutral-400 truncate mr-2">{t.settings.desktop.shortcutSearch}</span>
+                    <kbd className="px-1.5 py-0.5 rounded bg-neutral-800 text-orange-400 font-bold shrink-0">Ctrl+F</kbd>
+                  </div>
+                  <div className="flex items-center justify-between p-1.5 rounded-lg bg-neutral-900/60 border border-neutral-800/60">
+                    <span className="text-neutral-400 truncate mr-2">{t.settings.desktop.shortcutSettings}</span>
+                    <kbd className="px-1.5 py-0.5 rounded bg-neutral-800 text-orange-400 font-bold shrink-0">Ctrl+,</kbd>
+                  </div>
+                  <div className="flex items-center justify-between p-1.5 rounded-lg bg-neutral-900/60 border border-neutral-800/60">
+                    <span className="text-neutral-400 truncate mr-2">{t.settings.desktop.shortcutBookmarks}</span>
+                    <kbd className="px-1.5 py-0.5 rounded bg-neutral-800 text-orange-400 font-bold shrink-0">Ctrl+B</kbd>
+                  </div>
+                  <div className="flex items-center justify-between p-1.5 rounded-lg bg-neutral-900/60 border border-neutral-800/60">
+                    <span className="text-neutral-400 truncate mr-2">{t.settings.desktop.shortcutNewBlock}</span>
+                    <kbd className="px-1.5 py-0.5 rounded bg-neutral-800 text-orange-400 font-bold shrink-0">Ctrl+N</kbd>
+                  </div>
+                  <div className="flex items-center justify-between p-1.5 rounded-lg bg-neutral-900/60 border border-neutral-800/60">
+                    <span className="text-neutral-400 truncate mr-2">{t.settings.desktop.shortcutTheme}</span>
+                    <kbd className="px-1.5 py-0.5 rounded bg-neutral-800 text-orange-400 font-bold shrink-0">Ctrl+D</kbd>
+                  </div>
+                </div>
+              </div>
+            </div>
+          )}
+
           {/* Google Gemini AI API Key */}
           <div className={`p-4 rounded-2xl border space-y-3 ${
             settings.theme === 'dark' ? 'border-neutral-800 bg-neutral-950/60' : 'border-neutral-200 bg-neutral-50/80'
@@ -698,12 +828,12 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
                 <span className="font-extrabold text-xs uppercase tracking-wider">RADAR RSS</span>
               </div>
               <span className="px-2 py-0.5 rounded text-[10px] font-mono bg-amber-500/20 text-amber-400 font-bold border border-amber-500/30">
-                v0.0.9-beta
+                v0.1.0
               </span>
             </div>
 
             <p className="text-xs text-neutral-400 font-mono pl-6">
-              Version 0.0.9-beta · Global Real-Time News (English Default)
+              Version 0.1.0 · Global Real-Time News (English Default)
             </p>
 
             <a

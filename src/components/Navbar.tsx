@@ -131,7 +131,7 @@ export const Navbar: React.FC<NavbarProps> = ({
                 RADAR<span className={`${settings.theme === 'dark' ? 'text-amber-400' : 'text-amber-600'} ml-1`}>RSS</span>
               </span>
               <span className="text-[9px] font-black uppercase tracking-wider px-1.5 py-0.5 rounded bg-amber-500/20 text-amber-400 border border-amber-500/30 hidden xs:inline-block">
-                v0.0.8-beta
+                v0.1.0
               </span>
             </div>
           </div>
@@ -141,9 +141,10 @@ export const Navbar: React.FC<NavbarProps> = ({
             <Search className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-neutral-500" />
             <input
               type="text"
+              data-search-input="true"
               value={searchQuery ?? ''}
               onChange={(e) => onSearchChange(e.target.value)}
-              placeholder={t.nav.searchPlaceholder}
+              placeholder={`${t.nav.searchPlaceholder} (Ctrl+F)`}
               className={`w-full pl-9 pr-8 py-1.5 text-xs font-medium rounded-xl border transition-all outline-none ${
                 settings.theme === 'dark'
                   ? 'bg-neutral-900/90 border-neutral-800 text-neutral-100 placeholder-neutral-500 focus:border-amber-500/50'
@@ -194,7 +195,7 @@ export const Navbar: React.FC<NavbarProps> = ({
             <button
               onClick={onRefreshAll}
               disabled={isRefreshing}
-              title={`${t.nav.autoRefreshIn} ${countdown}s. ${t.nav.refresh}.`}
+              title={`${t.nav.autoRefreshIn} ${countdown}s. ${t.nav.refresh} (F5 / Ctrl+R)`}
               className={`flex items-center gap-1.5 px-2.5 sm:px-3 py-1.5 rounded-2xl text-xs font-mono font-bold border transition-all ${
                 isRefreshing
                   ? `${acc.bgLight} ${acc.borderLight} ${acc.textDark}`
@@ -221,7 +222,7 @@ export const Navbar: React.FC<NavbarProps> = ({
             <button
               onClick={onOpenCreateBlock}
               className={`flex items-center gap-1 px-2.5 sm:px-3 py-1.5 rounded-2xl text-xs font-black uppercase tracking-wider ${acc.bg} ${acc.bgHover} text-black transition-all shadow-md`}
-              title={t.nav.newBlock}
+              title={`${t.nav.newBlock} (Ctrl+N)`}
             >
               <Plus className="w-3.5 h-3.5 stroke-[3]" />
               <span className="hidden sm:inline">{t.nav.newBlock}</span>
@@ -243,7 +244,7 @@ export const Navbar: React.FC<NavbarProps> = ({
             {/* Bookmarks Quick Toggle */}
             <button
               onClick={onToggleBookmarks}
-              title={t.nav.bookmarks}
+              title={`${t.nav.bookmarks} (Ctrl+B)`}
               className={`relative p-2 rounded-2xl border transition-all ${
                 showBookmarksOnly
                   ? `${acc.bgLight} ${acc.borderLight} ${acc.textDark}`
@@ -263,7 +264,7 @@ export const Navbar: React.FC<NavbarProps> = ({
             {/* Settings */}
             <button
               onClick={onOpenSettings}
-              title={t.nav.settings}
+              title={`${t.nav.settings} (Ctrl+,)`}
               className={`p-2 rounded-2xl border transition-all ${
                 settings.theme === 'dark'
                   ? 'bg-neutral-900 border-neutral-800 text-neutral-300 hover:bg-neutral-800'

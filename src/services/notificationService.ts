@@ -36,11 +36,13 @@ export async function initializeNotificationChannels(): Promise<void> {
 }
 
 export function isNotificationSupported(): boolean {
+  if (typeof window !== 'undefined' && window.electronAPI?.isElectron) return true;
   if (Capacitor.isNativePlatform()) return true;
   return typeof window !== 'undefined' && 'Notification' in window && typeof Notification === 'function';
 }
 
 export async function checkNotificationPermission(): Promise<'granted' | 'denied' | 'prompt' | 'unsupported'> {
+  if (typeof window !== 'undefined' && window.electronAPI?.isElectron) return 'granted';
   if (Capacitor.isNativePlatform()) {
     try {
       const status = await LocalNotifications.checkPermissions();
@@ -61,6 +63,7 @@ export async function checkNotificationPermission(): Promise<'granted' | 'denied
 }
 
 export async function requestNotificationPermission(): Promise<boolean> {
+  if (typeof window !== 'undefined' && window.electronAPI?.isElectron) return true;
   if (Capacitor.isNativePlatform()) {
     try {
       await initializeNotificationChannels();
@@ -93,6 +96,19 @@ export interface SendNotificationOptions {
 }
 
 export async function sendNativeNotification(options: SendNotificationOptions): Promise<boolean> {
+  if (typeof window !== 'undefined' && window.electronAPI?.isElectron) {
+    try {
+      const ok = await window.electronAPI.showNotification({
+        title: options.title,
+        body: options.body,
+        article: options.article,
+      });
+      return ok;
+    } catch (err) {
+      console.warn('[NotificationService] Electron notification failed:', err);
+    }
+  }
+
   if (Capacitor.isNativePlatform()) {
     try {
       let perm = await checkNotificationPermission();
@@ -151,6 +167,12 @@ export async function sendNativeNotification(options: SendNotificationOptions): 
 }
 
 export function addNotificationActionListener(callback: (article: NewsItem) => void): () => void {
+  if (typeof window !== 'undefined' && window.electronAPI?.isElectron) {
+    return window.electronAPI.onNavigateToArticle((article) => {
+      callback(article);
+    });
+  }
+
   if (!Capacitor.isNativePlatform()) return () => {};
 
   let listenerPromise: Promise<PluginListenerHandle> | null = LocalNotifications.addListener(
