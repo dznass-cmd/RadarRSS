@@ -1,0 +1,68 @@
+name: Publish Linux Release
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - package.json
+      - .github/workflows/publish-linux.yml
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: publish-linux-release
+  cancel-in-progress: false
+
+jobs:
+  publish:
+    runs-on: ubuntu-22.04
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - name: Install Linux dependencies
+        run: sudo apt-get update && sudo apt-get install -y libarchive-tools libnss3 libatk-bridge2.0-0 libgtk-3-0 libgbm1 libasound2 xvfb
+      - run: npm ci
+      - run: npm run test:desktop
+      - run: npm run lint
+      - run: npm run build:linux
+      - name: Test packaged application
+        run: xvfb-run -a node scripts/smoke-linux.cjs
+      - name: Publish validated Linux packages
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GH_REPO: ${{ github.repository }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          tag="v$(node -p "require('./package.json').version")"
+          if gh release view "$tag" >/dev/null 2>&1; then
+            echo "Release $tag already exists; refusing to replace it."
+            exit 1
+          fi
+          cat > /tmp/linux-release-notes.md <<'NOTES'
+          ## Radar RSS para Linux
+
+          Primeira versão desktop para Linux x64 (Intel/AMD), com os mesmos recursos de leitura RSS, curadoria com Gemini e organização de notícias do aplicativo desktop.
+
+          - **AppImage:** versão portátil. Marque o arquivo como executável e abra. Suporta atualização automática em pastas graváveis.
+          - **.deb:** pacote para Debian e Ubuntu. Instale com `sudo apt install ./radar-rss-*.deb`.
+          - Inicialização automática via XDG, ícones Linux e bandeja opcional.
+          - Compilação, testes de autostart, TypeScript e abertura do app empacotado validados no Ubuntu 22.04.
+
+          Se o AppImage solicitar FUSE, instale libfuse2 (Ubuntu 22.04) ou libfuse2t64 (Ubuntu 24.04), ou execute com --appimage-extract-and-run.
+
+          Esta release contém os pacotes Linux. Versões anteriores para Windows e Android continuam disponíveis nas releases anteriores.
+          NOTES
+          gh release create "$tag" --target "$GITHUB_SHA" --title "Radar RSS $tag — Linux" --notes-file /tmp/linux-release-notes.md --draft
+          shopt -s nullglob
+          assets=(release/*.AppImage release/*.AppImage.blockmap release/*.deb release/latest-linux.yml)
+          gh release upload "$tag" "${assets[@]}"
+          # Preserve the previous cross-platform latest release for Windows/Android.
+          gh release edit "$tag" --draft=false --latest=false
