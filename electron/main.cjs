@@ -1,6 +1,6 @@
 // Electron main process for the "Radar RSS" desktop app.
 // Starts the bundled Express server (dist/server.cjs) on a free local port
-// and opens the app in a native window with full Windows integration.
+// and opens the app in a native window with Windows and Linux integration.
 const { app, BrowserWindow, shell, dialog, Menu, Tray, ipcMain, Notification, screen, clipboard, nativeImage } = require('electron');
 const { autoUpdater } = require('electron-updater');
 const { execFile } = require('child_process');
@@ -11,7 +11,10 @@ const dotenv = require('dotenv');
 
 // Set Application User Model ID and Name for Windows notifications and taskbar
 app.setName('Radar RSS');
-app.setAppUserModelId('com.dznasscmd.radarrss');
+if (process.platform === 'win32') app.setAppUserModelId('com.dznasscmd.radarrss');
+if (process.platform === 'linux') app.setDesktopName('radar-rss.desktop');
+const { createAutoStart } = require('./autostart.cjs');
+const autoStart = createAutoStart(app);
 
 function getAppIconPaths() {
   const appPath = app.getAppPath();
@@ -42,7 +45,7 @@ function getAppIconPaths() {
   return {
     icoPath,
     pngPath,
-    primaryIcon: icoPath || pngPath,
+    primaryIcon: process.platform === 'win32' ? (icoPath || pngPath) : (pngPath || icoPath),
   };
 }
 
@@ -120,7 +123,12 @@ function registerWindowsShortcut(icoPath, pngPath) {
   }
 }
 
-// Allow users to set GEMINI_API_KEY via a .env file next to the .exe
+// Linux packages can live in read-only directories; prefer writable user configuration.
+if (process.platform === 'linux') dotenv.config({ path: path.join(app.getPath('userData'), '.env') });
+// Also support .env next to the executable or the original AppImage.
+if (process.platform === 'linux' && process.env.APPIMAGE) {
+  dotenv.config({ path: path.join(path.dirname(process.env.APPIMAGE), '.env') });
+}
 const exeDir = path.dirname(process.execPath);
 dotenv.config({ path: path.join(exeDir, '.env') });
 dotenv.config({ path: path.join(app.getAppPath(), '.env') });
@@ -183,7 +191,7 @@ function loadDesktopSettings() {
   } catch (err) {
     console.warn('[DesktopSettings] Failed to read settings:', err);
   }
-  return { minimizeToTray: true, flashOnBreaking: true };
+  return { minimizeToTray: process.platform !== 'linux', flashOnBreaking: true };
 }
 
 function saveDesktopSettings(settings) {
@@ -313,7 +321,7 @@ function createTray(iconPath) {
   }
 
   const updateContextMenu = () => {
-    const isAutoStart = app.getLoginItemSettings().openAtLogin;
+    const isAutoStart = autoStart.get();
     const contextMenu = Menu.buildFromTemplate([
       {
         label: `Radar RSS v${app.getVersion()}`,
@@ -343,14 +351,11 @@ function createTray(iconPath) {
         },
       },
       {
-        label: 'Iniciar com o Windows',
+        label: process.platform === 'win32' ? 'Iniciar com o Windows' : 'Iniciar com o sistema',
         type: 'checkbox',
         checked: isAutoStart,
         click: (item) => {
-          app.setLoginItemSettings({
-            openAtLogin: item.checked,
-            openAsHidden: true,
-          });
+          autoStart.set(item.checked);
           updateContextMenu();
         },
       },
@@ -358,7 +363,7 @@ function createTray(iconPath) {
       {
         label: 'Verificar Atualizações...',
         click: () => {
-          autoUpdater.checkForUpdates().catch((err) => {
+          checkForUpdates().catch((err) => {
             dialog.showMessageBox(mainWindow, {
               type: 'info',
               title: 'Atualizações',
@@ -551,15 +556,11 @@ function setupIpcHandlers() {
   });
 
   ipcMain.handle('desktop:get-auto-start', () => {
-    return app.getLoginItemSettings().openAtLogin;
+    return autoStart.get();
   });
 
   ipcMain.handle('desktop:set-auto-start', (_event, enabled) => {
-    app.setLoginItemSettings({
-      openAtLogin: Boolean(enabled),
-      openAsHidden: true,
-    });
-    return app.getLoginItemSettings().openAtLogin;
+    return autoStart.set(Boolean(enabled));
   });
 
   ipcMain.handle('desktop:get-minimize-to-tray', () => {
@@ -574,7 +575,7 @@ function setupIpcHandlers() {
 
   ipcMain.handle('desktop:check-updates', async () => {
     try {
-      return await autoUpdater.checkForUpdates();
+      return await checkForUpdates();
     } catch (err) {
       console.warn('[AutoUpdater] Manual check error:', err);
       return null;
@@ -703,11 +704,11 @@ app.whenReady().then(async () => {
 
   // Handle minimize to tray on close
   mainWindow.on('close', (event) => {
-    if (!isQuitting && desktopSettings.minimizeToTray) {
+    if (!isQuitting && desktopSettings.minimizeToTray && tray) {
       event.preventDefault();
       mainWindow.hide();
 
-      if (!hasShownTrayBalloon && tray) {
+      if (!hasShownTrayBalloon && tray && process.platform === 'win32') {
         hasShownTrayBalloon = true;
         tray.displayBalloon({
           iconType: 'info',
@@ -738,8 +739,11 @@ app.whenReady().then(async () => {
   setupIpcHandlers();
 
   if (primaryIcon) {
-    createTray(icoPath || pngPath || primaryIcon);
+    createTray(primaryIcon);
   }
+
+  // A hidden launch must stay reachable even on desktops without a tray.
+  if (isHidden && (!tray || !desktopSettings.minimizeToTray)) showAndFocusWindow();
 
   const port = await getFreePort();
   const appPath = app.getAppPath();
@@ -776,13 +780,28 @@ app.whenReady().then(async () => {
   setupAutoUpdater();
 });
 
+// Only AppImage supports self-updates on Linux; .deb uses manual package installation.
+function supportsAutoUpdates() {
+  return app.isPackaged && !process.env.PORTABLE_EXECUTABLE_DIR &&
+    (process.platform !== 'linux' || Boolean(process.env.APPIMAGE)) &&
+    fs.existsSync(path.join(process.resourcesPath || '', 'app-update.yml'));
+}
+
+async function checkForUpdates() {
+  if (!supportsAutoUpdates()) {
+    await shell.openExternal('https://github.com/dznass-cmd/RadarRSS/releases/latest');
+    return null;
+  }
+  return autoUpdater.checkForUpdates();
+}
+
 // --- Automatic updates (electron-updater) ---
 function setupAutoUpdater() {
   const appUpdateFile = path.join(process.resourcesPath || '', 'app-update.yml');
   let hasAppUpdate = false;
   try { hasAppUpdate = fs.existsSync(appUpdateFile); } catch (_) {}
 
-  if (!app.isPackaged || process.env.PORTABLE_EXECUTABLE_DIR || !hasAppUpdate) {
+  if (!supportsAutoUpdates() || !hasAppUpdate) {
     console.log('[AutoUpdater] Disabled (unpacked, portable build, or no app-update.yml)');
     return;
   }
@@ -824,7 +843,7 @@ function setupAutoUpdater() {
   });
 
   setTimeout(() => {
-    autoUpdater.checkForUpdates().catch((err) => {
+    checkForUpdates().catch((err) => {
       console.warn('[AutoUpdater] Check failed:', err?.message || err);
     });
   }, 5000);
@@ -835,7 +854,7 @@ app.on('before-quit', () => {
 });
 
 app.on('window-all-closed', () => {
-  if (process.platform !== 'darwin' && (!desktopSettings.minimizeToTray || isQuitting)) {
+  if (process.platform !== 'darwin' && (!desktopSettings.minimizeToTray || !tray || isQuitting)) {
     app.quit();
   }
 });
@@ -847,3 +866,4 @@ app.on('activate', () => {
     showAndFocusWindow();
   }
 });
+

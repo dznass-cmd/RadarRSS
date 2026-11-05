@@ -139,13 +139,13 @@ export const TRANSLATIONS = {
         pink: 'Neon Pink',
       },
       desktop: {
-        title: 'Windows Desktop Settings',
+        title: 'Desktop Settings',
         minimizeToTray: 'Minimize to System Tray on close',
         minimizeToTrayDesc: 'Keep Radar RSS running in the background to monitor breaking news and alerts when the window is closed.',
-        launchOnStartup: 'Start with Windows',
+        launchOnStartup: 'Start with the system',
         launchOnStartupDesc: 'Automatically launch Radar RSS quietly in the background when your PC boots up.',
         flashTaskbar: 'Flash taskbar icon on breaking news',
-        flashTaskbarDesc: 'Blinks the Windows taskbar icon when urgent breaking news arrives while app is unfocused.',
+        flashTaskbarDesc: 'Blinks the taskbar icon when urgent breaking news arrives while app is unfocused.',
         shortcutsTitle: 'Desktop Keyboard Shortcuts',
         shortcutRefresh: 'Smooth feed refresh (no full reload)',
         shortcutSearch: 'Focus global search bar',
@@ -400,13 +400,13 @@ export const TRANSLATIONS = {
         pink: 'Rosa Neon',
       },
       desktop: {
-        title: 'Configurações Desktop (Windows)',
+        title: 'Configurações Desktop',
         minimizeToTray: 'Minimizar para a Bandeja do Sistema ao fechar',
         minimizeToTrayDesc: 'Mantém o Radar RSS rodando em segundo plano para monitorar notícias urgentes mesmo com a janela fechada.',
-        launchOnStartup: 'Iniciar junto com o Windows',
+        launchOnStartup: 'Iniciar junto com o sistema',
         launchOnStartupDesc: 'Abre o Radar RSS automaticamente em segundo plano ao ligar o computador.',
         flashTaskbar: 'Destacar ícone na barra de tarefas em notícias urgentes',
-        flashTaskbarDesc: 'Pisca o ícone do aplicativo na barra de tarefas do Windows quando chegar uma notícia urgente.',
+        flashTaskbarDesc: 'Pisca o ícone do aplicativo na barra de tarefas quando chegar uma notícia urgente.',
         shortcutsTitle: 'Atalhos de Teclado Desktop',
         shortcutRefresh: 'Atualização suave dos feeds (sem recarregar tela)',
         shortcutSearch: 'Focar na barra de busca global',
@@ -529,3 +529,4 @@ export function getTranslation(lang?: Language | string) {
   const selectedLang = lang === 'pt' ? 'pt' : 'en';
   return TRANSLATIONS[selectedLang];
 }
+

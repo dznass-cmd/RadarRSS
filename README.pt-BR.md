@@ -13,7 +13,7 @@
 
 <br />
 
-**Agregador de notícias dinâmico e inteligente em tempo real com curadoria por Inteligência Artificial (Google Gemini), aplicativo desktop para Windows e aplicativo nativo para Android.**
+**Agregador de notícias dinâmico e inteligente em tempo real com curadoria por Inteligência Artificial (Google Gemini), aplicativo desktop para Windows e Linux e aplicativo nativo para Android.**
 
 [English](README.md) • **Português (Brasil)**
 
@@ -53,7 +53,7 @@ Utilizando o poder dos modelos de **Inteligência Artificial do Google Gemini**,
   - Análise contextual e detecção de urgência (*Breaking News*).
   - Tradução e sintetização instantânea de notícias internacionais.
 - 🖼️ **Exibição Inteligente de Imagens (`SafeImage`):** Extração robusta de mídias incorporadas (`media:content`, `enclosure`, tags HTML), resolução de links relativos, bloqueio de pixels rastreadores e fallback visual elegante em caso de indisponibilidade.
-- 🖥️ **Aplicativo Desktop Windows:** Janela nativa leve via Electron com atalhos, barra de título integrada e bandeja do sistema.
+- 🖥️ **Aplicativo Desktop Windows e Linux:** Janela nativa leve via Electron com atalhos, barra de título integrada e bandeja do sistema.
 - 📱 **Aplicativo Nativo Android:** Experiência móvel completa via Capacitor, com suporte a gestos de toque, temas escuro/claro e síntese de voz (TTS).
 - 🔄 **Atualizações Automáticas (Auto-Updater):** Atualização transparente em segundo plano através de GitHub Releases oficiais.
 - 🎨 **Interface Moderna & Flexível:**
@@ -78,6 +78,35 @@ Você pode baixar a versão mais recente diretamente na seção de [Releases](ht
 | 🪟 Windows | 💿 **Instalador Oficial** | Recomendado. Cria atalhos e **recebe atualizações automáticas** | [Baixar Setup (.exe)](https://github.com/dznass-cmd/RadarRSS/releases/latest) |
 | 🪟 Windows | 💼 **Portátil** | Executável único. Roda diretamente sem necessidade de instalação | [Baixar Portátil (.exe)](https://github.com/dznass-cmd/RadarRSS/releases/latest) |
 | 📱 Android | 📦 **APK Nativo** | Aplicativo nativo para smartphones e tablets Android | [Baixar APK (.apk)](https://github.com/dznass-cmd/RadarRSS/releases/latest) |
+
+### Linux (x64)
+
+O workflow **Linux Desktop** gera os pacotes abaixo, disponíveis como artefatos do GitHub Actions para PRs e execuções manuais, e adicionados às releases quando uma tag `vX.Y.Z` é enviada após integrar o suporte a Linux.
+
+- **AppImage:** baixe `radar-rss-X.Y.Z-x64.AppImage`, marque como executável e abra:
+  ```bash
+  chmod +x radar-rss-X.Y.Z-x64.AppImage
+  ./radar-rss-X.Y.Z-x64.AppImage
+  ```
+  Em Ubuntu 22.04, instale `libfuse2` se solicitado (Ubuntu 24.04: `libfuse2t64`). Alternativamente, execute com `--appimage-extract-and-run`.
+- **Debian / Ubuntu:** instale `radar-rss-X.Y.Z-amd64.deb` com:
+  ```bash
+  sudo apt install ./radar-rss-X.Y.Z-amd64.deb
+  ```
+  Abra **Radar RSS** no menu de aplicativos.
+
+O AppImage aceita atualizações automáticas quando o arquivo está em uma pasta gravável. Para o `.deb`, a verificação de atualizações abre a página de releases para instalar o pacote novo.
+
+A opção **Iniciar junto com o sistema** usa o autostart XDG. O Linux fecha a janela normalmente por padrão; ative a minimização para a bandeja apenas se seu ambiente oferecer suporte a ícones de bandeja (no GNOME, pode ser necessária uma extensão AppIndicator). Para IA, use as configurações do aplicativo ou crie `.env` em `${XDG_CONFIG_HOME:-~/.config}/Radar RSS/` com `GEMINI_API_KEY=sua_chave`.
+
+Para compilar no Linux com Node.js 22 e npm:
+
+```bash
+npm ci
+npm run build:linux
+```
+
+Os dois pacotes são gerados em `release/`. O suporte inicial é para processadores Intel/AMD de 64 bits.
 
 ---
 
@@ -157,6 +186,9 @@ Os recursos de IA utilizam o SDK `@google/genai` do Google:
 * `npm run dev` — Inicia o backend Express com Vite em modo hot-reload.
 * `npm run build` — Compila a interface React e empacota o servidor de produção em `dist/`.
 * `npm run desktop` — Compila e abre o app em janela nativa do Electron.
+* `npm run build:linux` — Gera AppImage e pacote Debian Linux x64 em `release/`.
+* `npm run test:desktop` — Valida a inicialização automática no Linux e Windows.
+* `npm run publish:linux` — Compila e envia os pacotes Linux ao GitHub Releases.
 * `npm run build:win` — Gera os executáveis Windows (instalador + portátil) na pasta `release/`.
 * `npm run build:android` — Compila o bundle web e sincroniza com o projeto Android.
 * `npm run publish:win` — Compila e publica a release no GitHub via `electron-builder`.
@@ -179,3 +211,4 @@ Para publicar uma nova versão, basta atualizar a versão no `package.json` e cr
 ## 📄 Licença
 
 Este projeto é distribuído sob a licença [MIT](LICENSE).
+
