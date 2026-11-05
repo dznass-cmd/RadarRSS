@@ -1,6 +1,6 @@
 {
   "name": "radar-rss",
-  "description": "Real-time dynamic RSS news reader with customizable modular blocks, AI curation & summaries powered by Google Gemini, native Android app, and Windows desktop support.",
+  "description": "Real-time dynamic RSS news reader with customizable modular blocks, AI curation & summaries powered by Google Gemini, native Android app, and Windows and Linux desktop support.",
   "author": "Freebuff",
   "private": true,
   "version": "0.1.0",
@@ -18,7 +18,10 @@
     "lint": "tsc --noEmit",
     "cap:sync": "npx cap sync android",
     "build:android": "npm run build && npx cap sync android",
-    "open:android": "npx cap open android"
+    "open:android": "npx cap open android",
+    "build:linux": "npm run build && npm run make-icon && electron-builder --linux --x64 --publish never",
+    "publish:linux": "npm run build && npm run make-icon && electron-builder --linux --x64 --publish always",
+    "test:desktop": "node --test tests/desktop-linux.test.cjs"
   },
   "build": {
     "appId": "com.dznasscmd.radarrss",
@@ -54,7 +57,23 @@
         "owner": "dznass-cmd",
         "repo": "RadarRSS"
       }
-    ]
+    ],
+    "linux": {
+      "icon": "build/icon.png",
+      "target": [
+        "AppImage",
+        "deb"
+      ],
+      "category": "Network",
+      "artifactName": "${name}-${version}-${arch}.${ext}",
+      "maintainer": "Freebuff <187990890+dznass-cmd@users.noreply.github.com>",
+      "desktop": {
+        "entry": {
+          "StartupWMClass": "Radar RSS"
+        }
+      },
+      "executableName": "radar-rss"
+    }
   },
   "dependencies": {
     "@capacitor/android": "^8.5.0",

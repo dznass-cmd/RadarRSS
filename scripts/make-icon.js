@@ -260,4 +260,7 @@ function generatePureNode() {
 
 if (!tryGenerateWithPowerShell()) {
   generatePureNode();
+  // Keep the original application artwork for Linux packaging and runtime icons.
+  if (existsSync(publicIconPath)) copyFileSync(publicIconPath, outPngPath);
 }
+
