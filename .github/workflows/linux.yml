@@ -1,0 +1,62 @@
+name: Linux Desktop
+
+on:
+  pull_request:
+  push:
+    tags:
+      - 'v*'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    runs-on: ubuntu-22.04
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - name: Validate release version
+        if: startsWith(github.ref, 'refs/tags/')
+        run: node -e "if (process.env.GITHUB_REF_NAME !== 'v' + require('./package.json').version) process.exit(1)"
+      - name: Install Linux packaging and display dependencies
+        run: sudo apt-get update && sudo apt-get install -y libarchive-tools libnss3 libatk-bridge2.0-0 libgtk-3-0 libgbm1 libasound2 xvfb
+      - run: npm ci
+      - run: npm run test:desktop
+      - run: npm run lint
+      - name: Build AppImage and Debian package (x64)
+        run: npm run build:linux
+      - name: Smoke test packaged desktop
+        run: xvfb-run -a node scripts/smoke-linux.cjs
+      - uses: actions/upload-artifact@v4
+        with:
+          name: RadarRSS-linux-x64
+          if-no-files-found: error
+          path: |
+            release/*.AppImage
+            release/*.AppImage.blockmap
+            release/*.deb
+            release/latest-linux.yml
+
+  publish:
+    if: startsWith(github.ref, 'refs/tags/')
+    needs: build
+    runs-on: ubuntu-22.04
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          name: RadarRSS-linux-x64
+          path: release
+      - name: Add Linux packages to release
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GH_REPO: ${{ github.repository }}
+        run: |
+          # Windows and Android may create the same release concurrently.
+          gh release view "$GITHUB_REF_NAME" >/dev/null 2>&1 || gh release create "$GITHUB_REF_NAME" --verify-tag --title "$GITHUB_REF_NAME" --draft || gh release view "$GITHUB_REF_NAME"
+          gh release upload "$GITHUB_REF_NAME" release/* --clobber

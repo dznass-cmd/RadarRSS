@@ -13,7 +13,7 @@
 
 <br />
 
-**Real-time intelligent dynamic RSS news aggregator with Google Gemini AI curation, Windows desktop application, and native Android app support.**
+**Real-time intelligent dynamic RSS news aggregator with Google Gemini AI curation, Windows and Linux desktop applications, and native Android app support.**
 
 **English** • [Português (Brasil)](README.pt-BR.md)
 
@@ -53,7 +53,7 @@ Powered by **Google Gemini Artificial Intelligence**, Radar RSS synthesizes exec
   - Contextual urgency evaluation with automatic **Breaking News** badges and sound alerts.
   - Multi-language translation and synthesis for global articles.
 - 🖼️ **Smart Image Extraction (`SafeImage`):** Robust parsing for `media:content`, `media:thumbnail`, `enclosure`, and embedded HTML `<img>` elements with relative URL normalization, tracker pixel filtering (1x1 blocking), and graceful visual fallback placeholders.
-- 🖥️ **Windows Desktop App:** High-performance native Electron window with titlebar integration, keyboard shortcuts, and background tray support.
+- 🖥️ **Windows and Linux Desktop App:** High-performance native Electron window with titlebar integration, keyboard shortcuts, and background tray support.
 - 📱 **Native Android Mobile App:** Seamless touch experience built with Capacitor, featuring pull-to-refresh gestures, haptic feedback, theme synchronization, and Text-to-Speech (TTS).
 - 🔄 **Seamless Auto-Updates:** Built-in background update engine powered by official GitHub Releases.
 - 🎨 **Modern & Adaptive UI:**
@@ -78,6 +78,35 @@ You can download pre-compiled releases directly from the [GitHub Releases](https
 | 🪟 Windows | 💿 **Official Installer** | Recommended. Installs shortcuts and **receives silent auto-updates** | [Download Setup (.exe)](https://github.com/dznass-cmd/RadarRSS/releases/latest) |
 | 🪟 Windows | 💼 **Portable Edition** | Standalone single executable. Runs instantly without installation | [Download Portable (.exe)](https://github.com/dznass-cmd/RadarRSS/releases/latest) |
 | 📱 Android | 📦 **Native APK** | Signed native mobile app for Android smartphones and tablets | [Download APK (.apk)](https://github.com/dznass-cmd/RadarRSS/releases/latest) |
+
+### Linux (x64)
+
+The **Linux Desktop** workflow builds the packages below as GitHub Actions artifacts for pull requests and manual runs. After Linux support is merged, pushing a `vX.Y.Z` tag also uploads them to GitHub Releases.
+
+- **AppImage:** download `radar-rss-X.Y.Z-x64.AppImage` and run:
+  ```bash
+  chmod +x radar-rss-X.Y.Z-x64.AppImage
+  ./radar-rss-X.Y.Z-x64.AppImage
+  ```
+  If FUSE is missing, install `libfuse2` on Ubuntu 22.04 (`libfuse2t64` on Ubuntu 24.04), or launch with `--appimage-extract-and-run`.
+- **Debian / Ubuntu:** install `radar-rss-X.Y.Z-amd64.deb`:
+  ```bash
+  sudo apt install ./radar-rss-X.Y.Z-amd64.deb
+  ```
+  Launch **Radar RSS** from the application menu.
+
+AppImage supports automatic updates when stored in a writable directory. For `.deb`, checking for updates opens the releases page so you can install the new package.
+
+**Start with the system** uses XDG autostart. Linux closes the window normally by default; enable minimize-to-tray only when your desktop supports tray icons (GNOME may require an AppIndicator extension). Configure AI in the application, or put `GEMINI_API_KEY=your_key` in `${XDG_CONFIG_HOME:-~/.config}/Radar RSS/.env`.
+
+Build on Linux using Node.js 22 and npm:
+
+```bash
+npm ci
+npm run build:linux
+```
+
+Both packages are generated in `release/`. Initial Linux support targets 64-bit Intel/AMD processors.
 
 ---
 
@@ -157,6 +186,9 @@ Radar RSS uses the modern official `@google/genai` SDK:
 * `npm run dev` — Starts the Express backend paired with Vite hot-module replacement.
 * `npm run build` — Compiles the React web application and bundles the server into `dist/`.
 * `npm run desktop` — Launches the application in an Electron desktop shell.
+* `npm run build:linux` — Builds Linux x64 AppImage and Debian packages in `release/`.
+* `npm run test:desktop` — Tests Linux and Windows autostart behavior.
+* `npm run publish:linux` — Builds and uploads Linux packages to GitHub Releases.
 * `npm run build:win` — Compiles Windows executables (NSIS installer + portable `.exe`) inside `release/`.
 * `npm run build:android` — Compiles web assets and synchronizes the native Android project.
 * `npm run publish:win` — Packages and publishes a release asset directly to GitHub.
@@ -179,3 +211,4 @@ To publish a new version, simply increment `version` in `package.json` and push 
 ## 📄 License
 
 This project is open-source and released under the [MIT License](LICENSE).
+
