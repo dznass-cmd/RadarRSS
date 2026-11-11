@@ -21,6 +21,7 @@ import {
   addNotificationActionListener,
 } from './services/notificationService';
 import { clusterNewsItems } from './services/clustering/newsClusterService';
+import { exportFeedsToOpml, parseOpml } from './services/opmlService';
 import { getTranslation } from './i18n/translations';
 import { App as CapApp } from '@capacitor/app';
 import { StatusBar, Style } from '@capacitor/status-bar';
@@ -866,6 +867,113 @@ export default function App() {
     }
   };
 
+  // Export Feeds to OPML (Standard RSS Format)
+  const handleExportOpml = async () => {
+    const opmlText = exportFeedsToOpml(feeds, 'Radar RSS Subscriptions');
+
+    if (isNativePlatform()) {
+      try {
+        await Share.share({
+          title: 'Radar RSS OPML Export',
+          text: opmlText,
+          dialogTitle: settings.language === 'pt' ? 'Exportar Feeds (OPML)' : 'Export Feeds (OPML)',
+        });
+        addToast({
+          title: settings.language === 'pt' ? 'Feeds Exportados' : 'Feeds Exported',
+          message: settings.language === 'pt' ? 'Arquivo OPML compartilhado com sucesso!' : 'OPML file shared successfully!',
+          type: 'success',
+        });
+        return;
+      } catch (err: any) {
+        if (err.name === 'AbortError') return;
+      }
+    }
+
+    try {
+      const blob = new Blob([opmlText], { type: 'text/x-opml;charset=utf-8' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `radar_rss_feeds_${Date.now()}.opml`;
+      a.click();
+      URL.revokeObjectURL(url);
+      addToast({
+        title: settings.language === 'pt' ? 'Feeds Exportados' : 'Feeds Exported',
+        message: settings.language === 'pt' ? 'Arquivo OPML gerado e salvo com sucesso!' : 'OPML file generated and saved successfully!',
+        type: 'success',
+      });
+    } catch {
+      addToast({
+        title: settings.language === 'pt' ? 'Erro ao Exportar' : 'Export Failed',
+        message: settings.language === 'pt' ? 'Não foi possível salvar o arquivo OPML.' : 'Could not save OPML file.',
+        type: 'warning',
+      });
+    }
+  };
+
+  // Import Feeds from OPML / XML
+  const handleImportOpml = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    const reader = new FileReader();
+    reader.onload = (event) => {
+      try {
+        const text = event.target?.result as string;
+        const result = parseOpml(text);
+
+        if (result.totalParsed === 0) {
+          addToast({
+            title: settings.language === 'pt' ? 'Nenhuma Fonte Encontrada' : 'No Feeds Found',
+            message: settings.language === 'pt'
+              ? 'Nenhum feed RSS válido foi encontrado no arquivo selecionado.'
+              : 'No valid RSS feeds found in the selected file.',
+            type: 'warning',
+          });
+          return;
+        }
+
+        // Compare with existing feeds by lowercase URL
+        const existingUrls = new Set(feeds.map((f) => f.url.toLowerCase().trim()));
+        const newFeeds = result.feeds.filter((f) => !existingUrls.has(f.url.toLowerCase().trim()));
+        const duplicateCount = result.totalParsed - newFeeds.length;
+
+        if (newFeeds.length > 0) {
+          setFeeds((prev) => [...newFeeds, ...prev]);
+          const msg = settings.language === 'pt'
+            ? `${newFeeds.length} novas fontes importadas com sucesso! ${duplicateCount > 0 ? `(${duplicateCount} já cadastradas)` : ''}`
+            : `${newFeeds.length} new feeds imported successfully! ${duplicateCount > 0 ? `(${duplicateCount} already existed)` : ''}`;
+          addToast({
+            title: settings.language === 'pt' ? 'Feeds Importados' : 'Feeds Imported',
+            message: msg,
+            type: 'success',
+          });
+          // Trigger a feed refresh to fetch the newly imported feeds
+          fetchAllFeeds();
+        } else {
+          addToast({
+            title: settings.language === 'pt' ? 'Nenhum Feed Novo' : 'No New Feeds',
+            message: settings.language === 'pt'
+              ? `Todas as ${result.totalParsed} fontes deste arquivo já estão cadastradas.`
+              : `All ${result.totalParsed} feeds in this file are already subscribed.`,
+            type: 'info',
+          });
+        }
+      } catch (err: any) {
+        addToast({
+          title: settings.language === 'pt' ? 'Falha na Importação' : 'Import Failed',
+          message: settings.language === 'pt'
+            ? 'Erro ao processar o arquivo OPML/XML selecionado.'
+            : 'Error processing the selected OPML/XML file.',
+          type: 'warning',
+        });
+      } finally {
+        e.target.value = '';
+      }
+    };
+    reader.readAsText(file);
+  };
+
   const handleImportConfig = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
@@ -873,7 +981,30 @@ export default function App() {
     const reader = new FileReader();
     reader.onload = (event) => {
       try {
-        const parsed = JSON.parse(event.target?.result as string);
+        const text = event.target?.result as string;
+
+        // Smart fallback: if user selected an OPML/XML file here, delegate to OPML parser
+        if (text.trim().startsWith('<?xml') || text.includes('<opml') || file.name.endsWith('.opml') || file.name.endsWith('.xml')) {
+          const result = parseOpml(text);
+          if (result.totalParsed > 0) {
+            const existingUrls = new Set(feeds.map((f) => f.url.toLowerCase().trim()));
+            const newFeeds = result.feeds.filter((f) => !existingUrls.has(f.url.toLowerCase().trim()));
+            if (newFeeds.length > 0) {
+              setFeeds((prev) => [...newFeeds, ...prev]);
+              addToast({
+                title: settings.language === 'pt' ? 'Feeds Importados (OPML)' : 'Feeds Imported (OPML)',
+                message: settings.language === 'pt'
+                  ? `${newFeeds.length} fontes importadas com sucesso via OPML!`
+                  : `${newFeeds.length} feeds imported successfully via OPML!`,
+                type: 'success',
+              });
+              fetchAllFeeds();
+            }
+            return;
+          }
+        }
+
+        const parsed = JSON.parse(text);
         if (parsed.blocks && Array.isArray(parsed.blocks)) setBlocks(parsed.blocks);
         if (parsed.feeds && Array.isArray(parsed.feeds)) setFeeds(parsed.feeds);
         if (parsed.settings) setSettings(parsed.settings);
@@ -888,6 +1019,8 @@ export default function App() {
           message: 'Arquivo de backup JSON inválido ou corrompido.',
           type: 'warning',
         });
+      } finally {
+        e.target.value = '';
       }
     };
     reader.readAsText(file);
@@ -1211,6 +1344,8 @@ export default function App() {
         onRemoveFeed={handleRemoveFeed}
         onExportConfig={handleExportConfig}
         onImportConfig={handleImportConfig}
+        onExportOpml={handleExportOpml}
+        onImportOpml={handleImportOpml}
         theme={settings.theme}
         language={settings.language}
       />
