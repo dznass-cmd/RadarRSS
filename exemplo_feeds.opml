@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<opml version="2.0">
+  <head>
+    <title>Exemplo de Assinaturas OPML</title>
+    <dateCreated>Wed, 11 Nov 2026 19:40:00 GMT</dateCreated>
+  </head>
+  <body>
+    <outline text="Notícias do Brasil" title="Notícias do Brasil">
+      <outline type="rss" text="BBC Brasil" title="BBC Brasil" xmlUrl="https://feeds.bbci.co.uk/portuguese/rss.xml" htmlUrl="https://www.bbc.com/portuguese" category="brazil" />
+      <outline type="rss" text="CNN Brasil" title="CNN Brasil" xmlUrl="https://www.cnnbrasil.com.br/feed/" htmlUrl="https://www.cnnbrasil.com.br" category="brazil" />
+    </outline>
+    <outline text="Tecnologia e Inovação" title="Tecnologia e Inovação">
+      <outline type="rss" text="Canaltech" title="Canaltech" xmlUrl="https://canaltech.com.br/rss/" htmlUrl="https://canaltech.com.br" category="tech" />
+      <outline type="rss" text="Ars Technica" title="Ars Technica" xmlUrl="https://feeds.arstechnica.com/arstechnica/index" htmlUrl="https://arstechnica.com" category="tech" />
+    </outline>
+    <outline text="Entretenimento e Games" title="Entretenimento e Games">
+      <outline type="rss" text="IGN Brasil" title="IGN Brasil" xmlUrl="https://br.ign.com/feed.xml" htmlUrl="https://br.ign.com" category="entertainment" />
+    </outline>
+  </body>
+</opml>
