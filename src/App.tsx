@@ -58,10 +58,9 @@ export default function App() {
         return feed;
       });
 
-      // Deduplicate by ID and filter out problematic g1 feed
+      // Deduplicate by ID
       const seen = new Set<string>();
       return mapped.filter((f) => {
-        if (f.url.includes('g1.globo.com') || f.id === 'g1_brasil') return false;
         if (seen.has(f.id)) return false;
         seen.add(f.id);
         return true;
@@ -89,8 +88,11 @@ export default function App() {
   const [settings, setSettings] = useState<AppSettings>(() => {
     const saved = localStorage.getItem(STORAGE_KEYS.SETTINGS);
     const parsed = saved ? JSON.parse(saved) : null;
+    const defaultLang = typeof navigator !== 'undefined' && navigator.language && navigator.language.toLowerCase().startsWith('pt')
+      ? 'pt'
+      : 'en';
     return {
-      language: 'en',
+      language: defaultLang,
       theme: 'dark',
       globalRefreshSec: 60,
       soundAlerts: true,

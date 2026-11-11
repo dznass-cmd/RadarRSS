@@ -8,6 +8,17 @@ const PORT = process.env.PORT ? Number(process.env.PORT) : 3000;
 
 app.use(express.json());
 
+// Enable CORS for local cross-origin development, Electron and webviews
+app.use((req, res, next) => {
+  res.header('Access-Control-Allow-Origin', '*');
+  res.header('Access-Control-Allow-Methods', 'GET, POST, OPTIONS');
+  res.header('Access-Control-Allow-Headers', 'Content-Type, Authorization');
+  if (req.method === 'OPTIONS') {
+    return res.sendStatus(200);
+  }
+  next();
+});
+
 const rssParser = new Parser({
   customFields: {
     item: [
@@ -283,8 +294,8 @@ app.post('/api/rss/validate', async (req: Request, res: Response) => {
 // 3. Gemini Helper setup
 function getGeminiClient() {
   const apiKey = process.env.GEMINI_API_KEY;
-  if (!apiKey) {
-    throw new Error('GEMINI_API_KEY não configurada no servidor.');
+  if (!apiKey || apiKey === 'MY_GEMINI_API_KEY') {
+    throw new Error('GEMINI_API_KEY não configurada no servidor. Configure sua chave no arquivo .env ou nas Configurações.');
   }
   return new GoogleGenAI({
     apiKey,
