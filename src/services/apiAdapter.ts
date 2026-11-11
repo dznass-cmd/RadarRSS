@@ -414,8 +414,9 @@ export async function curateBlockWithAi(userPrompt: string): Promise<{ success: 
     try {
       const prompt = `Analise a solicitação do usuário para criar um bloco dinâmico no Radar RSS: "${userPrompt}".\nRetorne APENAS um objeto JSON válido (sem tags markdown nem explicações) no formato: {"title": "string", "categoryFilter": "tech"|"brazil"|"world"|"finance"|"sports"|"entertainment"|"ai"|"all", "filterKeyword": "string ou undefined", "layout": "hero"|"grid"|"compact"|"list"|"media-wall"|"ticker", "itemCount": 6}`;
       const rawResponse = await generateContentWithGeminiDirect(prompt, apiKey);
-      const cleanJson = rawResponse.replace(/```json/gi, '').replace(/```/g, '').trim();
-      const blockConfig = JSON.parse(cleanJson);
+      const jsonMatch = rawResponse.match(/\{[\s\S]*\}/);
+      const jsonStr = jsonMatch ? jsonMatch[0] : rawResponse.replace(/```json/gi, '').replace(/```/g, '').trim();
+      const blockConfig = JSON.parse(jsonStr);
       return { success: true, blockConfig };
     } catch (err: any) {
       console.warn('[Gemini Direct Curate Error]:', err);
