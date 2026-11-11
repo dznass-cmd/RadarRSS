@@ -10,7 +10,7 @@
     "dev": "tsx server.ts",
     "build": "vite build && node scripts/build-server.mjs",
     "start": "node dist/server.cjs",
-    "test": "tsx tests/clustering.test.ts",
+    "test": "tsx tests/clustering.test.ts && tsx tests/opml.test.ts",
     "make-icon": "node scripts/make-icon.js",
     "build:win": "npm run build && npm run make-icon && electron-builder --win",
     "publish:win": "npm run build && npm run make-icon && electron-builder --win --publish always",

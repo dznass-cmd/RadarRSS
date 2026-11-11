@@ -7,7 +7,9 @@ import {
   Loader2,
   AlertCircle,
   Download,
-  Upload
+  Upload,
+  Rss,
+  FileCode
 } from 'lucide-react';
 import { RssFeed } from '../types';
 import { validateRssFeed } from '../services/apiAdapter';
@@ -22,6 +24,8 @@ interface ManageFeedsModalProps {
   onRemoveFeed: (feedId: string) => void;
   onExportConfig: () => void;
   onImportConfig: (e: React.ChangeEvent<HTMLInputElement>) => void;
+  onExportOpml?: () => void;
+  onImportOpml?: (e: React.ChangeEvent<HTMLInputElement>) => void;
   theme: 'dark' | 'light';
   language?: Language;
 }
@@ -35,6 +39,8 @@ export const ManageFeedsModal: React.FC<ManageFeedsModalProps> = ({
   onRemoveFeed,
   onExportConfig,
   onImportConfig,
+  onExportOpml,
+  onImportOpml,
   theme,
   language = 'en',
 }) => {
@@ -234,36 +240,82 @@ export const ManageFeedsModal: React.FC<ManageFeedsModalProps> = ({
             </div>
           </div>
 
-          {/* Import / Export Config */}
-          <div className={`pt-2 border-t flex items-center justify-between gap-3 ${
+          {/* Import / Export Hub */}
+          <div className={`pt-4 border-t space-y-3 ${
             theme === 'dark' ? 'border-neutral-800' : 'border-neutral-200'
           }`}>
-            <button
-              onClick={onExportConfig}
-              className={`flex items-center gap-1.5 px-3.5 py-2 rounded-xl text-xs font-black uppercase tracking-wider border transition-all cursor-pointer ${
-                theme === 'dark'
-                  ? 'border-neutral-700 hover:bg-neutral-800 text-neutral-200'
-                  : 'border-neutral-300 hover:bg-neutral-200 text-neutral-700'
-              }`}
-            >
-              <Download className="w-3.5 h-3.5 text-orange-500" />
-              <span>{t.manageFeeds.exportConfig}</span>
-            </button>
+            <div className="flex items-center justify-between">
+              <span className={`text-[11px] font-black uppercase tracking-wider ${
+                theme === 'dark' ? 'text-neutral-400' : 'text-neutral-600'
+              }`}>
+                {language === 'pt' ? 'Importação & Exportação' : 'Import & Export'}
+              </span>
+              <span className="text-[10px] font-mono text-neutral-500">
+                OPML 2.0 · JSON
+              </span>
+            </div>
 
-            <label className={`flex items-center gap-1.5 px-3.5 py-2 rounded-xl text-xs font-black uppercase tracking-wider border transition-all cursor-pointer ${
-              theme === 'dark'
-                ? 'border-neutral-700 hover:bg-neutral-800 text-neutral-200'
-                : 'border-neutral-300 hover:bg-neutral-200 text-neutral-700'
-            }`}>
-              <Upload className="w-3.5 h-3.5 text-orange-500" />
-              <span>{t.manageFeeds.importConfig}</span>
-              <input
-                type="file"
-                accept=".json"
-                onChange={onImportConfig}
-                className="hidden"
-              />
-            </label>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+              {/* OPML Group */}
+              <button
+                type="button"
+                onClick={onExportOpml}
+                title="OPML 2.0 (Feedly, Inoreader, NetNewsWire, etc.)"
+                className={`flex items-center justify-center gap-1.5 px-3 py-2 rounded-xl text-xs font-black uppercase tracking-wider border transition-all cursor-pointer ${
+                  theme === 'dark'
+                    ? 'border-neutral-700 bg-neutral-900/60 hover:bg-neutral-800 text-neutral-200'
+                    : 'border-neutral-300 bg-neutral-50 hover:bg-neutral-200 text-neutral-800'
+                }`}
+              >
+                <Rss className="w-3.5 h-3.5 text-orange-500" />
+                <span>{t.manageFeeds.exportOpml}</span>
+              </button>
+
+              <label className={`flex items-center justify-center gap-1.5 px-3 py-2 rounded-xl text-xs font-black uppercase tracking-wider border transition-all cursor-pointer ${
+                theme === 'dark'
+                  ? 'border-neutral-700 bg-neutral-900/60 hover:bg-neutral-800 text-neutral-200'
+                  : 'border-neutral-300 bg-neutral-50 hover:bg-neutral-200 text-neutral-800'
+              }`}>
+                <Upload className="w-3.5 h-3.5 text-orange-500" />
+                <span>{t.manageFeeds.importOpml}</span>
+                <input
+                  type="file"
+                  accept=".opml,.xml"
+                  onChange={onImportOpml}
+                  className="hidden"
+                />
+              </label>
+
+              {/* JSON Backup Group */}
+              <button
+                type="button"
+                onClick={onExportConfig}
+                title="Full JSON Backup (blocks, feeds & settings)"
+                className={`flex items-center justify-center gap-1.5 px-3 py-2 rounded-xl text-xs font-black uppercase tracking-wider border transition-all cursor-pointer ${
+                  theme === 'dark'
+                    ? 'border-neutral-800/80 bg-neutral-950/40 hover:bg-neutral-800 text-neutral-400 hover:text-neutral-200'
+                    : 'border-neutral-200 bg-white hover:bg-neutral-100 text-neutral-500 hover:text-neutral-800'
+                }`}
+              >
+                <Download className="w-3.5 h-3.5 text-neutral-400" />
+                <span>{t.manageFeeds.exportConfig}</span>
+              </button>
+
+              <label className={`flex items-center justify-center gap-1.5 px-3 py-2 rounded-xl text-xs font-black uppercase tracking-wider border transition-all cursor-pointer ${
+                theme === 'dark'
+                  ? 'border-neutral-800/80 bg-neutral-950/40 hover:bg-neutral-800 text-neutral-400 hover:text-neutral-200'
+                  : 'border-neutral-200 bg-white hover:bg-neutral-100 text-neutral-500 hover:text-neutral-800'
+              }`}>
+                <FileCode className="w-3.5 h-3.5 text-neutral-400" />
+                <span>{t.manageFeeds.importConfig}</span>
+                <input
+                  type="file"
+                  accept=".json"
+                  onChange={onImportConfig}
+                  className="hidden"
+                />
+              </label>
+            </div>
           </div>
 
         </div>
