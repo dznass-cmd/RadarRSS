@@ -16,6 +16,8 @@
     "publish:win": "npm run build && npm run make-icon && electron-builder --win --publish always",
     "build:linux": "npm run build && npm run make-icon && electron-builder --linux",
     "desktop": "npm run build && electron .",
+    "desktop:tauri": "tauri dev",
+    "build:tauri": "tauri build",
     "clean": "rm -rf dist server.js release",
     "lint": "tsc --noEmit",
     "cap:sync": "npx cap sync android",
@@ -107,6 +109,8 @@
   "devDependencies": {
     "@capacitor/cli": "^8.5.0",
     "@tailwindcss/vite": "^4.1.14",
+    "@tauri-apps/api": "^2.12.4",
+    "@tauri-apps/cli": "^2.12.4",
     "@types/express": "^4.17.21",
     "@types/node": "^22.14.0",
     "@vitejs/plugin-react": "^5.0.4",
