@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { X, Settings, RotateCcw, Volume2, Clock, LayoutGrid, BellRing, Sparkles, AlertTriangle, Send, Info, Sun, Moon, Palette, Globe, CheckCircle2, Eye, EyeOff, Layers, Monitor, Keyboard } from 'lucide-react';
+import { X, Settings, RotateCcw, Volume2, Clock, LayoutGrid, BellRing, Sparkles, AlertTriangle, Send, Info, Sun, Moon, Palette, Globe, CheckCircle2, Eye, EyeOff, Layers, Monitor, Keyboard, BookOpen } from 'lucide-react';
 import { AppSettings, AccentColor, DeduplicationSettings } from '../types';
 import { getTranslation } from '../i18n/translations';
 import {
@@ -351,6 +351,27 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
               <option value={300}>5 min</option>
               <option value={0}>Manual only</option>
             </select>
+          </div>
+
+          {/* Default Reader View Mode */}
+          <div>
+            <label className="block text-xs font-black uppercase tracking-wider mb-2 flex items-center gap-1.5">
+              <BookOpen className="w-4 h-4 text-orange-500" />
+              {t.settings.defaultReaderMode}
+            </label>
+            <select
+              value={settings.defaultReaderMode ?? 'full'}
+              onChange={(e) => onUpdateSettings({ ...settings, defaultReaderMode: e.target.value as any })}
+              className={`w-full px-4 py-3 text-xs font-bold rounded-2xl border outline-none ${
+                settings.theme === 'dark' ? 'bg-neutral-950 border-neutral-800 focus:border-orange-500' : 'bg-neutral-50 border-neutral-200'
+              }`}
+            >
+              <option value="full">{t.settings.readerModeFull}</option>
+              <option value="snippet">{t.settings.readerModeSnippet}</option>
+            </select>
+            <p className="text-[10px] text-neutral-400 mt-1 pl-1 font-mono">
+              {t.settings.defaultReaderModeDesc}
+            </p>
           </div>
 
           {/* Smart Deduplication & News Clustering */}

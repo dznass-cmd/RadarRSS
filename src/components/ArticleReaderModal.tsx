@@ -17,11 +17,16 @@ import {
   ChevronRight,
   ArrowLeft,
   Layers,
+  Newspaper,
+  FileText,
+  RefreshCw,
+  AlertCircle,
 } from 'lucide-react';
-import { NewsItem, NewsStory, AccentColor } from '../types';
+import { NewsItem, NewsStory, AccentColor, ReaderViewMode, ExtractedArticle } from '../types';
 import { getAccent } from '../utils/theme';
 import { SafeImage } from './SafeImage';
 import { summarizeBlockWithAi, translateWithAi, isNativePlatform } from '../services/apiAdapter';
+import { fetchFullArticle } from '../services/readabilityService';
 import { shareArticle } from '../services/shareService';
 import { Language, getTranslation } from '../i18n/translations';
 import { showError } from '../utils/errorHandler';
@@ -35,6 +40,7 @@ interface ArticleReaderModalProps {
   theme: 'dark' | 'light';
   accentColor?: AccentColor;
   language?: Language;
+  defaultReaderMode?: ReaderViewMode;
   onNextArticle?: () => void;
   onPrevArticle?: () => void;
   hasPrev?: boolean;
@@ -49,6 +55,7 @@ export const ArticleReaderModal: React.FC<ArticleReaderModalProps> = ({
   theme,
   accentColor,
   language = 'en',
+  defaultReaderMode = 'full',
   onNextArticle,
   onPrevArticle,
   hasPrev = false,
@@ -71,6 +78,13 @@ export const ArticleReaderModal: React.FC<ArticleReaderModalProps> = ({
   const touchStartYRef = useRef<number>(0);
   const isHorizontalGestureRef = useRef<boolean>(false);
 
+  // Full Article Reader View States
+  const [viewMode, setViewMode] = useState<ReaderViewMode>(defaultReaderMode);
+  const [extractedArticle, setExtractedArticle] = useState<ExtractedArticle | null>(null);
+  const [isExtracting, setIsExtracting] = useState<boolean>(false);
+  const [extractionError, setExtractionError] = useState<string | null>(null);
+  const [scrollProgress, setScrollProgress] = useState<number>(0);
+
   // Focus Reader Mode States
   const [isFocusMode, setIsFocusMode] = useState<boolean>(false);
   const [fontSize, setFontSize] = useState<'sm' | 'base' | 'lg' | 'xl' | '2xl'>('lg');
@@ -84,13 +98,14 @@ export const ArticleReaderModal: React.FC<ArticleReaderModalProps> = ({
     setIsFocusMode(false);
     setSwipeOffsetX(0);
     setIsAnimating(false);
+    setScrollProgress(0);
+    setExtractedArticle(null);
+    setExtractionError(null);
     if ('speechSynthesis' in window) {
       window.speechSynthesis.cancel();
       setIsPlayingTts(false);
     }
   }, [article]);
-
-  if (!article) return null;
 
   // --- Touch & Swipe Gesture Handlers (Left-to-Right & Right-to-Left) ---
   const handleTouchStart = (e: React.TouchEvent) => {
@@ -162,6 +177,58 @@ export const ArticleReaderModal: React.FC<ArticleReaderModalProps> = ({
   const displayPubDate = currentSource ? currentSource.pubDate : article?.pubDate || '';
   const displayImage = currentSource?.imageUrl || article?.imageUrl;
 
+  // Auto-fetch full article when viewMode is 'full'
+  useEffect(() => {
+    if (!displayLink || viewMode !== 'full') return;
+    let isCancelled = false;
+
+    const runExtraction = async () => {
+      setIsExtracting(true);
+      setExtractionError(null);
+      try {
+        const art = await fetchFullArticle(displayLink);
+        if (!isCancelled) {
+          setExtractedArticle(art);
+        }
+      } catch (err: any) {
+        if (!isCancelled) {
+          console.warn('[ArticleReader] Extraction failed:', err?.message);
+          setExtractionError(err?.message || t.reader.extractionFailed);
+        }
+      } finally {
+        if (!isCancelled) {
+          setIsExtracting(false);
+        }
+      }
+    };
+
+    runExtraction();
+
+    return () => {
+      isCancelled = true;
+    };
+  }, [displayLink, viewMode]);
+
+  const handleToggleViewMode = (mode: ReaderViewMode) => {
+    setViewMode(mode);
+    if (mode === 'full' && !extractedArticle && !isExtracting && displayLink) {
+      setIsExtracting(true);
+      setExtractionError(null);
+      fetchFullArticle(displayLink)
+        .then((art) => setExtractedArticle(art))
+        .catch((err) => setExtractionError(err?.message || t.reader.extractionFailed))
+        .finally(() => setIsExtracting(false));
+    }
+  };
+
+  const handleSelectSource = (index: number) => {
+    setActiveSourceIndex(index);
+    setAiSummary(null);
+    setTranslatedText(null);
+    setExtractionError(null);
+    setExtractedArticle(null);
+  };
+
   // Web Speech API Text-to-Speech
   const handleToggleTts = () => {
     if (!('speechSynthesis' in window)) {
@@ -173,7 +240,10 @@ export const ArticleReaderModal: React.FC<ArticleReaderModalProps> = ({
       window.speechSynthesis.cancel();
       setIsPlayingTts(false);
     } else {
-      const textToRead = `${displayTitle}. ${displaySnippet}`;
+      const bodyToRead = (viewMode === 'full' && extractedArticle?.textContent)
+        ? extractedArticle.textContent.slice(0, 4000)
+        : displaySnippet;
+      const textToRead = `${displayTitle}. ${bodyToRead}`;
       const utterance = new SpeechSynthesisUtterance(textToRead);
       utterance.lang = language === 'pt' ? 'pt-BR' : 'en-US';
       utterance.rate = 1.0;
@@ -193,7 +263,12 @@ export const ArticleReaderModal: React.FC<ArticleReaderModalProps> = ({
       setIsGeneratingAi(true);
       const itemsToSummarize = isMultiSource && story?.articles && story.articles.length > 0
         ? story.articles
-        : [article];
+        : [{
+            ...article,
+            contentSnippet: (viewMode === 'full' && extractedArticle?.textContent)
+              ? extractedArticle.textContent.slice(0, 3000)
+              : displaySnippet,
+          }];
       const data = await summarizeBlockWithAi(itemsToSummarize, displayTitle, isMultiSource);
       if (data.success && data.summary) {
         setAiSummary(data.summary);
@@ -211,7 +286,10 @@ export const ArticleReaderModal: React.FC<ArticleReaderModalProps> = ({
   const handleTranslate = async () => {
     try {
       setIsTranslating(true);
-      const data = await translateWithAi(displayTitle, displaySnippet);
+      const textToTranslate = (viewMode === 'full' && extractedArticle?.textContent)
+        ? extractedArticle.textContent.slice(0, 1500)
+        : displaySnippet;
+      const data = await translateWithAi(displayTitle, textToTranslate);
       if (data.success && data.translation) {
         setTranslatedText(data.translation);
       } else {
@@ -270,6 +348,19 @@ export const ArticleReaderModal: React.FC<ArticleReaderModalProps> = ({
     }
   };
 
+  const handleScroll = (e: React.UIEvent<HTMLDivElement>) => {
+    const el = e.currentTarget;
+    const maxScroll = el.scrollHeight - el.clientHeight;
+    if (maxScroll > 0) {
+      const progress = (el.scrollTop / maxScroll) * 100;
+      setScrollProgress(Math.min(100, Math.max(0, progress)));
+    } else {
+      setScrollProgress(0);
+    }
+  };
+
+  if (!article) return null;
+
   return (
     <div
       className="fixed inset-0 z-50 flex items-center justify-center p-2 sm:p-4 bg-black/85 backdrop-blur-md overflow-hidden touch-none"
@@ -308,6 +399,11 @@ export const ArticleReaderModal: React.FC<ArticleReaderModalProps> = ({
           theme === 'dark' ? 'bg-neutral-900 border-neutral-700 text-neutral-100' : 'bg-white border-neutral-300 text-neutral-900'
         }`}
       >
+        {/* Reading Scroll Progress Line */}
+        <div
+          className={`absolute top-0 left-0 h-1 ${acc.bg} transition-all duration-75 z-40`}
+          style={{ width: `${scrollProgress}%` }}
+        />
 
         {/* Top Header Bar */}
         <div className={`p-4 border-b flex items-center justify-between gap-3 shrink-0 ${
@@ -438,7 +534,10 @@ export const ArticleReaderModal: React.FC<ArticleReaderModalProps> = ({
         </div>
 
         {/* Scrollable Article Body with horizontal gesture containment */}
-        <div className={`p-6 sm:p-10 overflow-y-auto space-y-6 flex-1 stories-scroll-container ${isFocusMode ? 'max-w-2xl mx-auto w-full' : ''}`}>
+        <div
+          onScroll={handleScroll}
+          className={`p-6 sm:p-10 overflow-y-auto space-y-6 flex-1 stories-scroll-container ${isFocusMode ? 'max-w-2xl mx-auto w-full' : ''}`}
+        >
 
           {/* Focus Mode Indicator Banner */}
           {isFocusMode && (
@@ -471,7 +570,7 @@ export const ArticleReaderModal: React.FC<ArticleReaderModalProps> = ({
                   return (
                     <button
                       key={`${src.sourceId}-${idx}`}
-                      onClick={() => setActiveSourceIndex(idx)}
+                      onClick={() => handleSelectSource(idx)}
                       className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-all flex items-center gap-1.5 border cursor-pointer ${
                         isActive
                           ? `${acc.bg} text-black border-transparent shadow-sm font-black scale-105`
@@ -593,12 +692,125 @@ export const ArticleReaderModal: React.FC<ArticleReaderModalProps> = ({
             </div>
           )}
 
-          {/* Article Snippet / Description */}
-          <div className={`prose max-w-none ${getFontSizeClass()} ${getFontFamilyClass()} ${
-            theme === 'dark' ? 'prose-invert text-neutral-200' : 'text-neutral-800'
+          {/* Reader View Mode Switcher (Full Article vs RSS Summary) */}
+          <div className={`flex flex-wrap items-center justify-between gap-2 p-1.5 rounded-2xl border ${
+            theme === 'dark' ? 'bg-neutral-950/60 border-neutral-800' : 'bg-neutral-100 border-neutral-200'
           }`}>
-            {displaySnippet}
+            <div className="flex items-center gap-1">
+              <button
+                onClick={() => handleToggleViewMode('full')}
+                className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-bold transition-all cursor-pointer ${
+                  viewMode === 'full'
+                    ? `${acc.bg} text-black font-black shadow-sm`
+                    : theme === 'dark'
+                      ? 'text-neutral-400 hover:text-white'
+                      : 'text-neutral-600 hover:text-black'
+                }`}
+              >
+                <Newspaper className="w-3.5 h-3.5" />
+                <span>{t.reader.fullArticle}</span>
+                {isExtracting && <RefreshCw className="w-3 h-3 animate-spin ml-1" />}
+              </button>
+
+              <button
+                onClick={() => handleToggleViewMode('snippet')}
+                className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-bold transition-all cursor-pointer ${
+                  viewMode === 'snippet'
+                    ? `${acc.bg} text-black font-black shadow-sm`
+                    : theme === 'dark'
+                      ? 'text-neutral-400 hover:text-white'
+                      : 'text-neutral-600 hover:text-black'
+                }`}
+              >
+                <FileText className="w-3.5 h-3.5" />
+                <span>{t.reader.rssSnippet}</span>
+              </button>
+            </div>
+
+            {viewMode === 'full' && extractedArticle && !isExtracting && (
+              <div className="flex items-center gap-2 text-[10px] font-mono text-neutral-400 px-2 hidden sm:flex">
+                <span className="flex items-center gap-1">
+                  <Clock className="w-3 h-3 text-neutral-500" />
+                  {t.reader.readingTime.replace('{min}', String(extractedArticle.readingTimeMinutes))}
+                </span>
+                <span>•</span>
+                <span>{t.reader.wordsCount.replace('{count}', String(extractedArticle.wordCount))}</span>
+              </div>
+            )}
           </div>
+
+          {/* Body Content Area */}
+          {viewMode === 'full' ? (
+            <div className="space-y-4">
+              {/* Extraction Loading Skeleton */}
+              {isExtracting && (
+                <div className="space-y-4 py-3 animate-pulse">
+                  <div className="flex items-center gap-2 text-xs font-mono text-amber-400/90 bg-amber-500/10 border border-amber-500/20 px-3 py-2 rounded-xl">
+                    <RefreshCw className="w-4 h-4 animate-spin text-amber-400 shrink-0" />
+                    <span>{t.reader.loadingArticle}</span>
+                    <span className="text-[10px] text-neutral-400 ml-auto hidden sm:inline">{t.reader.cleanArticleDesc}</span>
+                  </div>
+                  <div className={`h-4 rounded-lg w-full ${theme === 'dark' ? 'bg-neutral-800' : 'bg-neutral-200'}`} />
+                  <div className={`h-4 rounded-lg w-11/12 ${theme === 'dark' ? 'bg-neutral-800' : 'bg-neutral-200'}`} />
+                  <div className={`h-4 rounded-lg w-4/5 ${theme === 'dark' ? 'bg-neutral-800' : 'bg-neutral-200'}`} />
+                  <div className={`h-4 rounded-lg w-full mt-4 ${theme === 'dark' ? 'bg-neutral-800' : 'bg-neutral-200'}`} />
+                  <div className={`h-4 rounded-lg w-10/12 ${theme === 'dark' ? 'bg-neutral-800' : 'bg-neutral-200'}`} />
+                  <div className={`h-4 rounded-lg w-3/4 ${theme === 'dark' ? 'bg-neutral-800' : 'bg-neutral-200'}`} />
+                </div>
+              )}
+
+              {/* Extraction Error Notice with Snippet Fallback */}
+              {!isExtracting && extractionError && (
+                <div className="p-4 rounded-2xl border border-amber-500/30 bg-amber-500/10 text-neutral-200 space-y-3">
+                  <div className="flex items-start gap-2.5">
+                    <AlertCircle className="w-5 h-5 text-amber-400 shrink-0 mt-0.5" />
+                    <div className="text-xs space-y-1">
+                      <p className="font-bold text-amber-300">{t.reader.extractionFailed}</p>
+                      <p className="text-neutral-300 leading-relaxed text-[11px]">{t.reader.extractionFailedDesc}</p>
+                    </div>
+                  </div>
+                  <div className="flex flex-wrap items-center gap-2 pt-1">
+                    <button
+                      onClick={() => displayLink && handleToggleViewMode('full')}
+                      className={`px-3 py-1.5 rounded-xl text-xs font-bold ${acc.bg} text-black hover:opacity-90 transition-opacity flex items-center gap-1.5 cursor-pointer`}
+                    >
+                      <RefreshCw className="w-3.5 h-3.5" />
+                      <span>{t.reader.retry}</span>
+                    </button>
+                    <button
+                      onClick={() => setViewMode('snippet')}
+                      className="px-3 py-1.5 rounded-xl text-xs font-bold border border-neutral-700 bg-neutral-800 hover:bg-neutral-700 text-neutral-200 transition-colors cursor-pointer"
+                    >
+                      {t.reader.rssSnippet}
+                    </button>
+                  </div>
+                  {/* Fallback to snippet below notice */}
+                  <div className={`pt-3 border-t border-neutral-700/50 prose max-w-none ${getFontSizeClass()} ${getFontFamilyClass()} ${
+                    theme === 'dark' ? 'prose-invert text-neutral-200' : 'text-neutral-800'
+                  }`}>
+                    {displaySnippet}
+                  </div>
+                </div>
+              )}
+
+              {/* Clean Extracted Full Article Body */}
+              {!isExtracting && !extractionError && extractedArticle && (
+                <div
+                  className={`prose max-w-none ${getFontSizeClass()} ${getFontFamilyClass()} ${
+                    theme === 'dark' ? 'prose-invert text-neutral-200' : 'text-neutral-800'
+                  } prose-p:my-4 prose-p:leading-relaxed prose-headings:font-black prose-headings:my-4 prose-a:text-amber-400 prose-a:underline hover:prose-a:text-amber-300 prose-img:rounded-2xl prose-img:shadow-xl prose-img:my-6 prose-img:max-h-[520px] prose-img:object-cover prose-img:mx-auto prose-blockquote:border-l-4 prose-blockquote:border-amber-400 prose-blockquote:pl-4 prose-blockquote:italic prose-blockquote:my-4 prose-hr:border-neutral-800`}
+                  dangerouslySetInnerHTML={{ __html: extractedArticle.contentHtml }}
+                />
+              )}
+            </div>
+          ) : (
+            /* Standard RSS Snippet / Description View */
+            <div className={`prose max-w-none ${getFontSizeClass()} ${getFontFamilyClass()} ${
+              theme === 'dark' ? 'prose-invert text-neutral-200' : 'text-neutral-800'
+            }`}>
+              {displaySnippet}
+            </div>
+          )}
 
           {/* Swipe Navigation Hint */}
           <div className="pt-2 text-center text-[10px] font-mono text-neutral-500 select-none">
