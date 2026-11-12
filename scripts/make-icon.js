@@ -258,7 +258,16 @@ function generatePureNode() {
   console.log(`✓ Generated multi-resolution build/icon.ico (${SIZES.join(', ')}) and build/icon.png via pure Node.js`);
 }
 
-if (!tryGenerateWithPowerShell()) {
+if (existsSync(publicIconPath)) {
+  copyFileSync(publicIconPath, outPngPath);
+  const tauriIco = join(rootDir, 'src-tauri', 'icons', 'icon.ico');
+  if (existsSync(tauriIco)) {
+    copyFileSync(tauriIco, outIcoPath);
+    console.log('✓ Synchronized Radar RSS icon from public/icon.png and src-tauri/icons/icon.ico');
+  } else if (!tryGenerateWithPowerShell()) {
+    generatePureNode();
+  }
+} else if (!tryGenerateWithPowerShell()) {
   generatePureNode();
   // Keep the original application artwork for Linux packaging and runtime icons.
   if (existsSync(publicIconPath)) copyFileSync(publicIconPath, outPngPath);
