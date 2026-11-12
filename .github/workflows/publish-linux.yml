@@ -43,8 +43,8 @@ jobs:
           set -euo pipefail
           tag="v$(node -p "require('./package.json').version")"
           if gh release view "$tag" >/dev/null 2>&1; then
-            echo "Release $tag already exists; refusing to replace it."
-            exit 1
+            echo "Release $tag already exists; skipping publish."
+            exit 0
           fi
           cat > /tmp/linux-release-notes.md <<'NOTES'
           ## Radar RSS para Linux
