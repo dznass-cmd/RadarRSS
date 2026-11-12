@@ -1,17 +1,17 @@
 [package]
-name = "app"
+name = "radar-rss"
 version = "0.2.0"
-description = "A Tauri App"
-authors = ["you"]
-license = ""
-repository = ""
+description = "Radar RSS Desktop"
+authors = ["Dzerivado"]
+license = "MIT"
+repository = "https://github.com/dznass-cmd/RadarRSS"
 edition = "2024"
 rust-version = "1.90"
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [lib]
-name = "app_lib"
+name = "radar_rss_lib"
 crate-type = ["staticlib", "cdylib", "rlib"]
 
 [build-dependencies]

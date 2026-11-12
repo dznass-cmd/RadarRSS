@@ -8,6 +8,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [0.2.0] - 2026-11-11
 
 ### 🚀 Highlights & Major Features
+- **📖 Full Article Reader View (Modo Leitura Completa):**
+  - Distraction-free article reader powered by **Mozilla Readability** and **DOMPurify** sanitization, scraping destination news pages on demand without paywall banners, ads, cookie popups, or tracking scripts.
+  - Dynamic scroll progress bar tracking reading completion in real-time.
+  - Reading metadata badge showing estimated reading time (e.g. `⏱️ 3 min de leitura`) and word count.
+  - Seamless one-click toggling between Full Article View and RSS Feed Summary.
+  - Deep synergy with Web Speech Text-to-Speech (TTS) and Google Gemini AI Executive Summarization to analyze the entire article body.
 - **📥 Universal OPML 2.0 Feed Import & Export:**
   - Full compatibility with the universal RSS subscription standard (`.opml` / `.xml`), enabling seamless migration to and from **Feedly**, **Inoreader**, **NetNewsWire**, **Pocket**, and **Google Reader** archives.
   - **Hierarchical Category Folders:** Automatically groups feeds into topic folders (`Technology`, `Brazil News`, `Finance & Markets`, `Sports`, `Entertainment & Gaming`, etc.) on export and reconstructs them during import.
@@ -21,6 +27,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - **Instant Startup:** Cold launch time reduced to **< 50ms**.
   - **80% Fewer OS Processes:** Runs with only 2 processes (native Rust runtime + system WebKitGTK / WebView2) vs 10 child processes in Electron.
   - New developer scripts: `npm run desktop:tauri` and `npm run build:tauri`.
+- **🎨 Authentic Brand Icon Standardization:**
+  - Renamed Tauri binary and crate to `radar-rss` and fixed GNOME Linux desktop integration with dedicated `.desktop` launcher and hicolor theme icon registrations.
+  - Synchronized high-resolution concentric radar icon across all platforms (`public/icon.png`, `build/icon.ico`, `src-tauri/icons/`).
 - **🧪 Comprehensive Automated Testing & Visual Verification Suite:**
   - Automated unit test suite via `npm test` verifying clustering algorithms and OPML roundtrips with **100% pass rate (29/29 tests)**.
   - Headless Electron visual test script (`scripts/test-visual-opml.cjs`) capturing end-to-end screenshots and verifying UI state transitions.
