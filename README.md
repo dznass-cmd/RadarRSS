@@ -7,6 +7,8 @@
 [![React](https://img.shields.io/badge/React-19-61DAFB?logo=react&logoColor=black&style=flat-square)](https://react.dev)
 [![TypeScript](https://img.shields.io/badge/TypeScript-5.8-3178C6?logo=typescript&logoColor=white&style=flat-square)](https://www.typescriptlang.org)
 [![Electron](https://img.shields.io/badge/Electron-Desktop-47848F?logo=electron&logoColor=white&style=flat-square)](https://www.electronjs.org)
+[![Linux](https://img.shields.io/badge/Linux-AppImage%20%7C%20Deb-FCC624?logo=linux&logoColor=black&style=flat-square)](https://github.com/dznass-cmd/RadarRSS/releases)
+[![Rust](https://img.shields.io/badge/Rust-Tauri%202.0-DEA584?logo=rust&logoColor=black&style=flat-square)](https://github.com/dznass-cmd/RadarRSS/releases)
 [![Android](https://img.shields.io/badge/Android-APK%20Native-3DDC84?logo=android&logoColor=white&style=flat-square)](https://github.com/dznass-cmd/RadarRSS/releases)
 [![Gemini](https://img.shields.io/badge/Google%20Gemini-AI%20Powered-8E75B2?logo=google&logoColor=white&style=flat-square)](https://ai.google.dev)
 [![Tailwind CSS](https://img.shields.io/badge/Tailwind-CSS%20v4-38B2AC?logo=tailwind-css&logoColor=white&style=flat-square)](https://tailwindcss.com)
@@ -19,7 +21,7 @@
 
 <br />
 
-[📥 Download App](#-download--installation-windows--android) • [✨ Key Features](#-key-features) • [🚀 Getting Started](#-getting-started-locally) • [🤖 AI Configuration](#-ai-configuration-google-gemini) • [🔄 Auto-Updates](#-automatic-updates)
+[📥 Download App](#-download--installation-windows-linux--android) • [✨ Key Features](#-key-features) • [🚀 Getting Started](#-getting-started-locally) • [🤖 AI Configuration](#-ai-configuration-google-gemini) • [🔄 Auto-Updates](#-automatic-updates)
 
 <br /><br />
 
@@ -69,31 +71,39 @@ Powered by **Google Gemini Artificial Intelligence**, Radar RSS synthesizes exec
 
 ---
 
-## 📥 Download & Installation (Windows & Android)
+## 📥 Download & Installation (Windows, Linux & Android)
 
 You can download pre-compiled releases directly from the [GitHub Releases](https://github.com/dznass-cmd/RadarRSS/releases) page:
 
 | Platform | Version | Description | Download Link |
 |---|---|---|:---:|
+| 🐧 Linux | 📦 **AppImage Universal** | Standalone portable executable. Works across all Linux distributions | [Download AppImage (.AppImage)](https://github.com/dznass-cmd/RadarRSS/releases/latest) |
+| 🐧 Linux | 📦 **Debian / Ubuntu Package** | Native package for Debian, Ubuntu, Linux Mint and Pop!_OS | [Download Deb (.deb)](https://github.com/dznass-cmd/RadarRSS/releases/latest) |
+| 🦀 Linux | ⚡ **Rust / Tauri Edition** | Ultra-lightweight native release binary (6.8 MB, 50% less RAM) | [Download Rust Binary (.tar.gz)](https://github.com/dznass-cmd/RadarRSS/releases/latest) |
 | 🪟 Windows | 💿 **Official Installer** | Recommended. Installs shortcuts and **receives silent auto-updates** | [Download Setup (.exe)](https://github.com/dznass-cmd/RadarRSS/releases/latest) |
 | 🪟 Windows | 💼 **Portable Edition** | Standalone single executable. Runs instantly without installation | [Download Portable (.exe)](https://github.com/dznass-cmd/RadarRSS/releases/latest) |
 | 📱 Android | 📦 **Native APK** | Signed native mobile app for Android smartphones and tablets | [Download APK (.apk)](https://github.com/dznass-cmd/RadarRSS/releases/latest) |
 
-### Linux (x64)
+### Linux Details (x64)
 
-The **Linux Desktop** workflow builds the packages below as GitHub Actions artifacts for pull requests and manual runs. After Linux support is merged, pushing a `vX.Y.Z` tag also uploads them to GitHub Releases.
+Official Linux releases are published in [GitHub Releases](https://github.com/dznass-cmd/RadarRSS/releases):
 
-- **AppImage:** download `radar-rss-X.Y.Z-x64.AppImage` and run:
+- **AppImage:** download `radar-rss-0.2.0-x86_64.AppImage`, make it executable and run:
   ```bash
-  chmod +x radar-rss-X.Y.Z-x64.AppImage
-  ./radar-rss-X.Y.Z-x64.AppImage
+  chmod +x radar-rss-0.2.0-x86_64.AppImage
+  ./radar-rss-0.2.0-x86_64.AppImage
   ```
   If FUSE is missing, install `libfuse2` on Ubuntu 22.04 (`libfuse2t64` on Ubuntu 24.04), or launch with `--appimage-extract-and-run`.
-- **Debian / Ubuntu:** install `radar-rss-X.Y.Z-amd64.deb`:
+- **Debian / Ubuntu:** install `radar-rss-0.2.0-amd64.deb`:
   ```bash
-  sudo apt install ./radar-rss-X.Y.Z-amd64.deb
+  sudo apt install ./radar-rss-0.2.0-amd64.deb
   ```
-  Launch **Radar RSS** from the application menu.
+  Launch **Radar RSS** from your desktop application launcher or terminal.
+- **Rust / Tauri Native Binary:** unpack `radar-rss-v0.2.0-linux-x86_64.tar.gz` and run:
+  ```bash
+  tar -xzf radar-rss-v0.2.0-linux-x86_64.tar.gz
+  ./radar-rss
+  ```
 
 AppImage supports automatic updates when stored in a writable directory. For `.deb`, checking for updates opens the releases page so you can install the new package.
 
