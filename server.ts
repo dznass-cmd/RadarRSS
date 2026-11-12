@@ -2,6 +2,9 @@ import express, { Request, Response } from 'express';
 import path from 'path';
 import Parser from 'rss-parser';
 import { GoogleGenAI } from '@google/genai';
+import { Readability } from '@mozilla/readability';
+import { parseHTML } from 'linkedom';
+import DOMPurify from 'dompurify';
 
 const app = express();
 const PORT = process.env.PORT ? Number(process.env.PORT) : 3000;
@@ -44,6 +47,14 @@ interface CacheEntry {
 }
 const feedCache = new Map<string, CacheEntry>();
 const CACHE_TTL_MS = 60 * 1000;
+
+// Cache map for extracted full articles (2 hours TTL)
+interface ArticleCacheEntry {
+  timestamp: number;
+  data: any;
+}
+const articleExtractCache = new Map<string, ArticleCacheEntry>();
+const ARTICLE_CACHE_TTL_MS = 2 * 60 * 60 * 1000;
 
 // Utility to decode HTML entities
 function decodeHtmlEntities(str: string): string {
@@ -288,6 +299,139 @@ app.post('/api/rss/validate', async (req: Request, res: Response) => {
     });
   } catch (err: any) {
     res.status(400).json({ success: false, error: `Não foi possível carregar o feed RSS: ${err.message}` });
+  }
+});
+
+// 2.5. Extract Full Clean Article (Reader Mode)
+app.get('/api/article/extract', async (req: Request, res: Response) => {
+  try {
+    const targetUrl = req.query.url as string;
+    if (!targetUrl || !/^https?:\/\//i.test(targetUrl)) {
+      return res.status(400).json({ success: false, error: 'URL válida é obrigatória' });
+    }
+
+    // 1. Check cache
+    const cached = articleExtractCache.get(targetUrl);
+    if (cached && Date.now() - cached.timestamp < ARTICLE_CACHE_TTL_MS) {
+      return res.json({ success: true, article: cached.data });
+    }
+
+    // 2. Fetch page HTML
+    const response = await fetch(targetUrl, {
+      headers: {
+        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36',
+        'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,*/*;q=0.8',
+        'Accept-Language': 'pt-BR,pt;q=0.9,en-US;q=0.8,en;q=0.7',
+      },
+      signal: AbortSignal.timeout(10000),
+      redirect: 'follow',
+    });
+
+    if (!response.ok) {
+      return res.status(422).json({
+        success: false,
+        error: `Servidor remoto respondeu com status ${response.status}`,
+      });
+    }
+
+    const html = await response.text();
+    if (!html || html.length < 100) {
+      return res.status(422).json({
+        success: false,
+        error: 'Página HTML vazia ou muito curta para extração',
+      });
+    }
+
+    // 3. Parse HTML DOM
+    const { document, window } = parseHTML(html);
+
+    // Lead image extraction from metadata if available
+    let leadImageUrl: string | undefined;
+    const ogImg = document.querySelector('meta[property="og:image"], meta[name="twitter:image"], meta[name="image"]');
+    if (ogImg) {
+      const src = ogImg.getAttribute('content');
+      if (src && (src.startsWith('http') || src.startsWith('//'))) {
+        leadImageUrl = src.startsWith('//') ? `https:${src}` : src;
+      }
+    }
+
+    // 4. Run Readability
+    const reader = new Readability(document as any, {
+      charThreshold: 80,
+    });
+    const parsed = reader.parse();
+
+    if (!parsed || !parsed.textContent || parsed.textContent.trim().length < 80) {
+      return res.status(422).json({
+        success: false,
+        error: 'Não foi possível isolar o corpo do artigo na página selecionada',
+      });
+    }
+
+    // 5. Sanitize HTML and fix relative URLs
+    const purify = DOMPurify(window);
+    const sanitizedHtml = purify.sanitize(parsed.content, {
+      ALLOWED_TAGS: [
+        'div', 'p', 'span', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6',
+        'ul', 'ol', 'li', 'blockquote', 'strong', 'b', 'em', 'i',
+        'u', 'a', 'img', 'figure', 'figcaption', 'code', 'pre', 'hr',
+        'table', 'thead', 'tbody', 'tr', 'th', 'td', 'time'
+      ],
+      ALLOWED_ATTR: ['src', 'href', 'alt', 'title', 'target', 'rel', 'class', 'id', 'loading', 'datetime'],
+    });
+
+    // Make relative src and href absolute
+    const { document: cleanDoc } = parseHTML(`<div>${sanitizedHtml}</div>`);
+    const imgs = cleanDoc.querySelectorAll('img');
+    for (const img of imgs) {
+      const src = img.getAttribute('src');
+      if (src && !src.startsWith('data:') && !src.startsWith('http://') && !src.startsWith('https://')) {
+        try {
+          img.setAttribute('src', new URL(src, targetUrl).toString());
+        } catch {}
+      }
+      img.setAttribute('loading', 'lazy');
+    }
+
+    const anchors = cleanDoc.querySelectorAll('a');
+    for (const a of anchors) {
+      const href = a.getAttribute('href');
+      if (href && !href.startsWith('http://') && !href.startsWith('https://') && !href.startsWith('#')) {
+        try {
+          a.setAttribute('href', new URL(href, targetUrl).toString());
+        } catch {}
+      }
+      a.setAttribute('target', '_blank');
+      a.setAttribute('rel', 'noopener noreferrer');
+    }
+
+    const finalHtml = cleanDoc.querySelector('div')?.innerHTML || sanitizedHtml;
+
+    // Word count & reading time
+    const textContent = parsed.textContent.trim();
+    const wordCount = textContent ? textContent.split(/\s+/).length : 0;
+    const readingTimeMinutes = Math.max(1, Math.ceil(wordCount / 200));
+
+    const extractedArticle = {
+      title: parsed.title || document.querySelector('title')?.textContent || 'Artigo',
+      byline: parsed.byline || undefined,
+      siteName: parsed.siteName || new URL(targetUrl).hostname.replace('www.', ''),
+      excerpt: parsed.excerpt || textContent.slice(0, 200) + '...',
+      contentHtml: finalHtml,
+      textContent,
+      length: textContent.length,
+      wordCount,
+      readingTimeMinutes,
+      leadImageUrl: leadImageUrl || undefined,
+      url: targetUrl,
+      extractedAt: Date.now(),
+    };
+
+    articleExtractCache.set(targetUrl, { timestamp: Date.now(), data: extractedArticle });
+    res.json({ success: true, article: extractedArticle });
+  } catch (err: any) {
+    console.warn('[Article Extractor Error]:', err?.message);
+    res.status(500).json({ success: false, error: err?.message || 'Erro ao extrair artigo' });
   }
 });
 

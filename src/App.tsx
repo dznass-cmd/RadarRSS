@@ -1314,6 +1314,7 @@ export default function App() {
         theme={settings.theme}
         accentColor={settings.accentColor}
         language={settings.language}
+        defaultReaderMode={settings.defaultReaderMode || 'full'}
         onNextArticle={handleNextArticle}
         onPrevArticle={handlePrevArticle}
         hasNext={currentArticleIndex >= 0 && currentArticleIndex < allNewsItems.length - 1}

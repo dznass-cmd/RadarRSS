@@ -75,6 +75,23 @@ export interface NewsStory extends NewsItem {
 
 export type ClusteringStrategy = 'balanced' | 'conservative' | 'aggressive';
 
+export type ReaderViewMode = 'full' | 'snippet';
+
+export interface ExtractedArticle {
+  title: string;
+  byline?: string;
+  siteName?: string;
+  excerpt?: string;
+  contentHtml: string;
+  textContent: string;
+  length: number;
+  wordCount: number;
+  readingTimeMinutes: number;
+  leadImageUrl?: string;
+  url: string;
+  extractedAt: number;
+}
+
 export interface DeduplicationSettings {
   enabled: boolean;
   similarityThreshold: number; // 0.0 to 1.0 (e.g. 0.62)
@@ -93,6 +110,7 @@ export interface AppSettings {
   breakingKeywords: string[];
   layoutCols: number; // 1, 2, 3
   geminiApiKey?: string;
+  defaultReaderMode?: ReaderViewMode;
   deduplication?: DeduplicationSettings;
   minimizeToTray?: boolean;
   launchOnStartup?: boolean;
