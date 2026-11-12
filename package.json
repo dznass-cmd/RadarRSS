@@ -14,7 +14,6 @@
     "make-icon": "node scripts/make-icon.js",
     "build:win": "npm run build && npm run make-icon && electron-builder --win",
     "publish:win": "npm run build && npm run make-icon && electron-builder --win --publish always",
-    "build:linux": "npm run build && npm run make-icon && electron-builder --linux",
     "desktop": "npm run build && electron .",
     "desktop:tauri": "tauri dev",
     "build:tauri": "tauri build",
@@ -47,14 +46,6 @@
         "nsis",
         "portable"
       ]
-    },
-    "linux": {
-      "icon": "build/icon.png",
-      "target": [
-        "AppImage",
-        "deb"
-      ],
-      "category": "News"
     },
     "nsis": {
       "oneClick": false,
