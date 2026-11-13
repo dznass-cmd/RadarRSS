@@ -89,11 +89,11 @@ export default function App() {
   const [settings, setSettings] = useState<AppSettings>(() => {
     const saved = localStorage.getItem(STORAGE_KEYS.SETTINGS);
     const parsed = saved ? JSON.parse(saved) : null;
-    const defaultLang = typeof navigator !== 'undefined' && navigator.language && navigator.language.toLowerCase().startsWith('pt')
-      ? 'pt'
-      : 'en';
+    const isPtSystem = typeof navigator !== 'undefined' && navigator.language && navigator.language.toLowerCase().startsWith('pt');
+    const defaultLang = isPtSystem ? 'pt' : 'en';
+    // If the system is PT and user hasn't explicitly selected another language, use pt
+    const effectiveLang = (parsed?.languageExplicitlySet) ? parsed.language : (isPtSystem ? 'pt' : (parsed?.language || defaultLang));
     return {
-      language: defaultLang,
       theme: 'dark',
       globalRefreshSec: 60,
       soundAlerts: true,
@@ -108,6 +108,7 @@ export default function App() {
         strategy: 'balanced',
       },
       ...parsed,
+      language: effectiveLang,
     };
   });
 
@@ -1139,7 +1140,7 @@ export default function App() {
       )}
 
       {/* Main Content Dashboard */}
-      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 space-y-6">
+      <main className="max-w-[1680px] w-full mx-auto px-4 sm:px-6 lg:px-8 py-6 space-y-6">
 
         {/* Archive View Header Banner */}
         {showArchiveOnly && (

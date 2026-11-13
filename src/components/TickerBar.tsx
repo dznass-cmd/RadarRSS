@@ -46,24 +46,28 @@ export const TickerBar: React.FC<TickerBarProps> = ({ items, onSelectArticle, th
   }, [isPaused, isHovered, breakingItems.length]);
 
   return (
-    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-4">
-      <div className={`w-full overflow-hidden text-xs py-2.5 px-4 rounded-2xl border transition-all shadow-md flex items-center gap-3 ${
+    <div className="max-w-[1680px] w-full mx-auto px-4 sm:px-6 lg:px-8 pt-4">
+      <div className={`w-full overflow-hidden text-xs py-2 px-4 rounded-2xl border transition-all shadow-md flex items-center gap-3 ${
         theme === 'dark'
           ? 'bg-gradient-to-r from-amber-950/40 via-[#19150d] to-amber-950/40 border-amber-500/40 text-neutral-200'
           : 'bg-amber-50 border-amber-300 text-amber-950'
       }`}>
         
-        {/* Left Label Prefix */}
-        <div className="flex items-center gap-1.5 shrink-0 text-amber-400 font-extrabold tracking-wider uppercase text-xs">
+        {/* Left Label Prefix with border separator */}
+        <div className="flex items-center gap-1.5 shrink-0 text-amber-400 font-extrabold tracking-wider uppercase text-xs pr-3 border-r border-amber-500/30 z-10 select-none">
           <span className="text-amber-400 font-black">{t.ticker.breaking}</span>
         </div>
 
-        {/* Horizontal Scrolling Headlines with auto-scroll */}
+        {/* Horizontal Scrolling Headlines with soft gradient edge mask */}
         <div
           ref={scrollRef}
           onMouseEnter={() => setIsHovered(true)}
           onMouseLeave={() => setIsHovered(false)}
-          className="flex-1 overflow-x-auto no-scrollbar stories-scroll-container whitespace-nowrap flex items-center gap-5 py-0.5"
+          className="flex-1 overflow-x-auto no-scrollbar stories-scroll-container whitespace-nowrap flex items-center gap-5 py-0.5 px-3"
+          style={{
+            maskImage: 'linear-gradient(to right, transparent 0%, black 20px, black calc(100% - 20px), transparent 100%)',
+            WebkitMaskImage: 'linear-gradient(to right, transparent 0%, black 20px, black calc(100% - 20px), transparent 100%)',
+          }}
         >
           {doubledItems.map((item, idx) => (
             <button
