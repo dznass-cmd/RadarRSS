@@ -31,8 +31,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - Renamed Tauri binary and crate to `radar-rss` and fixed GNOME Linux desktop integration with dedicated `.desktop` launcher and hicolor theme icon registrations.
   - Synchronized high-resolution concentric radar icon across all platforms (`public/icon.png`, `build/icon.ico`, `src-tauri/icons/`).
 - **🧪 Comprehensive Automated Testing & Visual Verification Suite:**
-  - Automated unit test suite via `npm test` verifying clustering algorithms and OPML roundtrips with **100% pass rate (29/29 tests)**.
+  - Automated unit test suite via `npm test` verifying clustering algorithms, OPML roundtrips, and full article readability extraction with **100% pass rate (35/35 tests)**.
   - Headless Electron visual test script (`scripts/test-visual-opml.cjs`) capturing end-to-end screenshots and verifying UI state transitions.
+- **📦 Pre-Compiled Multi-Platform Executables:**
+  - Official distribution on GitHub Releases v0.2.0: Windows Setup Installer and Portable editions (`.exe`), Linux universal AppImage (`.AppImage`), Debian/Ubuntu native package (`.deb`), and standalone Rust binary (`.tar.gz`).
 - **🌐 Network & Localization Improvements:**
   - Permissive CORS middleware in Express server (`server.ts`) for cross-origin local and Electron development.
   - Automatic language detection on first launch via `navigator.language` (defaulting to Brazilian Portuguese for `pt` locales).
