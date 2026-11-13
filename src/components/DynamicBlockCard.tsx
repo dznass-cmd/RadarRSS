@@ -549,9 +549,9 @@ export const DynamicBlockCard: React.FC<DynamicBlockCardProps> = ({
                   );
                 })()}
 
-                {/* Secondary List Column */}
+                {/* Secondary List Column (Top 4 Stories) */}
                 <div className="md:col-span-5 flex flex-col gap-2.5 justify-between">
-                  {displayItems.slice(1).map((item) => {
+                  {displayItems.slice(1, 5).map((item) => {
                     const source = getSourceBadge(item.sourceName);
                     return (
                       <div
@@ -597,6 +597,72 @@ export const DynamicBlockCard: React.FC<DynamicBlockCardProps> = ({
                         </div>
                         {item.imageUrl && (
                           <div className="w-14 h-14 rounded-xl overflow-hidden shrink-0 bg-neutral-950 border border-neutral-800/40">
+                            <SafeImage
+                              src={item.imageUrl}
+                              alt={item.title}
+                              fallbackType="square"
+                              className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                              sourceName={item.sourceName}
+                            />
+                          </div>
+                        )}
+                      </div>
+                    );
+                  })}
+                </div>
+              </div>
+            )}
+
+            {/* Additional Stories Grid for Hero Layout when more than 5 items exist */}
+            {block.layout === 'hero' && displayItems.length > 5 && (
+              <div className={`mt-4 pt-4 border-t ${theme === 'dark' ? 'border-neutral-800/60' : 'border-neutral-200'}`}>
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3">
+                  {displayItems.slice(5).map((item) => {
+                    const source = getSourceBadge(item.sourceName);
+                    return (
+                      <div
+                        key={item.id}
+                        onClick={() => onSelectArticle(item)}
+                        className={`p-3 rounded-2xl border transition-all cursor-pointer group flex items-center justify-between gap-3 ${
+                          theme === 'dark'
+                            ? 'bg-[#131520]/80 border-neutral-800/80 hover:border-amber-500/60 hover:shadow-md'
+                            : 'bg-neutral-50 border-neutral-200 hover:border-amber-500/60'
+                        }`}
+                      >
+                        <div className="flex-1 min-w-0">
+                          <div className="flex items-start justify-between gap-2 mb-1">
+                            <div className="flex items-center gap-1.5">
+                              <span className={`w-3 h-3 rounded-full ${source.bg} flex items-center justify-center text-[7px] font-black text-white`}>
+                                {source.name.charAt(0)}
+                              </span>
+                              <span className={`text-[10px] font-bold uppercase tracking-wider ${
+                                theme === 'dark'
+                                  ? 'text-neutral-300 group-hover:text-amber-400'
+                                  : 'text-neutral-600 group-hover:text-amber-600'
+                              }`}>
+                                {source.name}
+                              </span>
+                              {(item as NewsStory).isCluster && (item as NewsStory).sourcesCount > 1 && (
+                                <span className="inline-flex items-center gap-0.5 text-[8px] font-mono font-bold px-1.5 py-0.2 rounded bg-amber-500/20 text-amber-400 border border-amber-500/30">
+                                  <Layers className="w-2.5 h-2.5" />
+                                  {(item as NewsStory).sourcesCount} {t.block.sources}
+                                </span>
+                              )}
+                            </div>
+                            <span className="text-[10px] font-mono text-neutral-400">
+                              {getRelativeTime(item.timestamp)}
+                            </span>
+                          </div>
+                          <h4 className={`font-bold text-xs leading-snug line-clamp-2 ${
+                            theme === 'dark'
+                              ? 'text-neutral-100 group-hover:text-amber-400'
+                              : 'text-neutral-900 group-hover:text-amber-600'
+                          }`}>
+                            {item.title}
+                          </h4>
+                        </div>
+                        {item.imageUrl && (
+                          <div className="w-12 h-12 rounded-xl overflow-hidden shrink-0 bg-neutral-950 border border-neutral-800/40">
                             <SafeImage
                               src={item.imageUrl}
                               alt={item.title}
