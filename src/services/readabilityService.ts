@@ -1,5 +1,6 @@
 import { Readability } from '@mozilla/readability';
 import DOMPurify from 'dompurify';
+import { getApiBaseUrl } from './apiAdapter';
 import { Capacitor, CapacitorHttp } from '@capacitor/core';
 import { ExtractedArticle } from '../types';
 
@@ -148,7 +149,8 @@ export async function fetchFullArticle(url: string): Promise<ExtractedArticle> {
 
   // 2. Try server-side extraction endpoint first
   try {
-    const endpoint = `/api/article/extract?url=${encodeURIComponent(url)}`;
+    const apiBase = getApiBaseUrl();
+    const endpoint = `${apiBase}/api/article/extract?url=${encodeURIComponent(url)}`;
     const resp = await fetch(endpoint, {
       signal: AbortSignal.timeout(12000),
     });

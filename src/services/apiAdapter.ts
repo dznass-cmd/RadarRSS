@@ -5,6 +5,20 @@ export const isNativePlatform = (): boolean => {
   return Capacitor.isNativePlatform();
 };
 
+export const getApiBaseUrl = (): string => {
+  if (typeof window !== 'undefined') {
+    if (
+      window.location.protocol === 'tauri:' ||
+      window.location.origin.includes('tauri.localhost') ||
+      Boolean((window as any).__TAURI_INTERNALS__) ||
+      Boolean((window as any).__TAURI__)
+    ) {
+      return 'http://127.0.0.1:3000';
+    }
+  }
+  return '';
+};
+
 // Client-side image extractor from XML / HTML
 function extractImageFromXmlItem(itemXml: Element, defaultBaseUrl?: string): string | undefined {
   // 1. Check enclosure (RSS 2.0)
@@ -203,7 +217,8 @@ export async function fetchRssFeeds(urls: string[]): Promise<{ success: boolean;
   }
 
   // On Desktop / Web, use local Express server
-  const res = await fetch(`/api/rss?urls=${encodeURIComponent(urls.join(','))}`);
+  const apiBase = getApiBaseUrl();
+  const res = await fetch(`${apiBase}/api/rss?urls=${encodeURIComponent(urls.join(','))}`);
   return await res.json();
 }
 
@@ -221,7 +236,8 @@ export async function validateRssFeed(url: string): Promise<{ success: boolean; 
     }
   }
 
-  const res = await fetch('/api/rss/validate', {
+  const apiBase = getApiBaseUrl();
+  const res = await fetch(`${apiBase}/api/rss/validate`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ url }),
@@ -395,7 +411,8 @@ export async function summarizeBlockWithAi(
   }
 
   try {
-    const res = await fetch('/api/gemini/summarize', {
+    const apiBase = getApiBaseUrl();
+    const res = await fetch(`${apiBase}/api/gemini/summarize`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ items, topic, isMultiSourceStory }),
@@ -449,7 +466,8 @@ export async function curateBlockWithAi(userPrompt: string): Promise<{ success: 
   }
 
   try {
-    const res = await fetch('/api/gemini/curate', {
+    const apiBase = getApiBaseUrl();
+    const res = await fetch(`${apiBase}/api/gemini/curate`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ userPrompt }),
@@ -482,7 +500,8 @@ export async function translateWithAi(title: string, content: string): Promise<{
   }
 
   try {
-    const res = await fetch('/api/gemini/translate', {
+    const apiBase = getApiBaseUrl();
+    const res = await fetch(`${apiBase}/api/gemini/translate`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ title, content }),
