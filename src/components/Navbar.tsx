@@ -114,7 +114,7 @@ export const Navbar: React.FC<NavbarProps> = ({
         ? 'bg-[#0a0b0e]/95 border-neutral-800/80 text-neutral-100 backdrop-blur-xl'
         : 'bg-white/95 border-neutral-200 text-neutral-900 backdrop-blur-xl shadow-xs'
     }`}>
-      <div className="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8">
+      <div className="max-w-[1680px] w-full mx-auto px-3 sm:px-6 lg:px-8">
         
         {/* Top Bar Row */}
         <div className="flex items-center justify-between h-14 sm:h-16 gap-2 sm:gap-4">
@@ -137,7 +137,7 @@ export const Navbar: React.FC<NavbarProps> = ({
           </div>
 
           {/* Desktop Search Bar */}
-          <div className="hidden md:flex flex-1 max-w-xs lg:max-w-sm relative">
+          <div className="hidden md:flex flex-1 max-w-xs md:max-w-sm lg:max-w-md relative">
             <Search className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-neutral-500" />
             <input
               type="text"
@@ -259,6 +259,22 @@ export const Navbar: React.FC<NavbarProps> = ({
                   {bookmarkCount}
                 </span>
               )}
+            </button>
+
+            {/* Quick Language Switcher */}
+            <button
+              onClick={() => {
+                const nextLang = settings.language === 'pt' ? 'en' : 'pt';
+                onUpdateSettings({ ...settings, language: nextLang });
+              }}
+              title={settings.language === 'pt' ? 'Mudar idioma para Inglês' : 'Mudar idioma para Português (Brasil)'}
+              className={`px-2.5 py-1.5 rounded-2xl border text-xs font-mono font-bold transition-all cursor-pointer flex items-center gap-1 ${
+                settings.theme === 'dark'
+                  ? 'bg-neutral-900 border-neutral-800 text-amber-400 hover:bg-neutral-800 hover:border-amber-500/50'
+                  : 'bg-neutral-100 border-neutral-300 text-amber-700 hover:bg-neutral-200 hover:border-amber-500/50'
+              }`}
+            >
+              <span>{settings.language === 'pt' ? '🇧🇷 PT' : '🇺🇸 EN'}</span>
             </button>
 
             {/* Settings */}
