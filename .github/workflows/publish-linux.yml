@@ -1,11 +1,6 @@
 name: Publish Linux Release
 
 on:
-  push:
-    branches: [main]
-    paths:
-      - package.json
-      - .github/workflows/publish-linux.yml
   workflow_dispatch:
 
 permissions:
@@ -53,7 +48,4 @@ jobs:
           shopt -s nullglob
           assets=(release/*.AppImage release/*.AppImage.blockmap release/*.deb release/latest-linux.yml)
           gh release upload "$tag" "${assets[@]}" --clobber
-          # Publish newly created drafts without changing the latest-release selection.
-          if [[ "$(gh release view "$tag" --json isDraft --jq .isDraft)" == "true" ]]; then
-            gh release edit "$tag" --draft=false --latest=false
-          fi
+          # Keep the release draft until the coordinated cross-platform publication.
