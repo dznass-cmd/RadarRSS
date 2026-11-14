@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
 import { Newspaper } from 'lucide-react';
 
 interface SafeImageProps {
@@ -31,6 +31,12 @@ export const SafeImage: React.FC<SafeImageProps> = ({
     }
     return url;
   }, [src]);
+
+  useEffect(() => {
+    setLoading(true);
+    setError(false);
+    setTriedProxy(false);
+  }, [sanitizedSrc]);
 
   // Current display source (original first, then weserv proxy fallback if blocked by CDN/hotlink)
   const currentSrc = useMemo(() => {

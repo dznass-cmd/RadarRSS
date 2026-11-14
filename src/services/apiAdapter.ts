@@ -20,14 +20,24 @@ export const getApiBaseUrl = (): string => {
 };
 
 // Client-side image extractor from XML / HTML
-function extractImageFromXmlItem(itemXml: Element, defaultBaseUrl?: string): string | undefined {
+export function extractImageFromXmlItem(itemXml: Element, defaultBaseUrl?: string): string | undefined {
+  const resolveImage = (value?: string | null): string | undefined => {
+    if (!value) return undefined;
+    const clean = value.trim().replace(/&amp;/g, '&');
+    if (/[<>\s]/.test(clean) || /(?:pixel|tracker|1x1)/i.test(clean)) return undefined;
+    try {
+      const url = new URL(clean, defaultBaseUrl);
+      return /^https?:$/.test(url.protocol) ? url.href : undefined;
+    } catch { return undefined; }
+  };
   // 1. Check enclosure (RSS 2.0)
   const enclosures = Array.from(itemXml.querySelectorAll('enclosure'));
   for (const enc of enclosures) {
     const url = enc.getAttribute('url');
     const type = enc.getAttribute('type') || '';
-    if (url && (type.includes('image') || /\.(jpg|jpeg|gif|png|webp|bmp|svg|avif)/i.test(url) || !type)) {
-      return url.replace(/&amp;/g, '&').trim();
+    if (url && (type.startsWith('image/') || (!type && /\.(jpg|jpeg|gif|png|webp|bmp|svg|avif)(?:[?#]|$)/i.test(url)))) {
+      const image = resolveImage(url);
+      if (image) return image;
     }
   }
 
@@ -39,17 +49,17 @@ function extractImageFromXmlItem(itemXml: Element, defaultBaseUrl?: string): str
   ];
 
   for (const node of mediaNodes) {
-    const url = node.getAttribute('url') || node.getAttribute('href') || node.textContent?.trim();
-    if (url && !url.includes('pixel') && !url.includes('1x1') && !url.startsWith('data:image')) {
-      return url.replace(/&amp;/g, '&').trim();
-    }
+    if (/^(?:video|audio)\//i.test(node.getAttribute('type') || '') || /^(video|audio)$/i.test(node.getAttribute('medium') || '')) continue;
+    const image = resolveImage(node.getAttribute('url') || node.getAttribute('href'));
+    if (image) return image;
   }
 
   // 3. Check <image><url> or <thumbnail>
   const imgUrlNode = itemXml.querySelector('image > url, thumbnail > url, image, thumbnail, thumb');
   if (imgUrlNode && imgUrlNode.textContent) {
     const url = imgUrlNode.textContent.replace(/&amp;/g, '&').trim();
-    if (url.startsWith('http') || url.startsWith('//')) return url;
+    const image = resolveImage(url);
+    if (image) return image;
   }
 
   // 4. Regex scan description / content:encoded / summary / content with HTML entity decoding
@@ -86,7 +96,8 @@ function extractImageFromXmlItem(itemXml: Element, defaultBaseUrl?: string): str
             src = new URL(src, defaultBaseUrl).toString();
           } catch {}
         }
-        return src;
+        const image = resolveImage(src);
+        if (image) return image;
       }
     }
   }
@@ -166,7 +177,7 @@ async function parseRssClientSide(url: string): Promise<NewsItem[]> {
     const guid = item.querySelector('guid')?.textContent?.trim() ||
       item.querySelector('id')?.textContent?.trim() ||
       link;
-    const imageUrl = extractImageFromXmlItem(item, url);
+    const imageUrl = extractImageFromXmlItem(item, link || url);
 
     // Simple sentiment analyzer
     const lower = `${title} ${cleanSnippet}`.toLowerCase();

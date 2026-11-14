@@ -14,6 +14,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Enable a Content Security Policy for Tauri and disable mixed content in the Android webview.
 
 ### Fixed
+- Correct Android RSS image extraction for article HTML, relative URLs, lazy images, and audio/video enclosures; retry image loading when the source changes and use the full article's lead image in the reader.
 - Keep startup news synchronization silent, deduplicate alerts across restarts and tracking URL changes, and limit breaking-news alerts to one per minute.
 - Show in-app alerts while visible and system notifications while hidden, without repeatedly prompting for notification permission.
 - Improve the mobile feed manager with one scrollable content area, readable source rows, larger controls, source search, active counts, and duplicate-feed feedback.

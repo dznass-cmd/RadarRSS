@@ -175,7 +175,7 @@ export const ArticleReaderModal: React.FC<ArticleReaderModalProps> = ({
   const displaySourceName = currentSource ? currentSource.sourceName : article?.sourceName || '';
   const displayAuthor = currentSource ? currentSource.author : article?.author;
   const displayPubDate = currentSource ? currentSource.pubDate : article?.pubDate || '';
-  const displayImage = currentSource?.imageUrl || article?.imageUrl;
+  const displayImage = extractedArticle?.leadImageUrl || currentSource?.imageUrl || article?.imageUrl;
 
   // Auto-fetch full article when viewMode is 'full'
   useEffect(() => {
