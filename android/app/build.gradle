@@ -1,5 +1,21 @@
 apply plugin: 'com.android.application'
 
+def signingProperties = new Properties()
+def externalSigningPropertiesFile = new File(System.getProperty('user.home'), '.config/RadarRSS/signing.properties')
+def projectSigningPropertiesFile = rootProject.file('signing.properties')
+def signingPropertiesFile = externalSigningPropertiesFile.exists() ? externalSigningPropertiesFile : projectSigningPropertiesFile
+if (signingPropertiesFile.exists()) {
+    signingPropertiesFile.withInputStream { signingProperties.load(it) }
+}
+def signingValue = { String key, String envKey ->
+    signingProperties.getProperty(key) ?: System.getenv(envKey)
+}
+def releaseStorePath = signingValue('storeFile', 'RADARRSS_STORE_FILE')
+def releaseStorePassword = signingValue('storePassword', 'RADARRSS_STORE_PASSWORD')
+def releaseKeyAlias = signingValue('keyAlias', 'RADARRSS_KEY_ALIAS')
+def releaseKeyPassword = signingValue('keyPassword', 'RADARRSS_KEY_PASSWORD')
+def hasReleaseSigning = releaseStorePath && releaseStorePassword && releaseKeyAlias && releaseKeyPassword
+
 android {
     namespace = "com.dznasscmd.radarrss"
     compileSdk = rootProject.ext.compileSdkVersion
@@ -7,8 +23,8 @@ android {
         applicationId "com.dznasscmd.radarrss"
         minSdkVersion rootProject.ext.minSdkVersion
         targetSdkVersion rootProject.ext.targetSdkVersion
-        versionCode 10
-        versionName "0.1.0"
+        versionCode 11
+        versionName "0.2.0"
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
         aaptOptions {
              // Files and dirs to omit from the packaged assets dir, modified to accommodate modern web apps.
@@ -18,17 +34,23 @@ android {
     }
     signingConfigs {
         release {
-            storeFile file('radar-rss-release.keystore')
-            storePassword 'REMOVED_COMPROMISED_SIGNING_PASSWORD'
-            keyAlias 'radarrss'
-            keyPassword 'REMOVED_COMPROMISED_SIGNING_PASSWORD'
-            v1SigningEnabled true
-            v2SigningEnabled true
+            if (hasReleaseSigning) {
+                storeFile file(releaseStorePath)
+                storePassword releaseStorePassword
+                keyAlias releaseKeyAlias
+                keyPassword releaseKeyPassword
+                v1SigningEnabled true
+                v2SigningEnabled true
+            }
         }
     }
     buildTypes {
         release {
-            signingConfig signingConfigs.release
+            if (hasReleaseSigning) {
+                signingConfig signingConfigs.release
+            } else {
+                logger.warn('Android release will be unsigned: configure signing.properties or RADARRSS_* environment variables.')
+            }
             minifyEnabled false
             debuggable false
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
