@@ -11,8 +11,7 @@ await build({
   bundle: true,
   platform: 'node',
   format: 'cjs',
-  packages: 'external',
-  sourcemap: true,
+  sourcemap: false,
   outfile: join(root, 'dist', 'server.cjs'),
   define: {
     // Fold the dev branch (vite middleware) out of the production bundle.
