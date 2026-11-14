@@ -14,12 +14,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Enable a Content Security Policy for Tauri and disable mixed content in the Android webview.
 
 ### Fixed
+- Accept same-origin preflight requests while continuing to reject untrusted origins.
 - Align the Android version with 0.2.0 and increment its version code to 11.
 - Correct the supported versions in the security policy and exclude generated build artifacts from TypeScript checks.
 
 ### Migration
 - The next Android APK uses a new signing key. Export your OPML subscriptions before uninstalling the old app and installing the new APK. Uninstalling removes local app data.
 - Repository history has been rewritten to remove compromised signing material. Existing contributors should clone the repository again to avoid restoring the old history.
+
+### Tests
+- Add 13 security scenarios covering unsafe URL destinations, redirect handling, connection-time DNS checks, response size limits, CORS, feed parsing, and API rate limits. Run them with `npm run test:security`; they are also included in `npm test`.
 
 ## [0.2.0] - 2026-11-11
 
