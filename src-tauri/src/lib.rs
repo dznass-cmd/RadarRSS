@@ -39,6 +39,9 @@ fn ensure_server_running() {
     }
 
     let mut candidates: Vec<PathBuf> = Vec::new();
+    // Prefer the current checkout when launched from the project directory.
+    // An installed fallback may contain an older backend with different security settings.
+    candidates.push(PathBuf::from("dist/server.cjs"));
     if let Ok(exe) = std::env::current_exe() {
         if let Some(dir) = exe.parent() {
             candidates.push(dir.join("server.cjs"));
@@ -47,7 +50,6 @@ fn ensure_server_running() {
     if let Ok(home) = std::env::var("HOME") {
         candidates.push(PathBuf::from(format!("{home}/.local/share/radar-rss/server.cjs")));
     }
-    candidates.push(PathBuf::from("dist/server.cjs"));
 
     for path in candidates {
         if path.exists() {
