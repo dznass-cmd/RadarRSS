@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useRef } from 'react';
 import { ToastItem, AccentColor, NewsItem } from '../types';
 import { getAccent } from '../utils/theme';
 import { BellRing, Flame, X, ChevronRight } from 'lucide-react';
@@ -26,7 +26,7 @@ export const ToastNotificationContainer: React.FC<ToastNotificationContainerProp
   const acc = getAccent(accentColor);
 
   return (
-    <div className="fixed top-4 right-4 z-[9999] flex flex-col gap-3 max-w-sm sm:max-w-md w-full px-4 pointer-events-none">
+    <div className="fixed top-[max(0.75rem,env(safe-area-inset-top))] left-3 right-3 sm:left-auto sm:top-4 sm:right-4 z-[9999] flex flex-col gap-3 sm:max-w-md sm:w-full sm:px-4 pointer-events-none [&>div:nth-child(n+2)]:hidden sm:[&>div:nth-child(n+2)]:block">
       {toasts.map((toast) => (
         <ToastCard
           key={toast.id}
@@ -63,6 +63,8 @@ const ToastCard: React.FC<ToastCardProps> = ({
   const [isExiting, setIsExiting] = useState(false);
   const [progress, setProgress] = useState(100);
   const DISMISS_MS = 7000;
+  const dismissRef = useRef(onDismiss);
+  dismissRef.current = onDismiss;
 
   // Auto-dismiss with progress bar
   useEffect(() => {
@@ -81,14 +83,14 @@ const ToastCard: React.FC<ToastCardProps> = ({
     animId = requestAnimationFrame(tick);
     const timer = setTimeout(() => {
       setIsExiting(true);
-      setTimeout(onDismiss, 300); // Wait for exit animation
+      setTimeout(() => dismissRef.current(), 300); // Wait for exit animation
     }, DISMISS_MS);
 
     return () => {
       clearTimeout(timer);
       cancelAnimationFrame(animId);
     };
-  }, [onDismiss]);
+  }, [toast.id]);
 
   const handleClick = () => {
     if (toast.article && onSelectArticle) {
