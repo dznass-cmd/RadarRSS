@@ -1,0 +1,6 @@
+# Copy to signing.properties and use a new, privately stored Android signing key.
+# Never commit signing.properties or the keystore.
+storeFile=radar-rss-release.keystore
+storePassword=CHANGE_ME
+keyAlias=radarrss
+keyPassword=CHANGE_ME

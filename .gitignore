@@ -9,4 +9,7 @@ coverage/
 *.apk
 .env*
 !.env.example
+android/signing.properties
+android/app/*.keystore
+android/app/*.jks
 .freebuff/

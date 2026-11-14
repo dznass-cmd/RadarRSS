@@ -206,6 +206,8 @@ Make the most of Radar RSS with these practical tips:
    ```
    Open your browser at `http://localhost:3000`.
 
+   On Cloud Run, the server detects the environment and binds to the interface required by the service. `APP_URL` is added to allowed origins; API endpoints are limited to 120 requests per minute per IP and Gemini routes to 20 per minute.
+
 5. **Launch in Electron desktop mode:**
    ```bash
    npm run desktop
@@ -216,6 +218,8 @@ Make the most of Radar RSS with these practical tips:
    npm run build:android
    npm run open:android
    ```
+
+   Android signing has been rotated because the previous key was exposed in Git history. The new local key lives in `~/.config/RadarRSS/` and is not part of the project; on other machines, configure `android/signing.properties` from the example. The next APK has a different signature: users with an older version should export their OPML, uninstall the old app, and install the new APK. Uninstalling removes the app's local data.
 
 ---
 

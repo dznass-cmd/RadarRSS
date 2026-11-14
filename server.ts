@@ -1,4 +1,7 @@
 import express, { Request, Response } from 'express';
+import { lookup } from 'node:dns/promises';
+import { isIP } from 'node:net';
+import { Agent } from 'undici';
 import path from 'path';
 import Parser from 'rss-parser';
 import { GoogleGenAI } from '@google/genai';
@@ -8,19 +11,167 @@ import DOMPurify from 'dompurify';
 
 const app = express();
 const PORT = process.env.PORT ? Number(process.env.PORT) : 3000;
+const HOST = process.env.HOST || (process.env.K_SERVICE ? '0.0.0.0' : '127.0.0.1');
+const MAX_REMOTE_BYTES = 5 * 1024 * 1024;
+const MAX_FEEDS_PER_REQUEST = 30;
+if (process.env.K_SERVICE) app.set('trust proxy', 1);
+const allowedOrigins = new Set([
+  'http://localhost:3000',
+  'http://127.0.0.1:3000',
+  'http://tauri.localhost',
+  'https://tauri.localhost',
+  'tauri://localhost',
+]);
+if (process.env.APP_URL) {
+  try { allowedOrigins.add(new URL(process.env.APP_URL).origin); } catch {}
+}
+const secureDispatcher = new Agent({
+  connect: {
+    lookup: (hostname: string, options: any, callback: (...args: any[]) => void) => {
+      lookup(hostname, { all: true, verbatim: true }).then((addresses) => {
+        if (!addresses.length || addresses.some(({ address }) => !isPublicAddress(address))) {
+          callback(new Error('A URL precisa apontar para um endereço público'));
+          return;
+        }
+        if (options?.all) callback(null, addresses);
+        else callback(null, addresses[0].address, addresses[0].family);
+      }).catch(callback);
+    },
+  },
+});
 
-app.use(express.json());
+app.use(express.json({ limit: '1mb' }));
 
-// Enable CORS for local cross-origin development, Electron and webviews
+function isPublicAddress(address: string): boolean {
+  if (isIP(address) === 4) {
+    const octets = address.split('.').map(Number);
+    const [a, b, c] = octets;
+    return !(a === 0 || a === 10 || a === 127 || a >= 224 ||
+      (a === 100 && b >= 64 && b <= 127) ||
+      (a === 169 && b === 254) || (a === 172 && b >= 16 && b <= 31) ||
+      (a === 192 && (b === 0 || b === 168) ) ||
+      (a === 192 && b === 0 && c === 2) ||
+      (a === 198 && (b === 18 || b === 19)) ||
+      (a === 198 && b === 51 && c === 100) ||
+      (a === 203 && b === 0 && c === 113) || a >= 240);
+  }
+  if (isIP(address) === 6) {
+    const normalized = address.toLowerCase().split('%')[0];
+    // Only globally routable unicast space is allowed. This rejects loopback,
+    // link-local, unique-local, multicast, IPv4-mapped and documentation ranges.
+    return normalized.startsWith('2') && !normalized.startsWith('2001:db8:');
+  }
+  return false;
+}
+
+async function assertPublicHttpUrl(value: string): Promise<URL> {
+  let url: URL;
+  try { url = new URL(value); } catch { throw new Error('URL inválida'); }
+  if (!['http:', 'https:'].includes(url.protocol) || url.username || url.password) {
+    throw new Error('A URL deve usar HTTP(S) e não pode conter credenciais');
+  }
+  const hostname = url.hostname.replace(/^\[|\]$/g, '').toLowerCase();
+  if (hostname === 'localhost' || hostname.endsWith('.localhost') || hostname.endsWith('.local')) {
+    throw new Error('Endereços locais não são permitidos');
+  }
+  const addresses = isIP(hostname)
+    ? [{ address: hostname }]
+    : await lookup(hostname, { all: true, verbatim: true });
+  if (!addresses.length || addresses.some(({ address }) => !isPublicAddress(address))) {
+    throw new Error('A URL precisa apontar para um endereço público');
+  }
+  return url;
+}
+
+async function fetchPublicUrl(value: string, headers: Record<string, string>, timeoutMs: number): Promise<globalThis.Response> {
+  let currentUrl = value;
+  for (let redirects = 0; redirects <= 5; redirects++) {
+    const url = await assertPublicHttpUrl(currentUrl);
+    const response = await fetch(url, {
+      headers,
+      signal: AbortSignal.timeout(timeoutMs),
+      redirect: 'manual',
+      dispatcher: secureDispatcher,
+    } as any);
+    if (![301, 302, 303, 307, 308].includes(response.status)) return response;
+    const location = response.headers.get('location');
+    if (!location) return response;
+    await response.body?.cancel();
+    currentUrl = new URL(location, url).toString();
+  }
+  throw new Error('A URL excedeu o limite de redirecionamentos');
+}
+
+async function readLimitedText(response: globalThis.Response, maxBytes = MAX_REMOTE_BYTES): Promise<string> {
+  const declaredLength = Number(response.headers.get('content-length') || 0);
+  if (declaredLength > maxBytes) throw new Error('Resposta remota excede o limite de tamanho');
+  if (!response.body) return '';
+  const reader = response.body.getReader();
+  const chunks: Uint8Array[] = [];
+  let size = 0;
+  while (true) {
+    const { done, value } = await reader.read();
+    if (done) break;
+    size += value.byteLength;
+    if (size > maxBytes) {
+      await reader.cancel();
+      throw new Error('Resposta remota excede o limite de tamanho');
+    }
+    chunks.push(value);
+  }
+  const bytes = new Uint8Array(size);
+  let offset = 0;
+  for (const chunk of chunks) { bytes.set(chunk, offset); offset += chunk.byteLength; }
+  return new TextDecoder().decode(bytes);
+}
+
+// Cross-origin access is only needed by local dev and the Tauri webview.
 app.use((req, res, next) => {
-  res.header('Access-Control-Allow-Origin', '*');
-  res.header('Access-Control-Allow-Methods', 'GET, POST, OPTIONS');
-  res.header('Access-Control-Allow-Headers', 'Content-Type, Authorization');
+  const origin = req.headers.origin;
+  const requestOrigin = `${req.protocol}://${req.get('host')}`;
+  const isAllowedOrigin = !origin || allowedOrigins.has(origin) || origin === requestOrigin;
+  if (!isAllowedOrigin) return res.sendStatus(403);
+  if (origin && origin !== requestOrigin) {
+    res.header('Access-Control-Allow-Origin', origin);
+    res.header('Vary', 'Origin');
+    res.header('Access-Control-Allow-Methods', 'GET, POST, OPTIONS');
+    res.header('Access-Control-Allow-Headers', 'Content-Type, Authorization');
+  }
   if (req.method === 'OPTIONS') {
-    return res.sendStatus(200);
+    return res.sendStatus(origin && !allowedOrigins.has(origin) ? 403 : 204);
   }
   next();
 });
+
+function createRateLimiter(maxRequests: number, windowMs: number) {
+  const clients = new Map<string, { startedAt: number; count: number }>();
+  return (req: Request, res: Response, next: () => void) => {
+    const now = Date.now();
+    const clientId = req.ip || req.socket.remoteAddress || 'unknown';
+    let window = clients.get(clientId);
+    if (!window || now - window.startedAt >= windowMs) {
+      if (clients.size >= 10_000) {
+        for (const [ip, entry] of clients) {
+          if (now - entry.startedAt >= windowMs) clients.delete(ip);
+        }
+        if (clients.size >= 10_000) {
+          return res.status(503).json({ success: false, error: 'Servidor ocupado. Tente novamente em instantes.' });
+        }
+      }
+      window = { startedAt: now, count: 0 };
+      clients.set(clientId, window);
+    }
+    if (window.count >= maxRequests) {
+      res.set('Retry-After', String(Math.ceil((window.startedAt + windowMs - now) / 1000)));
+      return res.status(429).json({ success: false, error: 'Muitas solicitações. Tente novamente em instantes.' });
+    }
+    window.count++;
+    next();
+  };
+}
+
+app.use('/api', createRateLimiter(120, 60_000));
+app.use('/api/gemini', createRateLimiter(20, 60_000));
 
 const rssParser = new Parser({
   customFields: {
@@ -211,6 +362,9 @@ app.get('/api/rss', async (req: Request, res: Response) => {
     }
 
     const urls = urlsParam.split(',').map(u => u.trim()).filter(Boolean);
+    if (urls.length > MAX_FEEDS_PER_REQUEST) {
+      return res.status(400).json({ success: false, error: `Limite de ${MAX_FEEDS_PER_REQUEST} feeds por solicitação` });
+    }
     const allItems: any[] = [];
 
     await Promise.allSettled(
@@ -224,19 +378,16 @@ app.get('/api/rss', async (req: Request, res: Response) => {
         try {
           let feed: any;
           try {
-            const resp = await fetch(url, {
-              headers: {
+            const resp = await fetchPublicUrl(url, {
                 'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Safari/537.36',
                 'Accept': 'application/rss+xml, application/xml, text/xml, application/atom+xml, text/html;q=0.9, */*;q=0.8',
-              },
-              signal: AbortSignal.timeout(4500),
-            });
+              }, 4500);
             if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
-            const text = await resp.text();
+            const text = await readLimitedText(resp);
             const cleanXml = text.trim().replace(/^\uFEFF/, '');
             feed = await rssParser.parseString(cleanXml);
           } catch {
-            feed = await rssParser.parseURL(url);
+            throw new Error('Não foi possível carregar um feed de endereço público');
           }
 
           const sourceTitle = feed.title || new URL(url).hostname.replace('www.', '');
@@ -290,7 +441,13 @@ app.post('/api/rss/validate', async (req: Request, res: Response) => {
     const { url } = req.body;
     if (!url) return res.status(400).json({ success: false, error: 'URL é obrigatória' });
 
-    const feed = await rssParser.parseURL(url);
+    const safeUrl = await assertPublicHttpUrl(url);
+    const response = await fetchPublicUrl(safeUrl.toString(), {
+      'User-Agent': 'RadarRSS/0.2.0',
+      'Accept': 'application/rss+xml, application/xml, text/xml, application/atom+xml, */*',
+    }, 4500);
+    if (!response.ok) throw new Error(`HTTP ${response.status}`);
+    const feed = await rssParser.parseString((await readLimitedText(response)).trim().replace(/^\uFEFF/, ''));
     res.json({
       success: true,
       title: feed.title || new URL(url).hostname,
@@ -306,9 +463,10 @@ app.post('/api/rss/validate', async (req: Request, res: Response) => {
 app.get('/api/article/extract', async (req: Request, res: Response) => {
   try {
     const targetUrl = req.query.url as string;
-    if (!targetUrl || !/^https?:\/\//i.test(targetUrl)) {
+    if (!targetUrl) {
       return res.status(400).json({ success: false, error: 'URL válida é obrigatória' });
     }
+    await assertPublicHttpUrl(targetUrl);
 
     // 1. Check cache
     const cached = articleExtractCache.get(targetUrl);
@@ -317,15 +475,11 @@ app.get('/api/article/extract', async (req: Request, res: Response) => {
     }
 
     // 2. Fetch page HTML
-    const response = await fetch(targetUrl, {
-      headers: {
+    const response = await fetchPublicUrl(targetUrl, {
         'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36',
         'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,*/*;q=0.8',
         'Accept-Language': 'pt-BR,pt;q=0.9,en-US;q=0.8,en;q=0.7',
-      },
-      signal: AbortSignal.timeout(10000),
-      redirect: 'follow',
-    });
+      }, 10000);
 
     if (!response.ok) {
       return res.status(422).json({
@@ -334,7 +488,7 @@ app.get('/api/article/extract', async (req: Request, res: Response) => {
       });
     }
 
-    const html = await response.text();
+    const html = await readLimitedText(response);
     if (!html || html.length < 100) {
       return res.status(422).json({
         success: false,
@@ -593,8 +747,8 @@ async function startServer() {
     });
   }
 
-  app.listen(PORT, '0.0.0.0', () => {
-    console.log(`[RSS Realtime News Server] Server running on http://0.0.0.0:${PORT}`);
+  app.listen(PORT, HOST, () => {
+    console.log(`[RSS Realtime News Server] Server running on http://${HOST}:${PORT}`);
   });
 }
 

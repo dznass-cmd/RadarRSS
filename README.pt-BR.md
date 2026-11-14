@@ -206,6 +206,8 @@ Aproveite ao máximo todos os recursos avançados do Radar RSS com estas dicas p
    ```
    Acesse a interface no navegador em `http://localhost:3000`.
 
+   Em Cloud Run, o servidor detecta o ambiente e escuta na interface exigida pelo serviço. `APP_URL` é incluída automaticamente nas origens permitidas; os endpoints de API têm limites de 120 solicitações por minuto por IP e 20 por minuto para rotas Gemini.
+
 5. **Para rodar em janela desktop (Electron em modo dev):**
    ```bash
    npm run desktop
@@ -216,6 +218,8 @@ Aproveite ao máximo todos os recursos avançados do Radar RSS com estas dicas p
    npm run build:android
    npm run open:android
    ```
+
+   A assinatura Android foi trocada porque a chave anterior estava exposta no histórico Git. A chave nova local fica em `~/.config/RadarRSS/` e não é incluída no projeto; em outras máquinas, configure `android/signing.properties` a partir do exemplo. O próximo APK tem outra assinatura: quem já instalou uma versão anterior deve exportar o OPML, desinstalar o app antigo e instalar o novo APK. A desinstalação apaga os dados locais do app.
 
 ---
 

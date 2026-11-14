@@ -214,7 +214,7 @@ export function extractEntitiesAndNumbers(text: string): {
   if (!text) return { numbers, entities };
 
   // Match numbers, versions, percentages, currency
-  const numMatches = text.match(/\b(?:\d+(?:[\.,]\d+)*|us\$|\$|r\$|€|%)\b/gi) || [];
+  const numMatches: string[] = text.match(/\b(?:\d+(?:[\.,]\d+)*|us\$|\$|r\$|€|%)\b/gi) || [];
   numMatches.forEach((n) => numbers.add(n.toLowerCase().trim()));
 
   // Match capitalized words from original text (Proper Nouns)
