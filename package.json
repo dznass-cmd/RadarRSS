@@ -10,7 +10,7 @@
     "dev": "tsx server.ts",
     "build": "vite build && node scripts/build-server.mjs",
     "start": "node dist/server.cjs",
-    "test": "tsx tests/clustering.test.ts && tsx tests/opml.test.ts && tsx tests/readability.test.ts && tsx tests/donate.test.ts && npm run test:security",
+    "test": "tsx tests/clustering.test.ts && tsx tests/opml.test.ts && tsx tests/readability.test.ts && tsx tests/donate.test.ts && npm run test:security && npm run test:notifications",
     "make-icon": "node scripts/make-icon.js",
     "build:win": "npm run build && npm run make-icon && electron-builder --win",
     "publish:win": "npm run build && npm run make-icon && electron-builder --win --publish always",
@@ -25,7 +25,8 @@
     "build:linux": "npm run build && npm run make-icon && electron-builder --linux --x64 --publish never",
     "publish:linux": "npm run build && npm run make-icon && electron-builder --linux --x64 --publish always",
     "test:desktop": "node --test tests/desktop-linux.test.cjs",
-    "test:security": "tsx tests/security.test.ts"
+    "test:security": "tsx tests/security.test.ts",
+    "test:notifications": "tsx tests/notifications.test.ts"
   },
   "build": {
     "appId": "com.dznasscmd.radarrss",

@@ -1,0 +1,15 @@
+import assert from 'node:assert/strict';
+import { selectNewsAlert } from '../src/services/newsAlertPolicy';
+import { NewsItem } from '../src/types';
+const now = 1_800_000_000_000;
+const item = (id: string, age = 1000, link = `https://example.com/${id}`) => ({ id, title: id, timestamp: now - age, link } as NewsItem);
+const seen = new Set<string>();
+assert.equal(selectNewsAlert([item('initial')], seen, true, 0, now, () => true), undefined);
+assert.equal(selectNewsAlert([item('initial')], seen, false, 0, now, () => true), undefined);
+assert.equal(selectNewsAlert([item('older', 2000), item('newest')], seen, false, 0, now, () => true)?.id, 'newest');
+assert.equal(selectNewsAlert([item('cooldown')], seen, false, now - 1000, now, () => true), undefined);
+assert.equal(selectNewsAlert([item('stale', 31 * 60_000), item('future', -1000)], seen, false, 0, now, () => true), undefined);
+const persisted = new Set<string>(JSON.parse(JSON.stringify([...seen])));
+assert.equal(selectNewsAlert([item('new-id', 1000, 'https://example.com/newest?utm_source=changed#top')], persisted, false, 0, now, () => true), undefined);
+assert.equal(selectNewsAlert([item('normal')], seen, false, 0, now, () => false), undefined);
+console.log('Notification policy: silent startup, deduplication, single alert, cooldown, freshness, persisted tracking-free identity, and non-breaking suppression passed.');

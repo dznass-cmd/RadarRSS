@@ -111,11 +111,8 @@ export async function sendNativeNotification(options: SendNotificationOptions): 
 
   if (Capacitor.isNativePlatform()) {
     try {
-      let perm = await checkNotificationPermission();
-      if (perm !== 'granted') {
-        const granted = await requestNotificationPermission();
-        if (!granted) return false;
-      }
+      const perm = await checkNotificationPermission();
+      if (perm !== 'granted') return false;
       await initializeNotificationChannels();
 
       const notifId = stringToId(options.id || `${options.title}-${Date.now()}`);
