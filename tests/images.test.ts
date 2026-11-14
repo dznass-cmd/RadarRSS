@@ -1,0 +1,11 @@
+import assert from 'node:assert/strict';
+import { DOMParser } from 'linkedom';
+import { extractImageFromXmlItem } from '../src/services/apiAdapter';
+const image = (xml: string) => extractImageFromXmlItem(new DOMParser().parseFromString(`<item xmlns:media="http://search.yahoo.com/mrss/">${xml}</item>`, 'text/xml').documentElement as unknown as Element, 'https://example.com/news/story');
+assert.equal(image('<content>Article text without an image</content><description><![CDATA[<img src="/photo.jpg">]]></description>'), 'https://example.com/photo.jpg');
+assert.equal(image('<media:thumbnail url="//cdn.example.com/photo.jpg"/>'), 'https://cdn.example.com/photo.jpg');
+assert.equal(image('<enclosure url="https://example.com/podcast.mp3" type="audio/mpeg"/><description><![CDATA[<img src="images/photo.jpg">]]></description>'), 'https://example.com/news/images/photo.jpg');
+assert.equal(image('<media:content url="https://example.com/clip.mp4" type="video/mp4"/><media:thumbnail url="/thumb.webp"/>'), 'https://example.com/thumb.webp');
+assert.equal(image('<description><![CDATA[<img data-src="https://cdn.example.com/photo.jpg?a=1&amp;b=2">]]></description>'), 'https://cdn.example.com/photo.jpg?a=1&b=2');
+assert.equal(image('<content>Text only</content>'), undefined);
+console.log('Image extraction: HTML content, protocol-relative and relative URLs, audio/video exclusion, lazy images and missing photos passed.');
