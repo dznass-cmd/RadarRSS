@@ -14,6 +14,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Enable a Content Security Policy for Tauri and disable mixed content in the Android webview.
 
 ### Fixed
+- Keep startup news synchronization silent, deduplicate alerts across restarts and tracking URL changes, and limit breaking-news alerts to one per minute.
+- Show in-app alerts while visible and system notifications while hidden, without repeatedly prompting for notification permission.
+- Improve the mobile feed manager with one scrollable content area, readable source rows, larger controls, source search, active counts, and duplicate-feed feedback.
 - Show one in-app news alert at a time on small screens and keep its dismissal timer stable across feed updates.
 - Keep the mobile header within the viewport by moving secondary actions into the menu, separating block titles from controls, and reducing mobile page spacing.
 - Exclude Capacitor's copied web assets from TypeScript source checks.

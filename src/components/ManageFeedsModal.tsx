@@ -51,12 +51,18 @@ export const ManageFeedsModal: React.FC<ManageFeedsModalProps> = ({
   const [isValidating, setIsValidating] = useState<boolean>(false);
   const [validationError, setValidationError] = useState<string | null>(null);
 
+  const [feedSearch, setFeedSearch] = useState('');
+  const visibleFeeds = feeds.filter(feed => `${feed.title} ${feed.url} ${feed.category}`.toLowerCase().includes(feedSearch.toLowerCase()));
   if (!isOpen) return null;
 
   const handleValidateAndAdd = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!customUrl) return;
 
+    if (feeds.some(feed => feed.url.trim().replace(/\/$/, '') === customUrl.trim().replace(/\/$/, ''))) {
+      setValidationError(language === 'pt' ? 'Esta fonte já está cadastrada.' : 'This feed is already registered.');
+      return;
+    }
     setIsValidating(true);
     setValidationError(null);
 
@@ -87,8 +93,8 @@ export const ManageFeedsModal: React.FC<ManageFeedsModalProps> = ({
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm">
-      <div className={`w-full max-w-2xl rounded-3xl border shadow-2xl overflow-hidden flex flex-col max-h-[85vh] ${
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-2 sm:p-4 bg-black/80 backdrop-blur-sm">
+      <div className={`w-full max-w-2xl rounded-3xl border shadow-2xl overflow-hidden flex flex-col max-h-[92dvh] ${
         theme === 'dark' ? 'bg-neutral-900 border-neutral-700 text-neutral-100' : 'bg-white border-neutral-300 text-neutral-900'
       }`}>
         
@@ -111,10 +117,10 @@ export const ManageFeedsModal: React.FC<ManageFeedsModalProps> = ({
         </div>
 
         {/* Content Body */}
-        <div className="p-6 overflow-y-auto space-y-6">
+        <div className="p-3 sm:p-6 overflow-y-auto overscroll-contain min-h-0 space-y-4 sm:space-y-6">
           
           {/* Add Custom Feed Form */}
-          <div className={`p-5 rounded-2xl border ${
+          <div className={`p-3 sm:p-5 rounded-2xl border ${
             theme === 'dark' ? 'bg-neutral-950/60 border-neutral-800' : 'bg-neutral-50 border-neutral-200'
           }`}>
             <h4 className="font-black text-xs uppercase tracking-widest text-orange-500 mb-3 flex items-center gap-1.5">
@@ -144,7 +150,7 @@ export const ManageFeedsModal: React.FC<ManageFeedsModalProps> = ({
                 />
               </div>
 
-              <div className="flex items-center justify-between gap-3 pt-1">
+              <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3 pt-1">
                 <select
                   value={customCategory}
                   onChange={(e) => setCustomCategory(e.target.value as any)}
@@ -186,20 +192,25 @@ export const ManageFeedsModal: React.FC<ManageFeedsModalProps> = ({
             <h4 className={`font-black text-xs uppercase tracking-widest mb-3 ${
               theme === 'dark' ? 'text-neutral-400' : 'text-neutral-600'
             }`}>
-              {t.manageFeeds.activeFeeds} ({feeds.length})
+              {t.manageFeeds.activeFeeds} ({feeds.filter(feed => feed.active).length}/{feeds.length})
             </h4>
-            <div className={`divide-y max-h-60 overflow-y-auto pr-1 ${
+            <input type="search" value={feedSearch} onChange={event => setFeedSearch(event.target.value)}
+              aria-label={language === 'pt' ? 'Buscar fontes' : 'Search feeds'}
+              placeholder={language === 'pt' ? 'Buscar por nome, URL ou categoria...' : 'Search name, URL, or category...'}
+              className="w-full min-w-0 mb-3 px-3 py-3 text-sm rounded-xl border border-neutral-500/30 bg-transparent" />
+            {visibleFeeds.length === 0 && <p className="text-sm text-neutral-500 py-3">{language === 'pt' ? 'Nenhuma fonte encontrada.' : 'No feeds found.'}</p>}
+            <div className={`divide-y pr-1 ${
               theme === 'dark' ? 'divide-neutral-800/80' : 'divide-neutral-200'
             }`}>
-              {feeds.map((feed) => (
+              {visibleFeeds.map((feed) => (
                 <div
                   key={feed.id}
-                  className="py-3 flex items-center justify-between gap-3 group"
+                  className="py-3 flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3 group"
                 >
                   <div className="flex items-center gap-3 min-w-0">
                     <span className="text-base shrink-0">{feed.icon || '📰'}</span>
                     <div className="min-w-0">
-                      <h5 className="font-extrabold text-xs uppercase tracking-wider truncate flex items-center gap-2">
+                      <h5 className="font-extrabold text-xs uppercase tracking-wider break-words flex flex-wrap items-center gap-2">
                         {feed.title}
                         <span className={`text-[9px] px-2 py-0.5 rounded font-mono font-bold uppercase ${
                           theme === 'dark' ? 'bg-neutral-800 text-neutral-400' : 'bg-neutral-200 text-neutral-600'
@@ -211,10 +222,10 @@ export const ManageFeedsModal: React.FC<ManageFeedsModalProps> = ({
                     </div>
                   </div>
 
-                  <div className="flex items-center gap-2 shrink-0">
+                  <div className="flex items-center justify-end gap-2 shrink-0">
                     <button
                       onClick={() => onToggleFeed(feed.id)}
-                      className={`px-3 py-1 rounded-xl text-[10px] font-black uppercase tracking-wider border transition-all cursor-pointer ${
+                      className={`min-h-10 px-3 py-2 rounded-xl text-[10px] font-black uppercase tracking-wider border transition-all cursor-pointer ${
                         feed.active
                           ? 'bg-emerald-500/20 border-emerald-500/40 text-emerald-400'
                           : theme === 'dark'

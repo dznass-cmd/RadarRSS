@@ -21,6 +21,7 @@ import {
   sendNativeNotification,
   addNotificationActionListener,
 } from './services/notificationService';
+import { selectNewsAlert } from './services/newsAlertPolicy';
 import { clusterNewsItems } from './services/clustering/newsClusterService';
 import { exportFeedsToOpml, parseOpml } from './services/opmlService';
 import { getTranslation } from './i18n/translations';
@@ -159,7 +160,11 @@ export default function App() {
   }, []);
 
   // Ref to track notified breaking news IDs to prevent duplicates
-  const notifiedIdsRef = useRef<Set<string>>(new Set());
+  const notifiedIdsRef = useRef<Set<string>>(new Set((() => {
+    try { const value = JSON.parse(localStorage.getItem('radar_rss_notified_v1') || '[]'); return Array.isArray(value) ? value.filter(v => typeof v === 'string') : []; }
+    catch { return []; }
+  })()));
+  const lastAlertAtRef = useRef(0);
   const isInitialFetchRef = useRef<boolean>(true);
 
   // Check if an item is breaking news
@@ -199,7 +204,7 @@ export default function App() {
   // Trigger notification (both Toast Banner & Native OS/Browser Notification safely)
   const triggerNativeNotification = useCallback((item: NewsItem) => {
     // 1. Always show in-app toast for visual guarantee
-    addToast({
+    if (document.visibilityState === 'visible') addToast({
       title: item.title,
       message: `${item.sourceName} • ${item.contentSnippet || ''}`,
       imageUrl: item.imageUrl,
@@ -211,7 +216,7 @@ export default function App() {
     playAudioChime();
 
     // 3. Native system notification (Windows Toast / Android status bar / Web Notification)
-    if (settings.browserNotifications) {
+    if (settings.browserNotifications && document.visibilityState !== 'visible') {
       sendNativeNotification({
         title: `⚡ URGENTE: ${item.sourceName}`,
         body: item.title,
@@ -333,32 +338,22 @@ export default function App() {
       const data = await fetchRssFeeds(urls);
 
       if (data.success && Array.isArray(data.items)) {
-        setAllNewsItems((prev) => {
-          // Detect if new items came in
-          if (prev.length > 0 && data.items.length > prev.length) {
-            playAudioChime();
-          }
-
-          // Check for Breaking News and trigger native notifications
-          data.items.forEach((item: NewsItem) => {
-            if (checkIsBreaking(item) && !notifiedIdsRef.current.has(item.id)) {
-              notifiedIdsRef.current.add(item.id);
-
-              // Only trigger if not initial fetch or if news is recent (within last 2 hours)
-              const isRecent = (Date.now() - item.timestamp) < (2 * 60 * 60 * 1000);
-              if (!isInitialFetchRef.current || isRecent) {
-                triggerNativeNotification(item);
-              }
-            }
-          });
-
-          try {
-            localStorage.setItem(STORAGE_KEYS.ARTICLES, JSON.stringify(data.items.slice(0, 150)));
-          } catch { }
-
-          isInitialFetchRef.current = false;
-          return data.items;
-        });
+        // Keep notification side effects outside React state updaters.
+        const now = Date.now();
+        const alert = selectNewsAlert(data.items, notifiedIdsRef.current,
+          isInitialFetchRef.current, lastAlertAtRef.current, now, checkIsBreaking);
+        const seen = [...notifiedIdsRef.current].slice(-2000);
+        notifiedIdsRef.current = new Set(seen);
+        try {
+          localStorage.setItem('radar_rss_notified_v1', JSON.stringify(seen));
+          localStorage.setItem(STORAGE_KEYS.ARTICLES, JSON.stringify(data.items.slice(0, 150)));
+        } catch {}
+        isInitialFetchRef.current = false;
+        if (alert) {
+          lastAlertAtRef.current = now;
+          triggerNativeNotification(alert);
+        }
+        setAllNewsItems(data.items);
         setLastUpdated(new Date());
       }
     } catch (err) {
