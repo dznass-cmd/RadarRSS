@@ -14,6 +14,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Enable a Content Security Policy for Tauri and disable mixed content in the Android webview.
 
 ### Fixed
+- Prefer the current checkout's backend when launching Tauri from the project directory, avoiding an outdated installed server fallback.
 - Accept same-origin preflight requests while continuing to reject untrusted origins.
 - Align the Android version with 0.2.0 and increment its version code to 11.
 - Correct the supported versions in the security policy and exclude generated build artifacts from TypeScript checks.
