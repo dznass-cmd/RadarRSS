@@ -125,15 +125,15 @@ export const DonateModal: React.FC<DonateModalProps> = ({
             {/* Goal Progress */}
             <div className="mt-4">
               <div className="flex justify-between items-center mb-1.5">
-                <span className="text-sm font-black text-amber-400">68%</span>
-                <span className="text-[10px] font-mono text-neutral-400">Goal: $250 / mo</span>
+                <span className="text-sm font-black text-amber-400">0%</span>
+                <span className="text-[10px] font-mono text-neutral-400">$0 / $250 mo</span>
               </div>
               <div className={`w-full h-2.5 rounded-full overflow-hidden ${
                 isDark ? 'bg-neutral-800' : 'bg-neutral-200'
               }`}>
                 <div
                   className="h-full rounded-full bg-gradient-to-r from-amber-500 via-orange-500 to-amber-400 transition-all duration-1000 shadow-xs"
-                  style={{ width: '68%' }}
+                  style={{ width: '0%' }}
                 />
               </div>
             </div>
@@ -285,17 +285,11 @@ export const DonateModal: React.FC<DonateModalProps> = ({
             </p>
 
             <div className="flex flex-wrap gap-1.5 pt-1">
-              {['ObviousNPC', 'Tarik', 'CyberRadar', 'DevCommunity', 'AnonSupporter', 'You? ❤️'].map(
+              {['Be the first supporter! ❤️'].map(
                 (name, idx) => (
                   <span
                     key={idx}
-                    className={`px-2.5 py-1 rounded-full text-[10px] font-mono font-bold border transition-colors ${
-                      name.includes('You')
-                        ? 'bg-amber-500/20 text-amber-300 border-amber-500/40'
-                        : isDark
-                        ? 'bg-neutral-950 border-neutral-800 text-neutral-300'
-                        : 'bg-white border-neutral-200 text-neutral-700'
-                    }`}
+                    className="px-2.5 py-1 rounded-full text-[10px] font-mono font-bold border transition-colors bg-amber-500/20 text-amber-300 border-amber-500/40"
                   >
                     {name}
                   </span>
