@@ -18,6 +18,7 @@ import {
   ExternalLink,
   ChevronDown,
   ChevronUp,
+  MoreHorizontal,
 } from 'lucide-react';
 import { DynamicBlock, NewsItem, NewsStory, BlockLayout, AccentColor } from '../types';
 import { getAccent } from '../utils/theme';
@@ -64,6 +65,7 @@ export const DynamicBlockCard: React.FC<DynamicBlockCardProps> = ({
   onToggleArchive,
   language = 'en',
 }) => {
+  const [menuOpen, setMenuOpen] = useState(false);
   const [showSummary, setShowSummary] = useState<boolean>(!!block.aiSummary);
   const acc = getAccent(accentColor);
   const t = getTranslation(language);
@@ -225,7 +227,7 @@ export const DynamicBlockCard: React.FC<DynamicBlockCardProps> = ({
   };
 
   return (
-    <div className={`rounded-3xl border transition-all duration-300 overflow-hidden flex flex-col h-full shadow-xl ${
+    <div className={`rounded-2xl border transition-all duration-300 overflow-hidden flex flex-col h-full ${
       theme === 'dark'
         ? `bg-[var(--surface-panel)]/95 border-neutral-800/90 text-neutral-100 ${acc.borderHover}`
         : `bg-white border-neutral-200 text-neutral-900 ${acc.borderHover} shadow-md`
@@ -237,7 +239,7 @@ export const DynamicBlockCard: React.FC<DynamicBlockCardProps> = ({
       }`}>
         <div className="flex items-center gap-3 min-w-0">
           <div className={`w-2.5 h-2.5 rounded-full ${acc.bg} shadow-xs shrink-0`} />
-          <h2 className="font-extrabold text-sm uppercase tracking-wider min-w-0 break-words flex flex-wrap items-center gap-2">
+          <h2 className="font-semibold text-sm tracking-normal min-w-0 break-words flex flex-wrap items-center gap-2">
             {block.title}
             {block.filterKeyword && (
               <span className={`text-[9px] font-black uppercase px-2 py-0.5 rounded ${acc.bgLight} ${acc.textDark} border ${acc.borderLight} truncate`}>
@@ -250,89 +252,27 @@ export const DynamicBlockCard: React.FC<DynamicBlockCardProps> = ({
           </span>
         </div>
 
-        {/* Block Controls */}
-        <div className="flex items-center gap-1.5 shrink-0">
-          
-          {/* Layout switcher buttons */}
-          <div className={`hidden sm:flex items-center p-0.5 rounded-xl border text-xs ${
-            theme === 'dark' ? 'bg-neutral-900 border-neutral-700 text-neutral-400' : 'bg-neutral-100 border-neutral-300 text-neutral-600'
-          }`}>
-            <button
-              onClick={() => onUpdateBlockLayout('hero')}
-              title={t.createBlock.layouts.hero}
-              className={`p-1 rounded-lg transition-colors ${block.layout === 'hero' ? `${acc.bg} text-black font-extrabold` : theme === 'dark' ? 'hover:text-white' : 'hover:text-neutral-900'}`}
-            >
-              <Columns className="w-3.5 h-3.5" />
-            </button>
-            <button
-              onClick={() => onUpdateBlockLayout('grid')}
-              title={t.createBlock.layouts.grid}
-              className={`p-1 rounded-lg transition-colors ${block.layout === 'grid' ? `${acc.bg} text-black font-extrabold` : theme === 'dark' ? 'hover:text-white' : 'hover:text-neutral-900'}`}
-            >
-              <LayoutGrid className="w-3.5 h-3.5" />
-            </button>
-            <button
-              onClick={() => onUpdateBlockLayout('list')}
-              title={t.createBlock.layouts.list}
-              className={`p-1 rounded-lg transition-colors ${block.layout === 'list' ? `${acc.bg} text-black font-extrabold` : theme === 'dark' ? 'hover:text-white' : 'hover:text-neutral-900'}`}
-            >
-              <List className="w-3.5 h-3.5" />
-            </button>
-            <button
-              onClick={() => onUpdateBlockLayout('compact')}
-              title={t.createBlock.layouts.compact}
-              className={`p-1 rounded-lg transition-colors ${block.layout === 'compact' ? `${acc.bg} text-black font-extrabold` : theme === 'dark' ? 'hover:text-white' : 'hover:text-neutral-900'}`}
-            >
-              <MessageSquareText className="w-3.5 h-3.5" />
-            </button>
-          </div>
-
-          {/* AI Summarize Button */}
-          <button
-            onClick={onGenerateAISummary}
-            disabled={isGeneratingAI || displayItems.length === 0}
-            title={t.block.aiSummary}
-            className={`flex items-center gap-1 px-2.5 py-1 rounded-xl text-xs font-black uppercase tracking-wider ${acc.bg} ${acc.bgHover} text-black transition-all shadow-xs`}
-          >
-            <Sparkles className={`w-3.5 h-3.5 ${isGeneratingAI ? 'animate-spin' : ''}`} />
-            <span className="hidden md:inline">{isGeneratingAI ? '...' : t.block.aiSummary}</span>
+        <div className="flex items-center gap-2 shrink-0">
+          <button onClick={onGenerateAISummary} disabled={isGeneratingAI || displayItems.length === 0}
+            title={t.block.aiSummary} className={`flex items-center gap-2 px-3 py-2 rounded-xl text-xs font-semibold ${acc.bgLight} ${acc.textDark}`}>
+            <Sparkles className="w-4 h-4" />{isGeneratingAI ? '...' : t.block.aiSummary}
           </button>
-
-          {/* Refresh Block */}
-          <button
-            onClick={onRefreshBlock}
-            disabled={isLoading}
-            title={t.block.refresh}
-            className={`p-1.5 rounded-xl transition-colors ${
-              theme === 'dark' ? 'hover:bg-neutral-700 text-neutral-400' : 'hover:bg-neutral-100 text-neutral-600'
-            }`}
-          >
-            <RefreshCw className={`w-4 h-4 ${isLoading ? `animate-spin ${acc.text}` : ''}`} />
-          </button>
-
-          {/* Block Settings */}
-          <button
-            onClick={onEditBlock}
-            title={t.block.edit}
-            className={`p-1.5 rounded-xl transition-colors ${
-              theme === 'dark' ? 'hover:bg-neutral-700 text-neutral-400' : 'hover:bg-neutral-100 text-neutral-600'
-            }`}
-          >
-            <Settings2 className="w-4 h-4" />
-          </button>
-
-          {/* Delete Block */}
-          <button
-            onClick={onDeleteBlock}
-            title={t.block.remove}
-            className={`p-1.5 rounded-xl transition-colors text-red-400 hover:bg-red-500/10 cursor-pointer`}
-          >
-            <Trash2 className="w-4 h-4" />
-          </button>
+          <button onClick={() => setMenuOpen(!menuOpen)} aria-expanded={menuOpen}
+            aria-label={language === 'pt' ? 'Opções do bloco' : 'Block options'}
+            className="p-2 rounded-xl hover:bg-neutral-500/10"><MoreHorizontal className="w-5 h-5" /></button>
         </div>
       </div>
+      {menuOpen && <div className="flex flex-wrap items-center gap-2 px-5 py-3 border-b border-neutral-500/20">
+        {(['hero', 'grid', 'list', 'compact'] as BlockLayout[]).map(layout =>
+          <button key={layout} onClick={() => { onUpdateBlockLayout(layout); setMenuOpen(false); }}
+            className={`px-3 py-2 rounded-lg text-xs ${block.layout === layout ? `${acc.bgLight} ${acc.textDark}` : ''}`}>
+            {t.createBlock.layouts[layout]}
+          </button>)}
+        <button onClick={() => { onRefreshBlock(); setMenuOpen(false); }} className="px-3 py-2 text-xs">{t.block.refresh}</button>
+        <button onClick={() => { onEditBlock(); setMenuOpen(false); }} className="px-3 py-2 text-xs">{t.block.edit}</button>
+        <button onClick={() => { onDeleteBlock(); setMenuOpen(false); }} className="px-3 py-2 text-xs text-red-400">{t.block.remove}</button>
+      </div>}
 
-      {/* AI Digest Drawer Banner if generated */}
       {block.aiSummary && (
         <div className={`p-4 border-b transition-all text-xs ${
           theme === 'dark' ? 'bg-purple-950/30 border-purple-800/40 text-purple-200' : 'bg-purple-50 border-purple-200 text-purple-900'
@@ -406,7 +346,7 @@ export const DynamicBlockCard: React.FC<DynamicBlockCardProps> = ({
           <>
             {/* HERO LAYOUT */}
             {block.layout === 'hero' && (
-              <div className="grid grid-cols-1 md:grid-cols-12 gap-4">
+              <div className="grid grid-cols-1 md:grid-cols-12 items-start gap-4">
                 {/* Featured Big Item */}
                 {(() => {
                   const source = getSourceBadge(displayItems[0].sourceName);
@@ -415,7 +355,7 @@ export const DynamicBlockCard: React.FC<DynamicBlockCardProps> = ({
                       onClick={() => onSelectArticle(displayItems[0])}
                       className={`md:col-span-7 group cursor-pointer rounded-2xl overflow-hidden border ${
                         theme === 'dark'
-                          ? 'border-accent-500/80 bg-[#131520] shadow-[0_0_25px_rgba(245,158,11,0.15)] hover:border-accent-400'
+                          ? 'border-neutral-800 bg-[var(--surface-panel)] hover:border-accent-400'
                           : 'border-accent-500/80 bg-white shadow-lg hover:border-accent-500'
                       } transition-all p-4 flex flex-col justify-between`}
                     >
@@ -480,7 +420,7 @@ export const DynamicBlockCard: React.FC<DynamicBlockCardProps> = ({
                               ? 'bg-emerald-950/90 border-emerald-500/50 text-emerald-400'
                               : 'bg-emerald-100 border-emerald-300 text-emerald-700'
                           }`}>
-                            {t.block.aiSummary}
+                            {language === 'pt' ? 'Trecho do feed' : 'Feed excerpt'}
                           </span>
                           <span className={`text-[11px] truncate ${
                             theme === 'dark' ? 'text-neutral-300' : 'text-neutral-700'

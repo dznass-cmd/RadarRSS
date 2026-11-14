@@ -120,14 +120,14 @@ export const ManageFeedsModal: React.FC<ManageFeedsModalProps> = ({
         <div className="p-3 sm:p-6 overflow-y-auto overscroll-contain min-h-0 space-y-4 sm:space-y-6">
           
           {/* Add Custom Feed Form */}
-          <div className={`p-3 sm:p-5 rounded-2xl border ${
+          <details className={`p-3 sm:p-5 rounded-2xl border ${
             theme === 'dark' ? 'bg-neutral-950/60 border-neutral-800' : 'bg-neutral-50 border-neutral-200'
           }`}>
-            <h4 className="font-black text-xs uppercase tracking-widest text-accent-500 mb-3 flex items-center gap-1.5">
+            <summary className="font-semibold text-sm text-accent-500 flex items-center gap-2 cursor-pointer">
               <Plus className="w-4 h-4" />
               {t.manageFeeds.addFeed}
-            </h4>
-            <form onSubmit={handleValidateAndAdd} className="space-y-3">
+            </summary>
+            <form onSubmit={handleValidateAndAdd} className="space-y-3 mt-4">
               <div className="grid grid-cols-1 sm:grid-cols-12 gap-2">
                 <input
                   type="url"
@@ -185,7 +185,7 @@ export const ManageFeedsModal: React.FC<ManageFeedsModalProps> = ({
                 </p>
               )}
             </form>
-          </div>
+          </details>
 
           {/* Active / Inactive Feed Catalog */}
           <div>
