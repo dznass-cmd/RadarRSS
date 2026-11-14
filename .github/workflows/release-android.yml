@@ -1,8 +1,6 @@
 name: Build Android APK
 
 on:
-  release:
-    types: [published]
   workflow_dispatch:
 
 permissions:
@@ -52,10 +50,9 @@ jobs:
       - name: Rename APK
         run: mv android/app/build/outputs/apk/debug/app-debug.apk Radar-RSS-${{ steps.tag.outputs.version }}.apk
 
-      - name: Upload APK to release
-        uses: softprops/action-gh-release@v2
+      # Debug builds are CI artifacts only. Public Android releases must use the private release key.
+      - name: Upload debug APK artifact
+        uses: actions/upload-artifact@v4
         with:
-          tag_name: v${{ steps.tag.outputs.version }}
-          files: Radar-RSS-${{ steps.tag.outputs.version }}.apk
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          name: android-debug-${{ steps.tag.outputs.version }}
+          path: Radar-RSS-${{ steps.tag.outputs.version }}.apk

@@ -71,13 +71,13 @@ export const GlobalFeedsModal: React.FC<GlobalFeedsModalProps> = ({
           theme === 'dark' ? 'bg-neutral-950/80 border-neutral-800' : 'bg-neutral-100 border-neutral-200'
         }`}>
           <div className="flex items-center gap-3">
-            <div className="p-2.5 rounded-2xl bg-orange-500/20 text-orange-400 border border-orange-500/30">
+            <div className="p-2.5 rounded-2xl bg-accent-500/20 text-accent-400 border border-accent-500/30">
               <Globe className="w-5 h-5 animate-pulse" />
             </div>
             <div>
               <h3 className="font-black text-lg tracking-tight uppercase flex items-center gap-2">
                 {t.globalFeeds.title}
-                <span className="px-2 py-0.5 rounded text-[10px] bg-orange-500 text-black font-extrabold uppercase">
+                <span className="px-2 py-0.5 rounded text-[10px] bg-accent-500 text-black font-extrabold uppercase">
                   {GLOBAL_FEEDS_BY_COUNTRY.length} {t.globalFeeds.feedsCount}
                 </span>
               </h3>
@@ -109,7 +109,7 @@ export const GlobalFeedsModal: React.FC<GlobalFeedsModalProps> = ({
               onChange={(e) => setSearchQuery(e.target.value)}
               placeholder={t.globalFeeds.searchPlaceholder}
               className={`w-full pl-9 pr-4 py-2 text-xs font-medium rounded-xl border outline-none ${
-                theme === 'dark' ? 'bg-neutral-950 border-neutral-800 focus:border-orange-500' : 'bg-white border-neutral-300 focus:border-orange-500'
+                theme === 'dark' ? 'bg-neutral-950 border-neutral-800 focus:border-accent-500' : 'bg-white border-neutral-300 focus:border-accent-500'
               }`}
             />
           </div>
@@ -120,7 +120,7 @@ export const GlobalFeedsModal: React.FC<GlobalFeedsModalProps> = ({
               onClick={() => setSelectedCountry('ALL')}
               className={`px-3 py-1.5 rounded-xl text-xs font-black uppercase tracking-wider whitespace-nowrap transition-all cursor-pointer ${
                 selectedCountry === 'ALL'
-                  ? 'bg-orange-500 text-black shadow-md'
+                  ? 'bg-accent-500 text-black shadow-md'
                   : theme === 'dark' ? 'bg-neutral-800 text-neutral-300 hover:bg-neutral-700' : 'bg-neutral-200 text-neutral-700 hover:bg-neutral-300'
               }`}
             >
@@ -136,7 +136,7 @@ export const GlobalFeedsModal: React.FC<GlobalFeedsModalProps> = ({
                   onClick={() => setSelectedCountry(c.code)}
                   className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-bold whitespace-nowrap transition-all cursor-pointer ${
                     isSelected
-                      ? 'bg-orange-500 text-black shadow-md'
+                      ? 'bg-accent-500 text-black shadow-md'
                       : theme === 'dark' ? 'bg-neutral-800 text-neutral-300 hover:bg-neutral-700' : 'bg-neutral-200 text-neutral-700 hover:bg-neutral-300'
                   }`}
                 >
@@ -197,7 +197,7 @@ export const GlobalFeedsModal: React.FC<GlobalFeedsModalProps> = ({
                       className={`px-3 py-1 rounded-xl text-[10px] font-black uppercase tracking-wider transition-all flex items-center gap-1 cursor-pointer ${
                         isAlreadyAdded
                           ? 'bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 cursor-default'
-                          : 'bg-orange-500 hover:bg-orange-400 text-black shadow-sm'
+                          : 'bg-accent-500 hover:bg-accent-400 text-black shadow-sm'
                       }`}
                     >
                       {isAlreadyAdded ? (

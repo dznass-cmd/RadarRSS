@@ -114,7 +114,7 @@ export const Navbar: React.FC<NavbarProps> = ({
   return (
     <header className={`sticky top-0 z-40 border-b transition-colors duration-200 ${
       settings.theme === 'dark'
-        ? 'bg-[#0a0b0e]/95 border-neutral-800/80 text-neutral-100 backdrop-blur-xl'
+        ? 'bg-[var(--surface-dark)]/95 border-neutral-800/80 text-neutral-100 backdrop-blur-xl'
         : 'bg-white/95 border-neutral-200 text-neutral-900 backdrop-blur-xl shadow-xs'
     }`}>
       <div className="max-w-[1680px] w-full mx-auto px-3 sm:px-6 lg:px-8">
@@ -131,10 +131,10 @@ export const Navbar: React.FC<NavbarProps> = ({
               <span className={`font-black text-base sm:text-xl tracking-tight uppercase flex items-center ${
                 settings.theme === 'dark' ? 'text-neutral-100' : 'text-neutral-900'
               }`}>
-                RADAR<span className={`${settings.theme === 'dark' ? 'text-amber-400' : 'text-amber-600'} ml-1`}>RSS</span>
+                RADAR<span className={`${settings.theme === 'dark' ? 'text-accent-400' : 'text-accent-600'} ml-1`}>RSS</span>
               </span>
-              <span className="text-[9px] font-black uppercase tracking-wider px-1.5 py-0.5 rounded bg-amber-500/20 text-amber-400 border border-amber-500/30 hidden xs:inline-block">
-                v0.2.0
+              <span className="text-[9px] font-black uppercase tracking-wider px-1.5 py-0.5 rounded bg-accent-500/20 text-accent-400 border border-accent-500/30 hidden xs:inline-block">
+                v0.2.1
               </span>
             </div>
           </div>
@@ -150,8 +150,8 @@ export const Navbar: React.FC<NavbarProps> = ({
               placeholder={`${t.nav.searchPlaceholder} (Ctrl+F)`}
               className={`w-full pl-9 pr-8 py-1.5 text-xs font-medium rounded-xl border transition-all outline-none ${
                 settings.theme === 'dark'
-                  ? 'bg-neutral-900/90 border-neutral-800 text-neutral-100 placeholder-neutral-500 focus:border-amber-500/50'
-                  : 'bg-neutral-100 border-neutral-300 text-neutral-900 placeholder-neutral-400 focus:border-amber-500/50'
+                  ? 'bg-neutral-900/90 border-neutral-800 text-neutral-100 placeholder-neutral-500 focus:border-accent-500/50'
+                  : 'bg-neutral-100 border-neutral-300 text-neutral-900 placeholder-neutral-400 focus:border-accent-500/50'
               }`}
             />
             {searchQuery && (
@@ -176,7 +176,7 @@ export const Navbar: React.FC<NavbarProps> = ({
                   onClick={() => onSelectCategory && onSelectCategory(tab.id)}
                   className={`relative py-1 text-xs font-bold tracking-wide transition-colors cursor-pointer ${
                     isActive
-                      ? 'text-amber-400'
+                      ? 'text-accent-400'
                       : settings.theme === 'dark'
                         ? 'text-neutral-400 hover:text-neutral-200'
                         : 'text-neutral-500 hover:text-neutral-900'
@@ -184,7 +184,7 @@ export const Navbar: React.FC<NavbarProps> = ({
                 >
                   {tab.label}
                   {isActive && (
-                    <span className="absolute bottom-0 left-0 right-0 h-0.5 bg-amber-400 rounded-full shadow-[0_0_8px_rgba(251,191,36,0.8)]" />
+                    <span className="absolute bottom-0 left-0 right-0 h-0.5 bg-accent-400 rounded-full shadow-[0_0_8px_rgba(251,191,36,0.8)]" />
                   )}
                 </button>
               );
@@ -273,8 +273,8 @@ export const Navbar: React.FC<NavbarProps> = ({
               title={settings.language === 'pt' ? 'Mudar idioma para Inglês' : 'Mudar idioma para Português (Brasil)'}
               className={`hidden sm:flex px-2.5 py-1.5 rounded-2xl border text-xs font-mono font-bold transition-all cursor-pointer flex items-center gap-1 ${
                 settings.theme === 'dark'
-                  ? 'bg-neutral-900 border-neutral-800 text-amber-400 hover:bg-neutral-800 hover:border-amber-500/50'
-                  : 'bg-neutral-100 border-neutral-300 text-amber-700 hover:bg-neutral-200 hover:border-amber-500/50'
+                  ? 'bg-neutral-900 border-neutral-800 text-accent-400 hover:bg-neutral-800 hover:border-accent-500/50'
+                  : 'bg-neutral-100 border-neutral-300 text-accent-700 hover:bg-neutral-200 hover:border-accent-500/50'
               }`}
             >
               <span>{settings.language === 'pt' ? '🇧🇷 PT' : '🇺🇸 EN'}</span>
@@ -287,11 +287,11 @@ export const Navbar: React.FC<NavbarProps> = ({
                 title="Donate / Support Radar RSS"
                 className={`hidden sm:flex px-2.5 py-1.5 rounded-2xl border text-xs font-bold transition-all cursor-pointer flex items-center gap-1.5 ${
                   settings.theme === 'dark'
-                    ? 'bg-amber-500/10 border-amber-500/30 text-amber-400 hover:bg-amber-500/20'
-                    : 'bg-amber-50 border-amber-300 text-amber-700 hover:bg-amber-100'
+                    ? 'bg-accent-500/10 border-accent-500/30 text-accent-400 hover:bg-accent-500/20'
+                    : 'bg-accent-50 border-accent-300 text-accent-700 hover:bg-accent-100'
                 }`}
               >
-                <Heart className="w-3.5 h-3.5 fill-amber-400/30 text-amber-500" />
+                <Heart className="w-3.5 h-3.5 fill-accent-400/30 text-accent-500" />
                 <span className="hidden xl:inline">Donate</span>
               </button>
             )}
@@ -338,7 +338,7 @@ export const Navbar: React.FC<NavbarProps> = ({
                 onClick={() => onSelectCategory && onSelectCategory(tab.id)}
                 className={`px-3 py-1 rounded-xl text-xs font-bold whitespace-nowrap transition-all ${
                   isActive
-                    ? 'bg-amber-500 text-black shadow-sm'
+                    ? 'bg-accent-500 text-black shadow-sm'
                     : settings.theme === 'dark'
                       ? 'bg-neutral-900/90 text-neutral-400 border border-neutral-800/80 hover:text-white'
                       : 'bg-neutral-200/90 text-neutral-600 border border-neutral-300/80 hover:text-neutral-900'
@@ -380,7 +380,7 @@ export const Navbar: React.FC<NavbarProps> = ({
         {mobileMenuOpen && (
           <div className={`lg:hidden p-3 border-t rounded-b-2xl mb-2 flex flex-wrap gap-2 text-xs transition-all ${
             settings.theme === 'dark'
-              ? 'border-neutral-800 bg-[#0d0e12] text-neutral-100'
+              ? 'border-neutral-800 bg-[var(--surface-panel)] text-neutral-100'
               : 'border-neutral-200 bg-neutral-100 text-neutral-900 shadow-md'
           }`}>
             {[
@@ -401,7 +401,7 @@ export const Navbar: React.FC<NavbarProps> = ({
                 onOpenAICurator();
                 setMobileMenuOpen(false);
               }}
-              className="flex items-center gap-1.5 px-3 py-2 rounded-xl bg-amber-500/20 text-amber-500 border border-amber-500/40 font-bold cursor-pointer"
+              className="flex items-center gap-1.5 px-3 py-2 rounded-xl bg-accent-500/20 text-accent-500 border border-accent-500/40 font-bold cursor-pointer"
             >
               <Sparkles className="w-3.5 h-3.5" />
               <span>{t.nav.aiCurator}</span>
@@ -415,11 +415,11 @@ export const Navbar: React.FC<NavbarProps> = ({
                 }}
                 className={`flex items-center gap-1.5 px-3 py-2 rounded-xl border font-bold cursor-pointer ${
                   settings.theme === 'dark'
-                    ? 'bg-amber-500/10 text-amber-400 border-amber-500/30'
-                    : 'bg-amber-50 text-amber-700 border-amber-300'
+                    ? 'bg-accent-500/10 text-accent-400 border-accent-500/30'
+                    : 'bg-accent-50 text-accent-700 border-accent-300'
                 }`}
               >
-                <Heart className="w-3.5 h-3.5 fill-amber-400/30 text-amber-500" />
+                <Heart className="w-3.5 h-3.5 fill-accent-400/30 text-accent-500" />
                 <span>Support Radar RSS (Donate)</span>
               </button>
             )}
@@ -462,7 +462,7 @@ export const Navbar: React.FC<NavbarProps> = ({
                   : 'bg-white text-neutral-700 border-neutral-300 hover:bg-neutral-200'
               }`}
             >
-              {settings.theme === 'dark' ? <Sun className="w-3.5 h-3.5 text-amber-400" /> : <Moon className="w-3.5 h-3.5" />}
+              {settings.theme === 'dark' ? <Sun className="w-3.5 h-3.5 text-accent-400" /> : <Moon className="w-3.5 h-3.5" />}
               <span>{settings.theme === 'dark' ? t.settings.themeLight : t.settings.themeDark}</span>
             </button>
           </div>

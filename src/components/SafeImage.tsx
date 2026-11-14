@@ -68,7 +68,7 @@ export const SafeImage: React.FC<SafeImageProps> = ({
     <div className={`relative w-full h-full ${containerClassName}`}>
       {loading && (
         <div className="absolute inset-0 bg-neutral-900 animate-pulse flex items-center justify-center">
-          <div className="w-5 h-5 border-2 border-neutral-700 border-t-amber-500 rounded-full animate-spin" />
+          <div className="w-5 h-5 border-2 border-neutral-700 border-t-accent-500 rounded-full animate-spin" />
         </div>
       )}
       <img

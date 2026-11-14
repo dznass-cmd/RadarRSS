@@ -36,7 +36,7 @@ export const CreateBlockModal: React.FC<CreateBlockModalProps> = ({
       categoryFilter: 'brazil',
       layout: 'hero' as BlockLayout,
       itemCount: 5,
-      accentColor: 'from-amber-500 to-red-600',
+      accentColor: 'from-accent-500 to-red-600',
     },
     {
       title: '💻 Mundo Tech & Startups',
@@ -66,7 +66,7 @@ export const CreateBlockModal: React.FC<CreateBlockModalProps> = ({
       categoryFilter: 'world',
       layout: 'hero' as BlockLayout,
       itemCount: 5,
-      accentColor: 'from-amber-500 to-red-600',
+      accentColor: 'from-accent-500 to-red-600',
     },
     {
       title: '💻 Technology & Dev News',
@@ -124,7 +124,7 @@ export const CreateBlockModal: React.FC<CreateBlockModalProps> = ({
       itemCount,
       autoRefreshSec,
       isPinned: initialBlock?.isPinned || false,
-      accentColor: initialBlock?.accentColor || 'from-amber-500 to-red-500',
+      accentColor: initialBlock?.accentColor || 'from-accent-500 to-red-500',
     };
 
     onSaveBlock(newBlock);
@@ -148,7 +148,7 @@ export const CreateBlockModal: React.FC<CreateBlockModalProps> = ({
         <div className={`p-5 border-b flex items-center justify-between ${theme === 'dark' ? 'bg-neutral-950/80 border-neutral-800' : 'bg-neutral-100 border-neutral-200'
           }`}>
           <h3 className="font-black text-sm uppercase tracking-wider flex items-center gap-2">
-            <Layers className="w-5 h-5 text-orange-500" />
+            <Layers className="w-5 h-5 text-accent-500" />
             {initialBlock ? t.createBlock.titleEdit : t.createBlock.titleCreate}
           </h3>
           <button
@@ -167,7 +167,7 @@ export const CreateBlockModal: React.FC<CreateBlockModalProps> = ({
           {/* Quick Presets */}
           {!initialBlock && (
             <div className="mb-4">
-              <label className="block text-xs font-black text-orange-500 uppercase tracking-widest mb-2">
+              <label className="block text-xs font-black text-accent-500 uppercase tracking-widest mb-2">
                 {t.createBlock.presets}
               </label>
               <div className="grid grid-cols-2 gap-2">
@@ -177,8 +177,8 @@ export const CreateBlockModal: React.FC<CreateBlockModalProps> = ({
                     type="button"
                     onClick={() => applyPreset(p)}
                     className={`p-3 rounded-2xl border text-left text-xs font-extrabold transition-all cursor-pointer ${theme === 'dark'
-                        ? 'bg-neutral-950/60 border-neutral-800 hover:border-orange-500/50'
-                        : 'bg-neutral-50 border-neutral-200 hover:border-orange-500/50'
+                        ? 'bg-neutral-950/60 border-neutral-800 hover:border-accent-500/50'
+                        : 'bg-neutral-50 border-neutral-200 hover:border-accent-500/50'
                       }`}
                   >
                     {p.title}
@@ -205,8 +205,8 @@ export const CreateBlockModal: React.FC<CreateBlockModalProps> = ({
               onChange={(e) => setTitle(e.target.value)}
               placeholder={t.createBlock.blockTitlePlaceholder}
               className={`w-full px-4 py-3 text-xs font-bold rounded-2xl border outline-none ${theme === 'dark'
-                  ? 'bg-neutral-950 border-neutral-800 focus:border-orange-500'
-                  : 'bg-neutral-50 border-neutral-200 focus:border-orange-500'
+                  ? 'bg-neutral-950 border-neutral-800 focus:border-accent-500'
+                  : 'bg-neutral-50 border-neutral-200 focus:border-accent-500'
                 }`}
             />
           </div>
@@ -220,8 +220,8 @@ export const CreateBlockModal: React.FC<CreateBlockModalProps> = ({
               value={categoryFilter}
               onChange={(e) => setCategoryFilter(e.target.value)}
               className={`w-full px-4 py-3 text-xs font-bold rounded-2xl border outline-none ${theme === 'dark'
-                  ? 'bg-neutral-950 border-neutral-800 focus:border-orange-500'
-                  : 'bg-neutral-50 border-neutral-200 focus:border-orange-500'
+                  ? 'bg-neutral-950 border-neutral-800 focus:border-accent-500'
+                  : 'bg-neutral-50 border-neutral-200 focus:border-accent-500'
                 }`}
             >
               <option value="all">🌐 {t.createBlock.categories.all}</option>
@@ -249,8 +249,8 @@ export const CreateBlockModal: React.FC<CreateBlockModalProps> = ({
               onChange={(e) => setFilterKeyword(e.target.value)}
               placeholder={t.createBlock.keywordsPlaceholder}
               className={`w-full px-4 py-3 text-xs font-mono rounded-2xl border outline-none ${theme === 'dark'
-                  ? 'bg-neutral-950 border-neutral-800 focus:border-orange-500'
-                  : 'bg-neutral-50 border-neutral-200 focus:border-orange-500'
+                  ? 'bg-neutral-950 border-neutral-800 focus:border-accent-500'
+                  : 'bg-neutral-50 border-neutral-200 focus:border-accent-500'
                 }`}
             />
           </div>
@@ -275,7 +275,7 @@ export const CreateBlockModal: React.FC<CreateBlockModalProps> = ({
                     type="button"
                     onClick={() => setLayout(l.id as BlockLayout)}
                     className={`flex flex-col items-center justify-center p-3 rounded-2xl border text-[10px] font-black uppercase tracking-wider gap-1.5 transition-all cursor-pointer ${active
-                        ? 'bg-orange-500 text-black border-orange-500'
+                        ? 'bg-accent-500 text-black border-accent-500'
                         : theme === 'dark'
                           ? 'bg-neutral-950/60 border-neutral-800 text-neutral-400 hover:border-neutral-700'
                           : 'bg-neutral-50 border-neutral-200 text-neutral-600 hover:border-neutral-300'
@@ -299,8 +299,8 @@ export const CreateBlockModal: React.FC<CreateBlockModalProps> = ({
                 value={itemCount}
                 onChange={(e) => setItemCount(Number(e.target.value))}
                 className={`w-full px-4 py-3 text-xs font-bold rounded-2xl border outline-none ${theme === 'dark'
-                    ? 'bg-neutral-950 border-neutral-800 focus:border-orange-500'
-                    : 'bg-neutral-50 border-neutral-200 focus:border-orange-500'
+                    ? 'bg-neutral-950 border-neutral-800 focus:border-accent-500'
+                    : 'bg-neutral-50 border-neutral-200 focus:border-accent-500'
                   }`}
               >
                 <option value={3}>3 {t.nav.articles}</option>
@@ -319,8 +319,8 @@ export const CreateBlockModal: React.FC<CreateBlockModalProps> = ({
                 value={autoRefreshSec}
                 onChange={(e) => setAutoRefreshSec(Number(e.target.value))}
                 className={`w-full px-4 py-3 text-xs font-bold rounded-2xl border outline-none ${theme === 'dark'
-                    ? 'bg-neutral-950 border-neutral-800 focus:border-orange-500'
-                    : 'bg-neutral-50 border-neutral-200 focus:border-orange-500'
+                    ? 'bg-neutral-950 border-neutral-800 focus:border-accent-500'
+                    : 'bg-neutral-50 border-neutral-200 focus:border-accent-500'
                   }`}
               >
                 <option value={30}>30s</option>
@@ -335,7 +335,7 @@ export const CreateBlockModal: React.FC<CreateBlockModalProps> = ({
           <div className="pt-3">
             <button
               type="submit"
-              className="w-full py-3.5 px-4 rounded-2xl font-black uppercase tracking-wider text-xs bg-orange-500 hover:bg-orange-400 text-black shadow-xl transition-all flex items-center justify-center gap-2 cursor-pointer"
+              className="w-full py-3.5 px-4 rounded-2xl font-black uppercase tracking-wider text-xs bg-accent-500 hover:bg-accent-400 text-black shadow-xl transition-all flex items-center justify-center gap-2 cursor-pointer"
             >
               <Plus className="w-5 h-5" />
               <span>{initialBlock ? t.createBlock.save : t.createBlock.save}</span>

@@ -72,8 +72,8 @@ export const AICuratorModal: React.FC<AICuratorModalProps> = ({
           theme === 'dark' ? 'bg-neutral-950/80 border-neutral-800' : 'bg-neutral-100 border-neutral-200'
         }`}>
           <div className="flex items-center gap-2">
-            <Sparkles className="w-5 h-5 text-orange-500" />
-            <h3 className="font-black text-sm uppercase tracking-wider text-orange-500">
+            <Sparkles className="w-5 h-5 text-accent-500" />
+            <h3 className="font-black text-sm uppercase tracking-wider text-accent-500">
               {t.aiCurator.title} ({t.aiCurator.poweredBy})
             </h3>
           </div>
@@ -100,7 +100,7 @@ export const AICuratorModal: React.FC<AICuratorModalProps> = ({
               onChange={(e) => setPrompt(e.target.value)}
               placeholder={t.aiCurator.placeholder}
               className={`w-full p-3.5 text-xs font-mono rounded-2xl border outline-none resize-none ${
-                theme === 'dark' ? 'bg-neutral-950 border-neutral-800 focus:border-orange-500' : 'bg-neutral-50 border-neutral-200'
+                theme === 'dark' ? 'bg-neutral-950 border-neutral-800 focus:border-accent-500' : 'bg-neutral-50 border-neutral-200'
               }`}
             />
           </div>
@@ -121,12 +121,12 @@ export const AICuratorModal: React.FC<AICuratorModalProps> = ({
                   }}
                   className={`w-full text-left p-2.5 rounded-2xl border text-[11px] font-bold transition-all flex items-center justify-between group cursor-pointer ${
                     theme === 'dark'
-                      ? 'bg-neutral-950/60 border-neutral-800 hover:border-orange-500/50 hover:bg-neutral-800'
-                      : 'bg-neutral-50 border-neutral-200 hover:border-orange-500/50'
+                      ? 'bg-neutral-950/60 border-neutral-800 hover:border-accent-500/50 hover:bg-neutral-800'
+                      : 'bg-neutral-50 border-neutral-200 hover:border-accent-500/50'
                   }`}
                 >
                   <span className="truncate">{ex}</span>
-                  <ArrowRight className="w-3.5 h-3.5 text-orange-500 group-hover:translate-x-0.5 transition-transform shrink-0" />
+                  <ArrowRight className="w-3.5 h-3.5 text-accent-500 group-hover:translate-x-0.5 transition-transform shrink-0" />
                 </button>
               ))}
             </div>
@@ -143,7 +143,7 @@ export const AICuratorModal: React.FC<AICuratorModalProps> = ({
             <button
               onClick={() => handleCurate()}
               disabled={isCurating || !prompt.trim()}
-              className="w-full py-3.5 px-4 rounded-2xl font-black uppercase tracking-wider text-xs bg-orange-500 hover:bg-orange-400 text-black shadow-xl transition-all flex items-center justify-center gap-2 cursor-pointer"
+              className="w-full py-3.5 px-4 rounded-2xl font-black uppercase tracking-wider text-xs bg-accent-500 hover:bg-accent-400 text-black shadow-xl transition-all flex items-center justify-center gap-2 cursor-pointer"
             >
               {isCurating ? (
                 <>

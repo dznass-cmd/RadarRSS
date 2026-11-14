@@ -103,7 +103,7 @@ export const ManageFeedsModal: React.FC<ManageFeedsModalProps> = ({
           theme === 'dark' ? 'bg-neutral-950/80 border-neutral-800' : 'bg-neutral-100 border-neutral-200'
         }`}>
           <div className="flex items-center gap-2">
-            <ListPlus className="w-5 h-5 text-orange-500" />
+            <ListPlus className="w-5 h-5 text-accent-500" />
             <h3 className="font-black text-sm uppercase tracking-wider">{t.manageFeeds.title}</h3>
           </div>
           <button
@@ -123,7 +123,7 @@ export const ManageFeedsModal: React.FC<ManageFeedsModalProps> = ({
           <div className={`p-3 sm:p-5 rounded-2xl border ${
             theme === 'dark' ? 'bg-neutral-950/60 border-neutral-800' : 'bg-neutral-50 border-neutral-200'
           }`}>
-            <h4 className="font-black text-xs uppercase tracking-widest text-orange-500 mb-3 flex items-center gap-1.5">
+            <h4 className="font-black text-xs uppercase tracking-widest text-accent-500 mb-3 flex items-center gap-1.5">
               <Plus className="w-4 h-4" />
               {t.manageFeeds.addFeed}
             </h4>
@@ -136,7 +136,7 @@ export const ManageFeedsModal: React.FC<ManageFeedsModalProps> = ({
                   onChange={(e) => setCustomUrl(e.target.value)}
                   placeholder={t.manageFeeds.urlPlaceholder}
                   className={`sm:col-span-7 px-3.5 py-2.5 text-xs font-mono rounded-xl border outline-none ${
-                    theme === 'dark' ? 'bg-neutral-900 border-neutral-800 focus:border-orange-500' : 'bg-white border-neutral-300'
+                    theme === 'dark' ? 'bg-neutral-900 border-neutral-800 focus:border-accent-500' : 'bg-white border-neutral-300'
                   }`}
                 />
                 <input
@@ -145,7 +145,7 @@ export const ManageFeedsModal: React.FC<ManageFeedsModalProps> = ({
                   onChange={(e) => setCustomTitle(e.target.value)}
                   placeholder={t.manageFeeds.feedNamePlaceholder}
                   className={`sm:col-span-5 px-3.5 py-2.5 text-xs font-bold rounded-xl border outline-none ${
-                    theme === 'dark' ? 'bg-neutral-900 border-neutral-800 focus:border-orange-500' : 'bg-white border-neutral-300'
+                    theme === 'dark' ? 'bg-neutral-900 border-neutral-800 focus:border-accent-500' : 'bg-white border-neutral-300'
                   }`}
                 />
               </div>
@@ -171,7 +171,7 @@ export const ManageFeedsModal: React.FC<ManageFeedsModalProps> = ({
                 <button
                   type="submit"
                   disabled={isValidating || !customUrl}
-                  className="px-4 py-2 rounded-xl text-xs font-black uppercase tracking-wider bg-orange-500 hover:bg-orange-400 text-black transition-all flex items-center gap-1.5 shadow-md cursor-pointer"
+                  className="px-4 py-2 rounded-xl text-xs font-black uppercase tracking-wider bg-accent-500 hover:bg-accent-400 text-black transition-all flex items-center gap-1.5 shadow-md cursor-pointer"
                 >
                   {isValidating ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Plus className="w-3.5 h-3.5" />}
                   <span>{isValidating ? t.manageFeeds.validating : t.manageFeeds.validateAndAdd}</span>
@@ -278,7 +278,7 @@ export const ManageFeedsModal: React.FC<ManageFeedsModalProps> = ({
                     : 'border-neutral-300 bg-neutral-50 hover:bg-neutral-200 text-neutral-800'
                 }`}
               >
-                <Rss className="w-3.5 h-3.5 text-orange-500" />
+                <Rss className="w-3.5 h-3.5 text-accent-500" />
                 <span>{t.manageFeeds.exportOpml}</span>
               </button>
 
@@ -287,7 +287,7 @@ export const ManageFeedsModal: React.FC<ManageFeedsModalProps> = ({
                   ? 'border-neutral-700 bg-neutral-900/60 hover:bg-neutral-800 text-neutral-200'
                   : 'border-neutral-300 bg-neutral-50 hover:bg-neutral-200 text-neutral-800'
               }`}>
-                <Upload className="w-3.5 h-3.5 text-orange-500" />
+                <Upload className="w-3.5 h-3.5 text-accent-500" />
                 <span>{t.manageFeeds.importOpml}</span>
                 <input
                   type="file"

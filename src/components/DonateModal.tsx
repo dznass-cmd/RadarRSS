@@ -62,7 +62,7 @@ export const DonateModal: React.FC<DonateModalProps> = ({
       <div
         className={`relative w-full max-w-md max-h-[90vh] flex flex-col rounded-3xl border shadow-2xl overflow-hidden transition-all duration-200 ${
           isDark
-            ? 'bg-[#0c0d12] border-neutral-800 text-neutral-100 shadow-amber-500/5'
+            ? 'bg-[#0c0d12] border-neutral-800 text-neutral-100 shadow-accent-500/5'
             : 'bg-white border-neutral-200 text-neutral-900 shadow-xl'
         }`}
       >
@@ -83,7 +83,7 @@ export const DonateModal: React.FC<DonateModalProps> = ({
           </button>
 
           <div className="flex items-center gap-1.5">
-            <Heart className="w-4 h-4 text-amber-500 fill-amber-500/20" />
+            <Heart className="w-4 h-4 text-accent-500 fill-accent-500/20" />
             <h2 className="text-sm font-extrabold uppercase tracking-wider">Donate</h2>
           </div>
 
@@ -125,14 +125,14 @@ export const DonateModal: React.FC<DonateModalProps> = ({
             {/* Goal Progress */}
             <div className="mt-4">
               <div className="flex justify-between items-center mb-1.5">
-                <span className="text-sm font-black text-amber-400">0%</span>
+                <span className="text-sm font-black text-accent-400">0%</span>
                 <span className="text-[10px] font-mono text-neutral-400">$0 / $250 mo</span>
               </div>
               <div className={`w-full h-2.5 rounded-full overflow-hidden ${
                 isDark ? 'bg-neutral-800' : 'bg-neutral-200'
               }`}>
                 <div
-                  className="h-full rounded-full bg-gradient-to-r from-amber-500 via-orange-500 to-amber-400 transition-all duration-1000 shadow-xs"
+                  className="h-full rounded-full bg-gradient-to-r from-accent-500 via-accent-500 to-accent-400 transition-all duration-1000 shadow-xs"
                   style={{ width: '0%' }}
                 />
               </div>
@@ -149,7 +149,7 @@ export const DonateModal: React.FC<DonateModalProps> = ({
           >
             <h3 className="font-bold text-xs uppercase tracking-wider text-neutral-300 flex items-center justify-between">
               <span>Support Radar RSS</span>
-              <span className="text-[9px] font-mono text-amber-400 px-2 py-0.5 rounded-full bg-amber-500/10 border border-amber-500/20">
+              <span className="text-[9px] font-mono text-accent-400 px-2 py-0.5 rounded-full bg-accent-500/10 border border-accent-500/20">
                 Binance / Web3
               </span>
             </h3>
@@ -158,8 +158,8 @@ export const DonateModal: React.FC<DonateModalProps> = ({
             <div
               className={`p-3.5 rounded-xl border flex flex-col gap-2.5 transition-all ${
                 isDark
-                  ? 'bg-neutral-950/80 border-neutral-800 hover:border-amber-500/40'
-                  : 'bg-white border-neutral-200 hover:border-amber-500/40'
+                  ? 'bg-neutral-950/80 border-neutral-800 hover:border-accent-500/40'
+                  : 'bg-white border-neutral-200 hover:border-accent-500/40'
               }`}
             >
               <div className="flex items-center justify-between">
@@ -182,7 +182,7 @@ export const DonateModal: React.FC<DonateModalProps> = ({
                   title={showQr ? 'Hide QR Code' : 'Show QR Code'}
                   className={`p-1.5 rounded-lg border text-xs font-mono transition-colors cursor-pointer flex items-center gap-1 ${
                     showQr
-                      ? 'bg-amber-500/20 text-amber-400 border-amber-500/40'
+                      ? 'bg-accent-500/20 text-accent-400 border-accent-500/40'
                       : isDark
                       ? 'bg-neutral-800 text-neutral-300 border-neutral-700 hover:text-white'
                       : 'bg-neutral-100 text-neutral-700 border-neutral-300 hover:text-black'
@@ -218,7 +218,7 @@ export const DonateModal: React.FC<DonateModalProps> = ({
                   className={`flex items-center gap-1 px-2.5 py-1 rounded-md text-[11px] font-bold font-mono transition-all cursor-pointer shrink-0 ${
                     copied
                       ? 'bg-emerald-500/20 text-emerald-400 border border-emerald-500/40'
-                      : 'bg-amber-500/20 text-amber-400 border border-amber-500/40 hover:bg-amber-500/30'
+                      : 'bg-accent-500/20 text-accent-400 border border-accent-500/40 hover:bg-accent-500/30'
                   }`}
                 >
                   {copied ? (
@@ -228,7 +228,7 @@ export const DonateModal: React.FC<DonateModalProps> = ({
                     </>
                   ) : (
                     <>
-                      <Copy className="w-3 h-3 text-amber-400" />
+                      <Copy className="w-3 h-3 text-accent-400" />
                       <span>Copy</span>
                     </>
                   )}
@@ -256,7 +256,7 @@ export const DonateModal: React.FC<DonateModalProps> = ({
                   <Globe className="w-4 h-4" />
                 </div>
                 <div>
-                  <span className="block font-bold text-xs text-neutral-100 group-hover:text-amber-400 transition-colors">
+                  <span className="block font-bold text-xs text-neutral-100 group-hover:text-accent-400 transition-colors">
                     GitHub Repository & Star
                   </span>
                   <span className="text-[10px] text-neutral-400 font-mono">
@@ -264,7 +264,7 @@ export const DonateModal: React.FC<DonateModalProps> = ({
                   </span>
                 </div>
               </div>
-              <ExternalLink className="w-3.5 h-3.5 text-neutral-500 group-hover:text-amber-400 transition-colors" />
+              <ExternalLink className="w-3.5 h-3.5 text-neutral-500 group-hover:text-accent-400 transition-colors" />
             </a>
           </div>
 
@@ -276,8 +276,8 @@ export const DonateModal: React.FC<DonateModalProps> = ({
                 : 'bg-neutral-50 border-neutral-200'
             }`}
           >
-            <div className="flex items-center gap-1.5 text-xs font-bold text-amber-400">
-              <Star className="w-3.5 h-3.5 fill-amber-400 text-amber-400" />
+            <div className="flex items-center gap-1.5 text-xs font-bold text-accent-400">
+              <Star className="w-3.5 h-3.5 fill-accent-400 text-accent-400" />
               <span>Recent Supporters</span>
             </div>
             <p className="text-[11px] text-neutral-400">
@@ -289,7 +289,7 @@ export const DonateModal: React.FC<DonateModalProps> = ({
                 (name, idx) => (
                   <span
                     key={idx}
-                    className="px-2.5 py-1 rounded-full text-[10px] font-mono font-bold border transition-colors bg-amber-500/20 text-amber-300 border-amber-500/40"
+                    className="px-2.5 py-1 rounded-full text-[10px] font-mono font-bold border transition-colors bg-accent-500/20 text-accent-300 border-accent-500/40"
                   >
                     {name}
                   </span>
