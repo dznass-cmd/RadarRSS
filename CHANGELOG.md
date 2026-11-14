@@ -14,6 +14,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Enable a Content Security Policy for Tauri and disable mixed content in the Android webview.
 
 ### Fixed
+- Show one in-app news alert at a time on small screens and keep its dismissal timer stable across feed updates.
+- Keep the mobile header within the viewport by moving secondary actions into the menu, separating block titles from controls, and reducing mobile page spacing.
+- Exclude Capacitor's copied web assets from TypeScript source checks.
 - Prefer the current checkout's backend when launching Tauri from the project directory, avoiding an outdated installed server fallback.
 - Accept same-origin preflight requests while continuing to reject untrusted origins.
 - Align the Android version with 0.2.0 and increment its version code to 11.

@@ -199,7 +199,7 @@ export const Navbar: React.FC<NavbarProps> = ({
               onClick={onRefreshAll}
               disabled={isRefreshing}
               title={`${t.nav.autoRefreshIn} ${countdown}s. ${t.nav.refresh} (F5 / Ctrl+R)`}
-              className={`flex items-center gap-1.5 px-2.5 sm:px-3 py-1.5 rounded-2xl text-xs font-mono font-bold border transition-all ${
+              className={`flex min-h-10 min-w-10 justify-center items-center gap-1.5 px-2.5 sm:px-3 py-1.5 rounded-2xl text-xs font-mono font-bold border transition-all ${
                 isRefreshing
                   ? `${acc.bgLight} ${acc.borderLight} ${acc.textDark}`
                   : settings.theme === 'dark'
@@ -208,7 +208,7 @@ export const Navbar: React.FC<NavbarProps> = ({
               }`}
             >
               <RefreshCw className={`w-3.5 h-3.5 ${isRefreshing ? `animate-spin ${acc.text}` : ''}`} />
-              <span className="text-[11px]">{isRefreshing ? '...' : `${countdown}s`}</span>
+              <span className="hidden sm:inline text-[11px]">{isRefreshing ? '...' : `${countdown}s`}</span>
             </button>
 
             {/* AI Curator Button */}
@@ -224,7 +224,7 @@ export const Navbar: React.FC<NavbarProps> = ({
             {/* Add Dynamic Block Button */}
             <button
               onClick={onOpenCreateBlock}
-              className={`flex items-center gap-1 px-2.5 sm:px-3 py-1.5 rounded-2xl text-xs font-black uppercase tracking-wider ${acc.bg} ${acc.bgHover} text-black transition-all shadow-md`}
+              className={`hidden sm:flex flex items-center gap-1 px-2.5 sm:px-3 py-1.5 rounded-2xl text-xs font-black uppercase tracking-wider ${acc.bg} ${acc.bgHover} text-black transition-all shadow-md`}
               title={`${t.nav.newBlock} (Ctrl+N)`}
             >
               <Plus className="w-3.5 h-3.5 stroke-[3]" />
@@ -235,7 +235,7 @@ export const Navbar: React.FC<NavbarProps> = ({
             <button
               onClick={onOpenManageFeeds}
               title={t.nav.manageFeeds}
-              className={`p-2 rounded-2xl border transition-all ${
+              className={`hidden sm:flex p-2 rounded-2xl border transition-all ${
                 settings.theme === 'dark'
                   ? 'bg-neutral-900 border-neutral-800 text-neutral-300 hover:bg-neutral-800'
                   : 'bg-neutral-100 border-neutral-300 text-neutral-700 hover:bg-neutral-200'
@@ -248,7 +248,7 @@ export const Navbar: React.FC<NavbarProps> = ({
             <button
               onClick={onToggleBookmarks}
               title={`${t.nav.bookmarks} (Ctrl+B)`}
-              className={`relative p-2 rounded-2xl border transition-all ${
+              className={`hidden sm:flex relative p-2 rounded-2xl border transition-all ${
                 showBookmarksOnly
                   ? `${acc.bgLight} ${acc.borderLight} ${acc.textDark}`
                   : settings.theme === 'dark'
@@ -271,7 +271,7 @@ export const Navbar: React.FC<NavbarProps> = ({
                 onUpdateSettings({ ...settings, language: nextLang });
               }}
               title={settings.language === 'pt' ? 'Mudar idioma para Inglês' : 'Mudar idioma para Português (Brasil)'}
-              className={`px-2.5 py-1.5 rounded-2xl border text-xs font-mono font-bold transition-all cursor-pointer flex items-center gap-1 ${
+              className={`hidden sm:flex px-2.5 py-1.5 rounded-2xl border text-xs font-mono font-bold transition-all cursor-pointer flex items-center gap-1 ${
                 settings.theme === 'dark'
                   ? 'bg-neutral-900 border-neutral-800 text-amber-400 hover:bg-neutral-800 hover:border-amber-500/50'
                   : 'bg-neutral-100 border-neutral-300 text-amber-700 hover:bg-neutral-200 hover:border-amber-500/50'
@@ -285,7 +285,7 @@ export const Navbar: React.FC<NavbarProps> = ({
               <button
                 onClick={onOpenDonate}
                 title="Donate / Support Radar RSS"
-                className={`px-2.5 py-1.5 rounded-2xl border text-xs font-bold transition-all cursor-pointer flex items-center gap-1.5 ${
+                className={`hidden sm:flex px-2.5 py-1.5 rounded-2xl border text-xs font-bold transition-all cursor-pointer flex items-center gap-1.5 ${
                   settings.theme === 'dark'
                     ? 'bg-amber-500/10 border-amber-500/30 text-amber-400 hover:bg-amber-500/20'
                     : 'bg-amber-50 border-amber-300 text-amber-700 hover:bg-amber-100'
@@ -300,7 +300,7 @@ export const Navbar: React.FC<NavbarProps> = ({
             <button
               onClick={onOpenSettings}
               title={`${t.nav.settings} (Ctrl+,)`}
-              className={`p-2 rounded-2xl border transition-all ${
+              className={`hidden sm:flex p-2 rounded-2xl border transition-all ${
                 settings.theme === 'dark'
                   ? 'bg-neutral-900 border-neutral-800 text-neutral-300 hover:bg-neutral-800'
                   : 'bg-neutral-100 border-neutral-300 text-neutral-700 hover:bg-neutral-200'
@@ -312,12 +312,14 @@ export const Navbar: React.FC<NavbarProps> = ({
             {/* Mobile Menu Toggle */}
             <button
               onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-              className={`p-2 rounded-2xl border lg:hidden transition-colors ${
+              className={`min-h-10 min-w-10 flex items-center justify-center p-2 rounded-2xl border lg:hidden transition-colors ${
                 settings.theme === 'dark'
                   ? 'border-neutral-800 bg-neutral-900 text-neutral-300'
                   : 'border-neutral-300 bg-neutral-100 text-neutral-700'
               }`}
               title="Menu"
+              aria-label="Menu"
+              aria-expanded={mobileMenuOpen}
             >
               {mobileMenuOpen ? <X className="w-4 h-4" /> : <Menu className="w-4 h-4" />}
             </button>
@@ -381,6 +383,19 @@ export const Navbar: React.FC<NavbarProps> = ({
               ? 'border-neutral-800 bg-[#0d0e12] text-neutral-100'
               : 'border-neutral-200 bg-neutral-100 text-neutral-900 shadow-md'
           }`}>
+            {[
+              { label: t.nav.newBlock, action: onOpenCreateBlock },
+              { label: t.nav.manageFeeds, action: onOpenManageFeeds },
+              { label: t.nav.bookmarks, action: onToggleBookmarks },
+              { label: t.nav.settings, action: onOpenSettings },
+              { label: settings.language === 'pt' ? 'English' : 'Português', action: () => onUpdateSettings({ ...settings, language: settings.language === 'pt' ? 'en' : 'pt' }) },
+            ].map(({ label, action }) => (
+              <button key={label} onClick={() => { action(); setMobileMenuOpen(false); }}
+                className="sm:hidden min-h-11 px-3 py-2 rounded-xl border border-neutral-500/30 font-bold">
+                {label}
+              </button>
+            ))}
+
             <button
               onClick={() => {
                 onOpenAICurator();

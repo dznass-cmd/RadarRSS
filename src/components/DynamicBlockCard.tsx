@@ -232,12 +232,12 @@ export const DynamicBlockCard: React.FC<DynamicBlockCardProps> = ({
     }`}>
       
       {/* Block Header */}
-      <div className={`px-6 py-4 border-b flex items-center justify-between gap-3 ${
+      <div className={`px-4 sm:px-6 py-3 sm:py-4 border-b flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3 ${
         theme === 'dark' ? 'bg-neutral-900/60 border-neutral-700/80' : 'bg-neutral-50 border-neutral-200'
       }`}>
         <div className="flex items-center gap-3 min-w-0">
           <div className={`w-2.5 h-2.5 rounded-full ${acc.bg} shadow-xs shrink-0`} />
-          <h2 className="font-extrabold text-sm uppercase tracking-wider truncate flex items-center gap-2">
+          <h2 className="font-extrabold text-sm uppercase tracking-wider min-w-0 break-words flex flex-wrap items-center gap-2">
             {block.title}
             {block.filterKeyword && (
               <span className={`text-[9px] font-black uppercase px-2 py-0.5 rounded ${acc.bgLight} ${acc.textDark} border ${acc.borderLight} truncate`}>
