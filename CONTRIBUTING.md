@@ -12,6 +12,8 @@ Please maintain a respectful, welcoming, and harassment-free environment for eve
 
 ## How to Contribute
 
+Write changelog entries, release notes, and update descriptions in English.
+
 ### 1. Reporting Bugs
 - Search existing [Issues](https://github.com/dznass-cmd/RadarRSS/issues) before opening a new one.
 - Use the **Bug Report** template and include:

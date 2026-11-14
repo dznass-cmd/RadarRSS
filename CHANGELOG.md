@@ -5,13 +5,29 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [Unreleased]
+
+### Security
+- Restrict the local server to loopback by default while retaining Cloud Run support and explicitly configured hosted origins.
+- Validate public HTTP(S) destinations, DNS results, and redirects for RSS and article requests; limit remote response sizes and API request rates.
+- Remove the exposed Android signing key and password from repository history, and configure private signing credentials outside version control.
+- Enable a Content Security Policy for Tauri and disable mixed content in the Android webview.
+
+### Fixed
+- Align the Android version with 0.2.0 and increment its version code to 11.
+- Correct the supported versions in the security policy and exclude generated build artifacts from TypeScript checks.
+
+### Migration
+- The next Android APK uses a new signing key. Export your OPML subscriptions before uninstalling the old app and installing the new APK. Uninstalling removes local app data.
+- Repository history has been rewritten to remove compromised signing material. Existing contributors should clone the repository again to avoid restoring the old history.
+
 ## [0.2.0] - 2026-11-11
 
 ### 🚀 Highlights & Major Features
-- **📖 Full Article Reader View (Modo Leitura Completa):**
+- **📖 Full Article Reader View:**
   - Distraction-free article reader powered by **Mozilla Readability** and **DOMPurify** sanitization, scraping destination news pages on demand without paywall banners, ads, cookie popups, or tracking scripts.
   - Dynamic scroll progress bar tracking reading completion in real-time.
-  - Reading metadata badge showing estimated reading time (e.g. `⏱️ 3 min de leitura`) and word count.
+  - Reading metadata badge showing estimated reading time (e.g. `⏱️ 3 min read`) and word count.
   - Seamless one-click toggling between Full Article View and RSS Feed Summary.
   - Deep synergy with Web Speech Text-to-Speech (TTS) and Google Gemini AI Executive Summarization to analyze the entire article body.
 - **📥 Universal OPML 2.0 Feed Import & Export:**
