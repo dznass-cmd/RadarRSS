@@ -13,7 +13,8 @@ import {
   Globe,
   Archive,
   Menu,
-  X
+  X,
+  Heart
 } from 'lucide-react';
 import { AppSettings } from '../types';
 import { getAccent } from '../utils/theme';
@@ -28,6 +29,7 @@ interface NavbarProps {
   onOpenManageFeeds: () => void;
   onOpenGlobalFeeds: () => void;
   onOpenAICurator: () => void;
+  onOpenDonate?: () => void;
   onOpenSettings: () => void;
   onToggleBookmarks: () => void;
   showBookmarksOnly: boolean;
@@ -54,6 +56,7 @@ export const Navbar: React.FC<NavbarProps> = ({
   onOpenManageFeeds,
   onOpenGlobalFeeds,
   onOpenAICurator,
+  onOpenDonate,
   onOpenSettings,
   onToggleBookmarks,
   showBookmarksOnly,
@@ -277,6 +280,22 @@ export const Navbar: React.FC<NavbarProps> = ({
               <span>{settings.language === 'pt' ? '🇧🇷 PT' : '🇺🇸 EN'}</span>
             </button>
 
+            {/* Donate / Support Button */}
+            {onOpenDonate && (
+              <button
+                onClick={onOpenDonate}
+                title="Donate / Support Radar RSS"
+                className={`px-2.5 py-1.5 rounded-2xl border text-xs font-bold transition-all cursor-pointer flex items-center gap-1.5 ${
+                  settings.theme === 'dark'
+                    ? 'bg-amber-500/10 border-amber-500/30 text-amber-400 hover:bg-amber-500/20'
+                    : 'bg-amber-50 border-amber-300 text-amber-700 hover:bg-amber-100'
+                }`}
+              >
+                <Heart className="w-3.5 h-3.5 fill-amber-400/30 text-amber-500" />
+                <span className="hidden xl:inline">Donate</span>
+              </button>
+            )}
+
             {/* Settings */}
             <button
               onClick={onOpenSettings}
@@ -372,6 +391,23 @@ export const Navbar: React.FC<NavbarProps> = ({
               <Sparkles className="w-3.5 h-3.5" />
               <span>{t.nav.aiCurator}</span>
             </button>
+
+            {onOpenDonate && (
+              <button
+                onClick={() => {
+                  onOpenDonate();
+                  setMobileMenuOpen(false);
+                }}
+                className={`flex items-center gap-1.5 px-3 py-2 rounded-xl border font-bold cursor-pointer ${
+                  settings.theme === 'dark'
+                    ? 'bg-amber-500/10 text-amber-400 border-amber-500/30'
+                    : 'bg-amber-50 text-amber-700 border-amber-300'
+                }`}
+              >
+                <Heart className="w-3.5 h-3.5 fill-amber-400/30 text-amber-500" />
+                <span>Support Radar RSS (Donate)</span>
+              </button>
+            )}
 
             <button
               onClick={() => {
