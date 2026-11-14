@@ -138,7 +138,7 @@ app.use((req, res, next) => {
     res.header('Access-Control-Allow-Headers', 'Content-Type, Authorization');
   }
   if (req.method === 'OPTIONS') {
-    return res.sendStatus(origin && !allowedOrigins.has(origin) ? 403 : 204);
+    return res.sendStatus(204);
   }
   next();
 });
@@ -752,4 +752,6 @@ async function startServer() {
   });
 }
 
-startServer();
+export { app, assertPublicHttpUrl, fetchPublicUrl, readLimitedText, secureDispatcher };
+
+if (process.env.RADARRSS_TEST_MODE !== '1') startServer();
