@@ -51,6 +51,8 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
   const [autoStart, setAutoStart] = useState<boolean>(settings.launchOnStartup ?? false);
   const [minimizeToTray, setMinimizeToTray] = useState<boolean>(settings.minimizeToTray ?? true);
   const isElectron = typeof window !== 'undefined' && Boolean(window.electronAPI?.isElectron);
+  const isTauri = typeof window !== 'undefined' && '__TAURI_INTERNALS__' in window;
+  const isDesktop = isElectron || isTauri;
   const t = getTranslation(settings.language);
 
   useEffect(() => {
@@ -630,8 +632,8 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
             />
           </div>
 
-          {/* Windows Desktop Integration Section */}
-          {isElectron && (
+          {/* Desktop Integration Section */}
+          {isDesktop && (
             <div className={`p-4 rounded-2xl border space-y-4 ${
               settings.theme === 'dark' ? 'border-neutral-800 bg-neutral-950/60' : 'border-neutral-200 bg-neutral-50/80'
             }`}>
@@ -703,6 +705,10 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
                   <span>{t.settings.desktop.shortcutsTitle}</span>
                 </div>
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-1.5 text-[10px] font-mono">
+                  <div className="flex items-center justify-between p-1.5 rounded-lg bg-orange-950/20 border border-orange-500/30 sm:col-span-2">
+                    <span className="text-orange-300 font-bold truncate mr-2">{t.settings.desktop.shortcutGlobalToggle}</span>
+                    <kbd className="px-1.5 py-0.5 rounded bg-orange-500/20 text-orange-400 font-extrabold shrink-0 border border-orange-500/40">Ctrl+Shift+R</kbd>
+                  </div>
                   <div className="flex items-center justify-between p-1.5 rounded-lg bg-neutral-900/60 border border-neutral-800/60">
                     <span className="text-neutral-400 truncate mr-2">{t.settings.desktop.shortcutRefresh}</span>
                     <kbd className="px-1.5 py-0.5 rounded bg-neutral-800 text-orange-400 font-bold shrink-0">F5 / Ctrl+R</kbd>

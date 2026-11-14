@@ -12,6 +12,7 @@
   "app": {
     "windows": [
       {
+        "label": "main",
         "title": "Radar RSS",
         "width": 1200,
         "height": 800,
