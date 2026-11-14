@@ -8,6 +8,7 @@ import { ManageFeedsModal } from './components/ManageFeedsModal';
 import { AICuratorModal } from './components/AICuratorModal';
 import { SettingsModal } from './components/SettingsModal';
 import { GlobalFeedsModal } from './components/GlobalFeedsModal';
+import { DonateModal } from './components/DonateModal';
 import { ToastNotificationContainer } from './components/ToastNotificationContainer';
 import { DEFAULT_FEEDS } from './data/defaultFeeds';
 import { DEFAULT_BLOCKS } from './data/defaultBlocks';
@@ -240,6 +241,7 @@ export default function App() {
   const [isGlobalFeedsOpen, setIsGlobalFeedsOpen] = useState<boolean>(false);
   const [isAICuratorOpen, setIsAICuratorOpen] = useState<boolean>(false);
   const [isSettingsOpen, setIsSettingsOpen] = useState<boolean>(false);
+  const [isDonateOpen, setIsDonateOpen] = useState<boolean>(false);
   const [generatingAiBlockId, setGeneratingAiBlockId] = useState<string | null>(null);
 
   // Persistence Effects
@@ -541,6 +543,8 @@ export default function App() {
         const state = activeModalsRef.current;
         if (state.selectedArticle) {
           setSelectedArticle(null);
+        } else if (state.isDonateOpen) {
+          setIsDonateOpen(false);
         } else if (state.isSettingsOpen) {
           setIsSettingsOpen(false);
         } else if (state.isCreateBlockOpen) {
@@ -592,6 +596,7 @@ export default function App() {
     isGlobalFeedsOpen,
     isAICuratorOpen,
     isSettingsOpen,
+    isDonateOpen,
     showBookmarksOnly,
     showArchiveOnly,
   });
@@ -604,6 +609,7 @@ export default function App() {
       isGlobalFeedsOpen,
       isAICuratorOpen,
       isSettingsOpen,
+      isDonateOpen,
       showBookmarksOnly,
       showArchiveOnly,
     };
@@ -627,6 +633,8 @@ export default function App() {
       const state = activeModalsRef.current;
       if (state.selectedArticle) {
         setSelectedArticle(null);
+      } else if (state.isDonateOpen) {
+        setIsDonateOpen(false);
       } else if (state.isManageFeedsOpen) {
         setIsManageFeedsOpen(false);
       } else if (state.isCreateBlockOpen) {
@@ -1083,6 +1091,7 @@ export default function App() {
         onOpenManageFeeds={() => setIsManageFeedsOpen(true)}
         onOpenGlobalFeeds={() => setIsGlobalFeedsOpen(true)}
         onOpenAICurator={() => setIsAICuratorOpen(true)}
+        onOpenDonate={() => setIsDonateOpen(true)}
         onOpenSettings={() => setIsSettingsOpen(true)}
         onToggleBookmarks={() => {
           setShowBookmarksOnly(!showBookmarksOnly);
@@ -1378,6 +1387,14 @@ export default function App() {
         settings={settings}
         onUpdateSettings={setSettings}
         onResetToDefaults={handleResetToDefaults}
+        onTriggerToast={(toast) => addToast(toast)}
+      />
+
+      {/* Support & Donate Modal */}
+      <DonateModal
+        isOpen={isDonateOpen}
+        onClose={() => setIsDonateOpen(false)}
+        theme={settings.theme}
         onTriggerToast={(toast) => addToast(toast)}
       />
 
