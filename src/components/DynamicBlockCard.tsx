@@ -81,8 +81,8 @@ export const DynamicBlockCard: React.FC<DynamicBlockCardProps> = ({
     if (s.includes('cnn')) return { bg: 'bg-red-700', text: 'text-white', dot: 'bg-red-400', name: 'CNN' };
     if (s.includes('bbc')) return { bg: 'bg-red-800', text: 'text-white', dot: 'bg-red-300', name: 'BBC News' };
     if (s.includes('wired')) return { bg: 'bg-zinc-800', text: 'text-white', dot: 'bg-zinc-400', name: 'WIRED' };
-    if (s.includes('hackernews') || s.includes('hacker news')) return { bg: 'bg-orange-600', text: 'text-white', dot: 'bg-orange-400', name: 'HN' };
-    return { bg: 'bg-neutral-700', text: 'text-white', dot: 'bg-amber-400', name: sourceName };
+    if (s.includes('hackernews') || s.includes('hacker news')) return { bg: 'bg-accent-600', text: 'text-white', dot: 'bg-accent-400', name: 'HN' };
+    return { bg: 'bg-neutral-700', text: 'text-white', dot: 'bg-accent-400', name: sourceName };
   };
 
   // Helper for sentiment badge
@@ -141,7 +141,7 @@ export const DynamicBlockCard: React.FC<DynamicBlockCardProps> = ({
         <div className="flex items-center justify-between gap-2 flex-wrap text-[11px]">
           <div className="flex items-center gap-1.5 flex-wrap min-w-0">
             <span className={`inline-flex items-center gap-1 font-black uppercase text-[9px] px-2 py-0.5 rounded-md ${
-              theme === 'dark' ? 'bg-amber-500/20 text-amber-400 border border-amber-500/30' : 'bg-amber-100 text-amber-800 border border-amber-300'
+              theme === 'dark' ? 'bg-accent-500/20 text-accent-400 border border-accent-500/30' : 'bg-accent-100 text-accent-800 border border-accent-300'
             }`}>
               <Layers className="w-3 h-3" />
               <span>{t.block.sourcesCount.replace('{count}', String(story.sourcesCount))}</span>
@@ -188,8 +188,8 @@ export const DynamicBlockCard: React.FC<DynamicBlockCardProps> = ({
                   }}
                   className={`p-2 rounded-xl border flex items-center justify-between gap-2.5 transition-colors cursor-pointer ${
                     theme === 'dark'
-                      ? 'bg-neutral-950/70 border-neutral-800/80 hover:border-amber-500/40 hover:bg-neutral-900'
-                      : 'bg-white border-neutral-200 hover:border-amber-500/40 hover:bg-neutral-100'
+                      ? 'bg-neutral-950/70 border-neutral-800/80 hover:border-accent-500/40 hover:bg-neutral-900'
+                      : 'bg-white border-neutral-200 hover:border-accent-500/40 hover:bg-neutral-100'
                   }`}
                 >
                   <div className="min-w-0 flex-1">
@@ -197,7 +197,7 @@ export const DynamicBlockCard: React.FC<DynamicBlockCardProps> = ({
                       <span className={`w-3 h-3 rounded-full ${srcBadge.bg} flex items-center justify-center text-[7px] font-black text-white`}>
                         {srcBadge.name.charAt(0)}
                       </span>
-                      <span className="font-extrabold text-[10px] text-amber-500">{src.sourceName}</span>
+                      <span className="font-extrabold text-[10px] text-accent-500">{src.sourceName}</span>
                       <span className="text-[9px] text-neutral-400 font-mono">• {getRelativeTime(src.timestamp)}</span>
                     </div>
                     <div className="text-xs font-semibold leading-snug line-clamp-1">{src.title}</div>
@@ -209,7 +209,7 @@ export const DynamicBlockCard: React.FC<DynamicBlockCardProps> = ({
                     rel="noopener noreferrer"
                     onClick={(e) => e.stopPropagation()}
                     title={t.block.viewOriginal}
-                    className={`p-1.5 rounded-lg border text-neutral-400 hover:text-amber-400 transition-colors cursor-pointer shrink-0 ${
+                    className={`p-1.5 rounded-lg border text-neutral-400 hover:text-accent-400 transition-colors cursor-pointer shrink-0 ${
                       theme === 'dark' ? 'hover:bg-neutral-800 border-neutral-700' : 'hover:bg-neutral-200 border-neutral-300'
                     }`}
                   >
@@ -227,7 +227,7 @@ export const DynamicBlockCard: React.FC<DynamicBlockCardProps> = ({
   return (
     <div className={`rounded-3xl border transition-all duration-300 overflow-hidden flex flex-col h-full shadow-xl ${
       theme === 'dark'
-        ? `bg-[#0e1017]/95 border-neutral-800/90 text-neutral-100 ${acc.borderHover}`
+        ? `bg-[var(--surface-panel)]/95 border-neutral-800/90 text-neutral-100 ${acc.borderHover}`
         : `bg-white border-neutral-200 text-neutral-900 ${acc.borderHover} shadow-md`
     }`}>
       
@@ -394,7 +394,7 @@ export const DynamicBlockCard: React.FC<DynamicBlockCardProps> = ({
               </div>
             </div>
             <div className="flex items-center justify-center gap-2 pt-2">
-              <RefreshCw className="w-4 h-4 animate-spin text-amber-500" />
+              <RefreshCw className="w-4 h-4 animate-spin text-accent-500" />
               <span className="text-[11px] font-mono text-neutral-400">{t.block.generatingSummary}</span>
             </div>
           </div>
@@ -415,8 +415,8 @@ export const DynamicBlockCard: React.FC<DynamicBlockCardProps> = ({
                       onClick={() => onSelectArticle(displayItems[0])}
                       className={`md:col-span-7 group cursor-pointer rounded-2xl overflow-hidden border ${
                         theme === 'dark'
-                          ? 'border-amber-500/80 bg-[#131520] shadow-[0_0_25px_rgba(245,158,11,0.15)] hover:border-amber-400'
-                          : 'border-amber-500/80 bg-white shadow-lg hover:border-amber-500'
+                          ? 'border-accent-500/80 bg-[#131520] shadow-[0_0_25px_rgba(245,158,11,0.15)] hover:border-accent-400'
+                          : 'border-accent-500/80 bg-white shadow-lg hover:border-accent-500'
                       } transition-all p-4 flex flex-col justify-between`}
                     >
                       <div>
@@ -460,8 +460,8 @@ export const DynamicBlockCard: React.FC<DynamicBlockCardProps> = ({
                         )}
                         <h3 className={`font-extrabold text-base leading-snug transition-colors mb-2 ${
                           theme === 'dark'
-                            ? 'text-neutral-100 group-hover:text-amber-400'
-                            : 'text-neutral-900 group-hover:text-amber-600'
+                            ? 'text-neutral-100 group-hover:text-accent-400'
+                            : 'text-neutral-900 group-hover:text-accent-600'
                         }`}>
                           {displayItems[0].title}
                         </h3>
@@ -501,7 +501,7 @@ export const DynamicBlockCard: React.FC<DynamicBlockCardProps> = ({
                           <Clock className="w-3 h-3 text-neutral-500" />
                           {getRelativeTime(displayItems[0].timestamp)}
                           {archivedIds.has(displayItems[0].id) && (
-                            <span className="ml-1 text-[9px] font-black text-amber-400 bg-amber-500/20 px-1.5 py-0.2 rounded border border-amber-500/30">
+                            <span className="ml-1 text-[9px] font-black text-accent-400 bg-accent-500/20 px-1.5 py-0.2 rounded border border-accent-500/30">
                               {t.block.archived}
                             </span>
                           )}
@@ -514,9 +514,9 @@ export const DynamicBlockCard: React.FC<DynamicBlockCardProps> = ({
                                 onToggleArchive(displayItems[0]);
                               }}
                               title={archivedIds.has(displayItems[0].id) ? t.archive.unarchive : t.block.archive}
-                              className="p-1 hover:text-amber-400 transition-colors cursor-pointer"
+                              className="p-1 hover:text-accent-400 transition-colors cursor-pointer"
                             >
-                              <X className={`w-3.5 h-3.5 ${archivedIds.has(displayItems[0].id) ? 'text-amber-400' : 'text-neutral-500'}`} />
+                              <X className={`w-3.5 h-3.5 ${archivedIds.has(displayItems[0].id) ? 'text-accent-400' : 'text-neutral-500'}`} />
                             </button>
                           )}
                           <button
@@ -529,7 +529,7 @@ export const DynamicBlockCard: React.FC<DynamicBlockCardProps> = ({
                               });
                             }}
                             title={t.block.share}
-                            className="p-1 hover:text-amber-400 transition-colors cursor-pointer"
+                            className="p-1 hover:text-accent-400 transition-colors cursor-pointer"
                           >
                             <Share2 className="w-3.5 h-3.5" />
                           </button>
@@ -559,8 +559,8 @@ export const DynamicBlockCard: React.FC<DynamicBlockCardProps> = ({
                         onClick={() => onSelectArticle(item)}
                         className={`p-3 rounded-2xl border transition-all cursor-pointer group flex items-center justify-between gap-3 ${
                           theme === 'dark'
-                            ? 'bg-[#131520]/80 border-neutral-800/80 hover:border-amber-500/60 hover:shadow-md'
-                            : 'bg-neutral-50 border-neutral-200 hover:border-amber-500/60'
+                            ? 'bg-[#131520]/80 border-neutral-800/80 hover:border-accent-500/60 hover:shadow-md'
+                            : 'bg-neutral-50 border-neutral-200 hover:border-accent-500/60'
                         }`}
                       >
                         <div className="flex-1 min-w-0">
@@ -571,13 +571,13 @@ export const DynamicBlockCard: React.FC<DynamicBlockCardProps> = ({
                               </span>
                               <span className={`text-[10px] font-bold uppercase tracking-wider ${
                                 theme === 'dark'
-                                  ? 'text-neutral-300 group-hover:text-amber-400'
-                                  : 'text-neutral-600 group-hover:text-amber-600'
+                                  ? 'text-neutral-300 group-hover:text-accent-400'
+                                  : 'text-neutral-600 group-hover:text-accent-600'
                               }`}>
                                 {source.name}
                               </span>
                               {(item as NewsStory).isCluster && (item as NewsStory).sourcesCount > 1 && (
-                                <span className="inline-flex items-center gap-0.5 text-[8px] font-mono font-bold px-1.5 py-0.2 rounded bg-amber-500/20 text-amber-400 border border-amber-500/30">
+                                <span className="inline-flex items-center gap-0.5 text-[8px] font-mono font-bold px-1.5 py-0.2 rounded bg-accent-500/20 text-accent-400 border border-accent-500/30">
                                   <Layers className="w-2.5 h-2.5" />
                                   {(item as NewsStory).sourcesCount} {t.block.sources}
                                 </span>
@@ -589,8 +589,8 @@ export const DynamicBlockCard: React.FC<DynamicBlockCardProps> = ({
                           </div>
                           <h4 className={`font-bold text-xs leading-snug line-clamp-2 ${
                             theme === 'dark'
-                              ? 'text-neutral-100 group-hover:text-amber-400'
-                              : 'text-neutral-900 group-hover:text-amber-600'
+                              ? 'text-neutral-100 group-hover:text-accent-400'
+                              : 'text-neutral-900 group-hover:text-accent-600'
                           }`}>
                             {item.title}
                           </h4>
@@ -625,8 +625,8 @@ export const DynamicBlockCard: React.FC<DynamicBlockCardProps> = ({
                         onClick={() => onSelectArticle(item)}
                         className={`p-3 rounded-2xl border transition-all cursor-pointer group flex items-center justify-between gap-3 ${
                           theme === 'dark'
-                            ? 'bg-[#131520]/80 border-neutral-800/80 hover:border-amber-500/60 hover:shadow-md'
-                            : 'bg-neutral-50 border-neutral-200 hover:border-amber-500/60'
+                            ? 'bg-[#131520]/80 border-neutral-800/80 hover:border-accent-500/60 hover:shadow-md'
+                            : 'bg-neutral-50 border-neutral-200 hover:border-accent-500/60'
                         }`}
                       >
                         <div className="flex-1 min-w-0">
@@ -637,13 +637,13 @@ export const DynamicBlockCard: React.FC<DynamicBlockCardProps> = ({
                               </span>
                               <span className={`text-[10px] font-bold uppercase tracking-wider ${
                                 theme === 'dark'
-                                  ? 'text-neutral-300 group-hover:text-amber-400'
-                                  : 'text-neutral-600 group-hover:text-amber-600'
+                                  ? 'text-neutral-300 group-hover:text-accent-400'
+                                  : 'text-neutral-600 group-hover:text-accent-600'
                               }`}>
                                 {source.name}
                               </span>
                               {(item as NewsStory).isCluster && (item as NewsStory).sourcesCount > 1 && (
-                                <span className="inline-flex items-center gap-0.5 text-[8px] font-mono font-bold px-1.5 py-0.2 rounded bg-amber-500/20 text-amber-400 border border-amber-500/30">
+                                <span className="inline-flex items-center gap-0.5 text-[8px] font-mono font-bold px-1.5 py-0.2 rounded bg-accent-500/20 text-accent-400 border border-accent-500/30">
                                   <Layers className="w-2.5 h-2.5" />
                                   {(item as NewsStory).sourcesCount} {t.block.sources}
                                 </span>
@@ -655,8 +655,8 @@ export const DynamicBlockCard: React.FC<DynamicBlockCardProps> = ({
                           </div>
                           <h4 className={`font-bold text-xs leading-snug line-clamp-2 ${
                             theme === 'dark'
-                              ? 'text-neutral-100 group-hover:text-amber-400'
-                              : 'text-neutral-900 group-hover:text-amber-600'
+                              ? 'text-neutral-100 group-hover:text-accent-400'
+                              : 'text-neutral-900 group-hover:text-accent-600'
                           }`}>
                             {item.title}
                           </h4>
@@ -692,11 +692,11 @@ export const DynamicBlockCard: React.FC<DynamicBlockCardProps> = ({
                       className={`rounded-2xl border p-3.5 flex flex-col justify-between group cursor-pointer transition-all duration-200 ${
                         theme === 'dark'
                           ? isFirst
-                            ? 'bg-[#141520] border-amber-500/80 shadow-[0_0_20px_rgba(245,158,11,0.15)] hover:border-amber-400'
-                            : 'bg-[#13141c]/90 border-neutral-800/80 hover:border-amber-500/60 hover:shadow-[0_0_20px_rgba(245,158,11,0.1)]'
+                            ? 'bg-[#141520] border-accent-500/80 shadow-[0_0_20px_rgba(245,158,11,0.15)] hover:border-accent-400'
+                            : 'bg-[#13141c]/90 border-neutral-800/80 hover:border-accent-500/60 hover:shadow-[0_0_20px_rgba(245,158,11,0.1)]'
                           : isFirst
-                            ? 'bg-white border-amber-500/80 shadow-md'
-                            : 'bg-white border-neutral-200 hover:border-amber-500/60 shadow-xs'
+                            ? 'bg-white border-accent-500/80 shadow-md'
+                            : 'bg-white border-neutral-200 hover:border-accent-500/60 shadow-xs'
                       }`}
                     >
                       <div>
@@ -719,8 +719,8 @@ export const DynamicBlockCard: React.FC<DynamicBlockCardProps> = ({
                             </span>
                             <span className={`text-[10px] font-bold uppercase tracking-wider truncate ${
                               theme === 'dark'
-                                ? 'text-neutral-400 group-hover:text-amber-400'
-                                : 'text-neutral-600 group-hover:text-amber-600'
+                                ? 'text-neutral-400 group-hover:text-accent-400'
+                                : 'text-neutral-600 group-hover:text-accent-600'
                             }`}>
                               {source.name}
                             </span>
@@ -730,8 +730,8 @@ export const DynamicBlockCard: React.FC<DynamicBlockCardProps> = ({
 
                         <h4 className={`font-extrabold text-xs leading-snug line-clamp-3 mb-2 ${
                           theme === 'dark'
-                            ? 'text-neutral-100 group-hover:text-amber-400'
-                            : 'text-neutral-900 group-hover:text-amber-600'
+                            ? 'text-neutral-100 group-hover:text-accent-400'
+                            : 'text-neutral-900 group-hover:text-accent-600'
                         }`}>
                           {item.title}
                         </h4>
@@ -759,7 +759,7 @@ export const DynamicBlockCard: React.FC<DynamicBlockCardProps> = ({
                               });
                             }}
                             title={t.block.share}
-                            className="p-1 hover:text-amber-400 transition-colors cursor-pointer"
+                            className="p-1 hover:text-accent-400 transition-colors cursor-pointer"
                           >
                             <Share2 className="w-3.5 h-3.5" />
                           </button>
@@ -790,8 +790,8 @@ export const DynamicBlockCard: React.FC<DynamicBlockCardProps> = ({
                     onClick={() => onSelectArticle(item)}
                     className={`p-3 rounded-2xl border flex items-center justify-between gap-4 group cursor-pointer transition-all ${
                       theme === 'dark'
-                        ? 'bg-[#13141c]/80 border-neutral-800/80 hover:border-amber-500/60'
-                        : 'bg-white border-neutral-200 hover:border-amber-500/60'
+                        ? 'bg-[#13141c]/80 border-neutral-800/80 hover:border-accent-500/60'
+                        : 'bg-white border-neutral-200 hover:border-accent-500/60'
                     }`}
                   >
                     {item.imageUrl && (
@@ -807,7 +807,7 @@ export const DynamicBlockCard: React.FC<DynamicBlockCardProps> = ({
                     )}
                     <div className="flex-1 min-w-0">
                       <div className="flex items-center gap-2 mb-1">
-                        <span className="text-[10px] font-bold text-amber-500">
+                        <span className="text-[10px] font-bold text-accent-500">
                           {item.sourceName}
                         </span>
                         <span className="text-[10px] text-zinc-400">
@@ -815,7 +815,7 @@ export const DynamicBlockCard: React.FC<DynamicBlockCardProps> = ({
                         </span>
                         {renderSentiment(item.sentiment)}
                       </div>
-                      <h4 className="font-bold text-xs sm:text-sm group-hover:text-amber-500 transition-colors truncate">
+                      <h4 className="font-bold text-xs sm:text-sm group-hover:text-accent-500 transition-colors truncate">
                         {item.title}
                       </h4>
                       <p className="text-[11px] text-zinc-500 dark:text-zinc-400 truncate">
@@ -835,7 +835,7 @@ export const DynamicBlockCard: React.FC<DynamicBlockCardProps> = ({
                           });
                         }}
                         title={t.block.share}
-                        className="p-1.5 hover:text-amber-500 transition-colors cursor-pointer"
+                        className="p-1.5 hover:text-accent-500 transition-colors cursor-pointer"
                       >
                         <Share2 className="w-4 h-4" />
                       </button>
@@ -845,9 +845,9 @@ export const DynamicBlockCard: React.FC<DynamicBlockCardProps> = ({
                           onToggleBookmark(item);
                         }}
                         title={t.block.bookmark}
-                        className="p-1.5 hover:text-amber-500 transition-colors cursor-pointer"
+                        className="p-1.5 hover:text-accent-500 transition-colors cursor-pointer"
                       >
-                        <Bookmark className={`w-4 h-4 ${bookmarkedIds.has(item.id) ? 'fill-amber-500 text-amber-500' : ''}`} />
+                        <Bookmark className={`w-4 h-4 ${bookmarkedIds.has(item.id) ? 'fill-accent-500 text-accent-500' : ''}`} />
                       </button>
                     </div>
                   </div>
@@ -864,22 +864,22 @@ export const DynamicBlockCard: React.FC<DynamicBlockCardProps> = ({
                   <div
                     key={item.id}
                     onClick={() => onSelectArticle(item)}
-                    className="py-2 px-1 flex items-center justify-between gap-3 group cursor-pointer hover:bg-amber-500/5 rounded-lg transition-colors"
+                    className="py-2 px-1 flex items-center justify-between gap-3 group cursor-pointer hover:bg-accent-500/5 rounded-lg transition-colors"
                   >
                     <div className="flex items-center gap-2 min-w-0">
-                      <span className="w-1.5 h-1.5 rounded-full bg-amber-500 shrink-0" />
+                      <span className="w-1.5 h-1.5 rounded-full bg-accent-500 shrink-0" />
                       <span className={`text-[10px] font-bold shrink-0 ${
                         theme === 'dark' ? 'text-zinc-400' : 'text-neutral-600'
                       }`}>
                         [{item.sourceName}]
                       </span>
-                      <h4 className={`font-medium text-xs truncate group-hover:text-amber-500 ${
+                      <h4 className={`font-medium text-xs truncate group-hover:text-accent-500 ${
                         theme === 'dark' ? 'text-neutral-200' : 'text-neutral-800'
                       }`}>
                         {item.title}
                       </h4>
                       {(item as NewsStory).isCluster && (item as NewsStory).sourcesCount > 1 && (
-                        <span className="inline-flex items-center gap-1 text-[9px] font-mono font-bold px-1.5 py-0.2 rounded bg-amber-500/20 text-amber-400 border border-amber-500/30 shrink-0">
+                        <span className="inline-flex items-center gap-1 text-[9px] font-mono font-bold px-1.5 py-0.2 rounded bg-accent-500/20 text-accent-400 border border-accent-500/30 shrink-0">
                           <Layers className="w-2.5 h-2.5" />
                           {(item as NewsStory).sourcesCount} {t.block.sources}
                         </span>
@@ -900,7 +900,7 @@ export const DynamicBlockCard: React.FC<DynamicBlockCardProps> = ({
                           });
                         }}
                         title={t.block.share}
-                        className="hover:text-amber-500 transition-colors cursor-pointer"
+                        className="hover:text-accent-500 transition-colors cursor-pointer"
                       >
                         <Share2 className="w-3.5 h-3.5" />
                       </button>
@@ -910,9 +910,9 @@ export const DynamicBlockCard: React.FC<DynamicBlockCardProps> = ({
                           onToggleBookmark(item);
                         }}
                         title={t.block.bookmark}
-                        className="hover:text-amber-500 transition-colors cursor-pointer"
+                        className="hover:text-accent-500 transition-colors cursor-pointer"
                       >
-                        <Bookmark className={`w-3.5 h-3.5 ${bookmarkedIds.has(item.id) ? 'fill-amber-500 text-amber-500' : ''}`} />
+                        <Bookmark className={`w-3.5 h-3.5 ${bookmarkedIds.has(item.id) ? 'fill-accent-500 text-accent-500' : ''}`} />
                       </button>
                     </div>
                   </div>
@@ -929,23 +929,23 @@ export const DynamicBlockCard: React.FC<DynamicBlockCardProps> = ({
                     onClick={() => onSelectArticle(item)}
                     className={`w-64 p-3 rounded-xl border shrink-0 flex flex-col justify-between group cursor-pointer transition-all ${
                       theme === 'dark'
-                        ? 'bg-zinc-950/70 border-zinc-800 hover:border-amber-500/40'
-                        : 'bg-zinc-50 border-zinc-200 hover:border-amber-500/40'
+                        ? 'bg-zinc-950/70 border-zinc-800 hover:border-accent-500/40'
+                        : 'bg-zinc-50 border-zinc-200 hover:border-accent-500/40'
                     }`}
                   >
                     <div>
                       <div className="flex items-center justify-between gap-1 mb-1">
-                        <span className="text-[10px] font-bold text-amber-500 truncate">
+                        <span className="text-[10px] font-bold text-accent-500 truncate">
                           {item.sourceName}
                         </span>
                         {(item as NewsStory).isCluster && (item as NewsStory).sourcesCount > 1 && (
-                          <span className="inline-flex items-center gap-0.5 text-[8px] font-mono font-bold px-1.5 py-0.2 rounded bg-amber-500/20 text-amber-400 border border-amber-500/30 shrink-0">
+                          <span className="inline-flex items-center gap-0.5 text-[8px] font-mono font-bold px-1.5 py-0.2 rounded bg-accent-500/20 text-accent-400 border border-accent-500/30 shrink-0">
                             <Layers className="w-2.5 h-2.5" />
                             {(item as NewsStory).sourcesCount} {t.block.sources}
                           </span>
                         )}
                       </div>
-                      <h4 className="font-bold text-xs line-clamp-2 group-hover:text-amber-500">
+                      <h4 className="font-bold text-xs line-clamp-2 group-hover:text-accent-500">
                         {item.title}
                       </h4>
                     </div>

@@ -181,3 +181,29 @@ body {
   background-color: var(--color-primary-light);
   color: #fff;
 }
+
+/* Semantic accent utilities follow the selected palette across every screen. */
+@theme {
+  --color-accent-50: color-mix(in srgb, var(--color-primary) 8%, white);
+  --color-accent-100: color-mix(in srgb, var(--color-primary) 16%, white);
+  --color-accent-200: color-mix(in srgb, var(--color-primary) 30%, white);
+  --color-accent-300: color-mix(in srgb, var(--color-primary) 60%, white);
+  --color-accent-400: var(--color-primary-text);
+  --color-accent-500: var(--color-primary);
+  --color-accent-600: var(--color-primary-hover);
+  --color-accent-700: color-mix(in srgb, var(--color-primary-hover) 80%, black);
+  --color-accent-800: color-mix(in srgb, var(--color-primary) 40%, black);
+  --color-accent-900: color-mix(in srgb, var(--color-primary) 24%, black);
+  --color-accent-950: color-mix(in srgb, var(--color-primary) 12%, black);
+}
+
+html[data-accent] {
+  accent-color: var(--color-primary);
+  --surface-dark: color-mix(in srgb, var(--color-primary) 3%, #0a0b0e);
+  --surface-panel: color-mix(in srgb, var(--color-primary) 4%, #0e1017);
+}
+html.dark[data-accent] {
+  --color-neutral-950: color-mix(in srgb, var(--color-primary) 3%, #0a0a0a);
+  --color-neutral-900: color-mix(in srgb, var(--color-primary) 4%, #171717);
+  --color-neutral-800: color-mix(in srgb, var(--color-primary) 5%, #262626);
+}

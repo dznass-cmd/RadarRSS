@@ -128,7 +128,7 @@ const ToastCard: React.FC<ToastCardProps> = ({
       {/* Top Accent Line */}
       <div
         className={`absolute top-0 left-0 right-0 h-1 ${
-          isBreaking ? 'bg-gradient-to-r from-red-500 via-orange-500 to-amber-500' : acc.bg
+          isBreaking ? 'bg-gradient-to-r from-red-500 via-accent-500 to-accent-500' : acc.bg
         }`} />
 
       {/* Auto-dismiss progress bar */}
@@ -136,7 +136,7 @@ const ToastCard: React.FC<ToastCardProps> = ({
         className="absolute bottom-0 left-0 h-0.5 transition-none"
         style={{
           width: `${progress}%`,
-          backgroundColor: isBreaking ? '#ef4444' : '#f59e0b',
+          backgroundColor: isBreaking ? '#ef4444' : 'var(--color-primary)',
         }}
       />
 

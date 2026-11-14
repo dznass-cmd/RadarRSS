@@ -1063,13 +1063,13 @@ export default function App() {
   };
 
   return (
-    <div className={`min-h-screen transition-colors duration-200 font-sans relative ${settings.theme === 'dark' ? 'bg-[#0a0b0e] text-neutral-100' : 'bg-neutral-100 text-neutral-900'
+    <div className={`min-h-screen transition-colors duration-200 font-sans relative ${settings.theme === 'dark' ? 'bg-[var(--surface-dark)] text-neutral-100' : 'bg-neutral-100 text-neutral-900'
       }`}>
 
       {/* Ambient background glow in dark mode */}
       {settings.theme === 'dark' && (
         <div className="pointer-events-none fixed inset-0 z-0 overflow-hidden opacity-30">
-          <div className="absolute -top-40 left-1/2 -translate-x-1/2 w-[1000px] h-[500px] bg-gradient-to-b from-amber-500/10 via-amber-500/5 to-transparent blur-3xl" />
+          <div className="absolute -top-40 left-1/2 -translate-x-1/2 w-[1000px] h-[500px] bg-gradient-to-b from-accent-500/10 via-accent-500/5 to-transparent blur-3xl" />
         </div>
       )}
 
@@ -1127,7 +1127,7 @@ export default function App() {
           style={{ height: `${pullDistance}px`, opacity: Math.min(pullDistance / 45, 1) }}
           className="overflow-hidden flex items-center justify-center transition-all duration-75 pointer-events-none sticky top-16 z-30"
         >
-          <div className="flex items-center gap-2 px-4 py-1.5 rounded-full bg-neutral-900/95 border border-amber-500/60 shadow-[0_0_20px_rgba(245,158,11,0.25)] text-amber-400 text-xs font-bold font-mono">
+          <div className="flex items-center gap-2 px-4 py-1.5 rounded-full bg-neutral-900/95 border border-accent-500/60 shadow-[0_0_20px_rgba(245,158,11,0.25)] text-accent-400 text-xs font-bold font-mono">
             <RefreshCw
               className={`w-4 h-4 ${isPullRefreshing ? 'animate-spin' : ''}`}
               style={{ transform: isPullRefreshing ? undefined : `rotate(${pullDistance * 5}deg)` }}
@@ -1148,13 +1148,13 @@ export default function App() {
 
         {/* Archive View Header Banner */}
         {showArchiveOnly && (
-          <div className="p-4 rounded-3xl bg-amber-500/10 border border-amber-500/40 flex flex-wrap items-center justify-between gap-4 shadow-lg">
+          <div className="p-4 rounded-3xl bg-accent-500/10 border border-accent-500/40 flex flex-wrap items-center justify-between gap-4 shadow-lg">
             <div className="flex items-center gap-3">
-              <Archive className="w-6 h-6 text-amber-500" />
+              <Archive className="w-6 h-6 text-accent-500" />
               <div>
                 <h2 className="font-extrabold text-base uppercase tracking-wider flex items-center gap-2">
                   {settings.language === 'pt' ? `Notícias Arquivadas / Lidas (${archivedArticleIds.size})` : `Archived / Read Articles (${archivedArticleIds.size})`}
-                  <span className="text-[10px] bg-amber-500/20 text-amber-400 font-mono px-2 py-0.5 rounded border border-amber-500/30">
+                  <span className="text-[10px] bg-accent-500/20 text-accent-400 font-mono px-2 py-0.5 rounded border border-accent-500/30">
                     {settings.language === 'pt' ? 'Auto-arquivadas ao clicar' : 'Auto-archived on click'}
                   </span>
                 </h2>
@@ -1183,7 +1183,7 @@ export default function App() {
 
               <button
                 onClick={() => setShowArchiveOnly(false)}
-                className="px-4 py-2 rounded-2xl text-xs font-black uppercase tracking-wider bg-amber-500 text-black hover:bg-amber-400 transition-colors cursor-pointer"
+                className="px-4 py-2 rounded-2xl text-xs font-black uppercase tracking-wider bg-accent-500 text-black hover:bg-accent-400 transition-colors cursor-pointer"
               >
                 {settings.language === 'pt' ? 'Voltar às Novidades' : 'Back to News'}
               </button>
@@ -1302,7 +1302,7 @@ export default function App() {
             LIVE
           </span>
           <div className="overflow-hidden whitespace-nowrap text-ellipsis flex-1">
-            <span className={`${getAccent(settings.accentColor).text} font-bold`}>[RADAR ENGINE v0.2.0]</span> Syncing {feeds.filter(f => f.active).length} active feeds... <span className="text-emerald-400">Online</span> • {allNewsItems.length} articles loaded • Engine: <span className={`${settings.theme === 'dark' ? 'text-white' : 'text-neutral-900'} font-bold`}>Bento Real-time Matrix</span>
+            <span className={`${getAccent(settings.accentColor).text} font-bold`}>[RADAR ENGINE v0.2.1]</span> Syncing {feeds.filter(f => f.active).length} active feeds... <span className="text-emerald-400">Online</span> • {allNewsItems.length} articles loaded • Engine: <span className={`${settings.theme === 'dark' ? 'text-white' : 'text-neutral-900'} font-bold`}>Bento Real-time Matrix</span>
           </div>
         </footer>
 

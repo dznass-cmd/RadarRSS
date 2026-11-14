@@ -370,13 +370,13 @@ export const ArticleReaderModal: React.FC<ArticleReaderModalProps> = ({
       {swipeOffsetX !== 0 && (
         <div className="absolute inset-0 pointer-events-none z-60 flex items-center justify-between px-6">
           {swipeOffsetX > 30 && (
-            <div className="flex items-center gap-2 bg-neutral-900/90 border border-neutral-700 px-4 py-2 rounded-2xl text-xs font-bold text-amber-400 backdrop-blur-md shadow-xl animate-in fade-in">
+            <div className="flex items-center gap-2 bg-neutral-900/90 border border-neutral-700 px-4 py-2 rounded-2xl text-xs font-bold text-accent-400 backdrop-blur-md shadow-xl animate-in fade-in">
               <ArrowLeft className="w-4 h-4" />
               <span>{hasPrev ? t.reader.prevStory : t.reader.close}</span>
             </div>
           )}
           {swipeOffsetX < -30 && hasNext && (
-            <div className="ml-auto flex items-center gap-2 bg-neutral-900/90 border border-neutral-700 px-4 py-2 rounded-2xl text-xs font-bold text-amber-400 backdrop-blur-md shadow-xl animate-in fade-in">
+            <div className="ml-auto flex items-center gap-2 bg-neutral-900/90 border border-neutral-700 px-4 py-2 rounded-2xl text-xs font-bold text-accent-400 backdrop-blur-md shadow-xl animate-in fade-in">
               <span>{t.reader.nextStory}</span>
               <ChevronRight className="w-4 h-4" />
             </div>
@@ -745,8 +745,8 @@ export const ArticleReaderModal: React.FC<ArticleReaderModalProps> = ({
               {/* Extraction Loading Skeleton */}
               {isExtracting && (
                 <div className="space-y-4 py-3 animate-pulse">
-                  <div className="flex items-center gap-2 text-xs font-mono text-amber-400/90 bg-amber-500/10 border border-amber-500/20 px-3 py-2 rounded-xl">
-                    <RefreshCw className="w-4 h-4 animate-spin text-amber-400 shrink-0" />
+                  <div className="flex items-center gap-2 text-xs font-mono text-accent-400/90 bg-accent-500/10 border border-accent-500/20 px-3 py-2 rounded-xl">
+                    <RefreshCw className="w-4 h-4 animate-spin text-accent-400 shrink-0" />
                     <span>{t.reader.loadingArticle}</span>
                     <span className="text-[10px] text-neutral-400 ml-auto hidden sm:inline">{t.reader.cleanArticleDesc}</span>
                   </div>
@@ -761,11 +761,11 @@ export const ArticleReaderModal: React.FC<ArticleReaderModalProps> = ({
 
               {/* Extraction Error Notice with Snippet Fallback */}
               {!isExtracting && extractionError && (
-                <div className="p-4 rounded-2xl border border-amber-500/30 bg-amber-500/10 text-neutral-200 space-y-3">
+                <div className="p-4 rounded-2xl border border-accent-500/30 bg-accent-500/10 text-neutral-200 space-y-3">
                   <div className="flex items-start gap-2.5">
-                    <AlertCircle className="w-5 h-5 text-amber-400 shrink-0 mt-0.5" />
+                    <AlertCircle className="w-5 h-5 text-accent-400 shrink-0 mt-0.5" />
                     <div className="text-xs space-y-1">
-                      <p className="font-bold text-amber-300">{t.reader.extractionFailed}</p>
+                      <p className="font-bold text-accent-300">{t.reader.extractionFailed}</p>
                       <p className="text-neutral-300 leading-relaxed text-[11px]">{t.reader.extractionFailedDesc}</p>
                     </div>
                   </div>
@@ -798,7 +798,7 @@ export const ArticleReaderModal: React.FC<ArticleReaderModalProps> = ({
                 <div
                   className={`prose max-w-none ${getFontSizeClass()} ${getFontFamilyClass()} ${
                     theme === 'dark' ? 'prose-invert text-neutral-200' : 'text-neutral-800'
-                  } prose-p:my-4 prose-p:leading-relaxed prose-headings:font-black prose-headings:my-4 prose-a:text-amber-400 prose-a:underline hover:prose-a:text-amber-300 prose-img:rounded-2xl prose-img:shadow-xl prose-img:my-6 prose-img:max-h-[520px] prose-img:object-cover prose-img:mx-auto prose-blockquote:border-l-4 prose-blockquote:border-amber-400 prose-blockquote:pl-4 prose-blockquote:italic prose-blockquote:my-4 prose-hr:border-neutral-800`}
+                  } prose-p:my-4 prose-p:leading-relaxed prose-headings:font-black prose-headings:my-4 prose-a:text-accent-400 prose-a:underline hover:prose-a:text-accent-300 prose-img:rounded-2xl prose-img:shadow-xl prose-img:my-6 prose-img:max-h-[520px] prose-img:object-cover prose-img:mx-auto prose-blockquote:border-l-4 prose-blockquote:border-accent-400 prose-blockquote:pl-4 prose-blockquote:italic prose-blockquote:my-4 prose-hr:border-neutral-800`}
                   dangerouslySetInnerHTML={{ __html: extractedArticle.contentHtml }}
                 />
               )}

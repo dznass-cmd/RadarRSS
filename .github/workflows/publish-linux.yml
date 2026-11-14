@@ -42,27 +42,18 @@ jobs:
         run: |
           set -euo pipefail
           tag="v$(node -p "require('./package.json').version")"
-          if gh release view "$tag" >/dev/null 2>&1; then
-            echo "Release $tag already exists; skipping publish."
-            exit 0
+          if ! gh release view "$tag" >/dev/null 2>&1; then
+            python3 - <<'PYNOTES' > /tmp/linux-release-notes.md
+          from pathlib import Path
+          text = Path('CHANGELOG.md').read_text()
+          print(text.split('## [', 1)[1].split('\n', 1)[1].split('\n## [', 1)[0].strip())
+          PYNOTES
+            gh release create "$tag" --target "$GITHUB_SHA" --title "Radar RSS $tag" --notes-file /tmp/linux-release-notes.md --draft
           fi
-          cat > /tmp/linux-release-notes.md <<'NOTES'
-          ## Radar RSS para Linux
-
-          Primeira versão desktop para Linux x64 (Intel/AMD), com os mesmos recursos de leitura RSS, curadoria com Gemini e organização de notícias do aplicativo desktop.
-
-          - **AppImage:** versão portátil. Marque o arquivo como executável e abra. Suporta atualização automática em pastas graváveis.
-          - **.deb:** pacote para Debian e Ubuntu. Instale com `sudo apt install ./radar-rss-*.deb`.
-          - Inicialização automática via XDG, ícones Linux e bandeja opcional.
-          - Compilação, testes de autostart, TypeScript e abertura do app empacotado validados no Ubuntu 22.04.
-
-          Se o AppImage solicitar FUSE, instale libfuse2 (Ubuntu 22.04) ou libfuse2t64 (Ubuntu 24.04), ou execute com --appimage-extract-and-run.
-
-          Esta release contém os pacotes Linux. Versões anteriores para Windows e Android continuam disponíveis nas releases anteriores.
-          NOTES
-          gh release create "$tag" --target "$GITHUB_SHA" --title "Radar RSS $tag — Linux" --notes-file /tmp/linux-release-notes.md --draft
           shopt -s nullglob
           assets=(release/*.AppImage release/*.AppImage.blockmap release/*.deb release/latest-linux.yml)
-          gh release upload "$tag" "${assets[@]}"
-          # Preserve the previous cross-platform latest release for Windows/Android.
-          gh release edit "$tag" --draft=false --latest=false
+          gh release upload "$tag" "${assets[@]}" --clobber
+          # Publish newly created drafts without changing the latest-release selection.
+          if [[ "$(gh release view "$tag" --json isDraft --jq .isDraft)" == "true" ]]; then
+            gh release edit "$tag" --draft=false --latest=false
+          fi

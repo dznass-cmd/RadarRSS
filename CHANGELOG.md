@@ -5,7 +5,7 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [Unreleased]
+## [0.2.1] - 2026-11-14
 
 ### Security
 - Restrict the local server to loopback by default while retaining Cloud Run support and explicitly configured hosted origins.
@@ -14,6 +14,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Enable a Content Security Policy for Tauri and disable mixed content in the Android webview.
 
 ### Fixed
+- Apply the selected accent palette throughout navigation, dialogs, reader controls, feeds, and dark surfaces instead of fixed orange and amber highlights.
 - Correct Android RSS image extraction for article HTML, relative URLs, lazy images, and audio/video enclosures; retry image loading when the source changes and use the full article's lead image in the reader.
 - Keep startup news synchronization silent, deduplicate alerts across restarts and tracking URL changes, and limit breaking-news alerts to one per minute.
 - Show in-app alerts while visible and system notifications while hidden, without repeatedly prompting for notification permission.
@@ -23,7 +24,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Exclude Capacitor's copied web assets from TypeScript source checks.
 - Prefer the current checkout's backend when launching Tauri from the project directory, avoiding an outdated installed server fallback.
 - Accept same-origin preflight requests while continuing to reject untrusted origins.
-- Align the Android version with 0.2.0 and increment its version code to 11.
+- Align the Android version with 0.2.1 and increment its version code to 12.
 - Correct the supported versions in the security policy and exclude generated build artifacts from TypeScript checks.
 
 ### Migration

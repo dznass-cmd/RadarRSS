@@ -213,7 +213,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
           settings.theme === 'dark' ? 'bg-neutral-950/80 border-neutral-800' : 'bg-neutral-100 border-neutral-200'
         }`}>
           <div className="flex items-center gap-2">
-            <Settings className="w-5 h-5 text-orange-500" />
+            <Settings className="w-5 h-5 text-accent-500" />
             <h3 className="font-black text-sm uppercase tracking-wider">{t.settings.title}</h3>
           </div>
           <button
@@ -235,7 +235,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
           }`}>
             <div className="flex items-center justify-between">
               <label className="text-xs font-black uppercase tracking-wider flex items-center gap-1.5">
-                <Globe className="w-4 h-4 text-orange-500" />
+                <Globe className="w-4 h-4 text-accent-500" />
                 {t.settings.language}
               </label>
 
@@ -246,7 +246,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
                   type="button"
                   onClick={() => onUpdateSettings({ ...settings, language: 'en' })}
                   className={`flex items-center gap-1 px-3 py-1.5 rounded-lg text-xs font-extrabold transition-all ${
-                    (settings.language || 'en') === 'en' ? 'bg-orange-500 text-black shadow-xs' : settings.theme === 'dark' ? 'text-neutral-400 hover:text-neutral-200' : 'text-neutral-500 hover:text-neutral-900'
+                    (settings.language || 'en') === 'en' ? 'bg-accent-500 text-black shadow-xs' : settings.theme === 'dark' ? 'text-neutral-400 hover:text-neutral-200' : 'text-neutral-500 hover:text-neutral-900'
                   }`}
                 >
                   🇬🇧 English
@@ -255,7 +255,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
                   type="button"
                   onClick={() => onUpdateSettings({ ...settings, language: 'pt' })}
                   className={`flex items-center gap-1 px-3 py-1.5 rounded-lg text-xs font-extrabold transition-all ${
-                    settings.language === 'pt' ? 'bg-orange-500 text-black shadow-xs' : settings.theme === 'dark' ? 'text-neutral-400 hover:text-neutral-200' : 'text-neutral-500 hover:text-neutral-900'
+                    settings.language === 'pt' ? 'bg-accent-500 text-black shadow-xs' : settings.theme === 'dark' ? 'text-neutral-400 hover:text-neutral-200' : 'text-neutral-500 hover:text-neutral-900'
                   }`}
                 >
                   🇧🇷 Português
@@ -270,7 +270,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
           }`}>
             <div className="flex items-center justify-between">
               <label className="text-xs font-black uppercase tracking-wider flex items-center gap-1.5">
-                <Palette className="w-4 h-4 text-orange-500" />
+                <Palette className="w-4 h-4 text-accent-500" />
                 {t.settings.theme}
               </label>
 
@@ -292,10 +292,10 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
                   type="button"
                   onClick={() => onUpdateSettings({ ...settings, theme: 'light' })}
                   className={`flex items-center gap-1 px-3 py-1.5 rounded-lg text-xs font-extrabold transition-all ${
-                    settings.theme === 'light' ? 'bg-amber-500/20 text-amber-600 border border-amber-500/30' : settings.theme === 'dark' ? 'text-neutral-400 hover:text-neutral-200' : 'text-neutral-500 hover:text-neutral-900'
+                    settings.theme === 'light' ? 'bg-accent-500/20 text-accent-600 border border-accent-500/30' : settings.theme === 'dark' ? 'text-neutral-400 hover:text-neutral-200' : 'text-neutral-500 hover:text-neutral-900'
                   }`}
                 >
-                  <Sun className="w-3.5 h-3.5 text-amber-500" />
+                  <Sun className="w-3.5 h-3.5 text-accent-500" />
                   {t.settings.themeLight}
                 </button>
               </div>
@@ -337,14 +337,14 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
           {/* Global Auto Refresh Interval */}
           <div>
             <label className="block text-xs font-black uppercase tracking-wider mb-2 flex items-center gap-1.5">
-              <Clock className="w-4 h-4 text-orange-500" />
+              <Clock className="w-4 h-4 text-accent-500" />
               {t.settings.globalRefresh}
             </label>
             <select
               value={settings.globalRefreshSec ?? 60}
               onChange={(e) => onUpdateSettings({ ...settings, globalRefreshSec: Number(e.target.value) })}
               className={`w-full px-4 py-3 text-xs font-bold rounded-2xl border outline-none ${
-                settings.theme === 'dark' ? 'bg-neutral-950 border-neutral-800 focus:border-orange-500' : 'bg-neutral-50 border-neutral-200'
+                settings.theme === 'dark' ? 'bg-neutral-950 border-neutral-800 focus:border-accent-500' : 'bg-neutral-50 border-neutral-200'
               }`}
             >
               <option value={30}>30s (Real-time)</option>
@@ -358,14 +358,14 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
           {/* Default Reader View Mode */}
           <div>
             <label className="block text-xs font-black uppercase tracking-wider mb-2 flex items-center gap-1.5">
-              <BookOpen className="w-4 h-4 text-orange-500" />
+              <BookOpen className="w-4 h-4 text-accent-500" />
               {t.settings.defaultReaderMode}
             </label>
             <select
               value={settings.defaultReaderMode ?? 'full'}
               onChange={(e) => onUpdateSettings({ ...settings, defaultReaderMode: e.target.value as any })}
               className={`w-full px-4 py-3 text-xs font-bold rounded-2xl border outline-none ${
-                settings.theme === 'dark' ? 'bg-neutral-950 border-neutral-800 focus:border-orange-500' : 'bg-neutral-50 border-neutral-200'
+                settings.theme === 'dark' ? 'bg-neutral-950 border-neutral-800 focus:border-accent-500' : 'bg-neutral-50 border-neutral-200'
               }`}
             >
               <option value="full">{t.settings.readerModeFull}</option>
@@ -382,7 +382,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
           }`}>
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-2.5">
-                <Layers className="w-4 h-4 text-orange-500 shrink-0" />
+                <Layers className="w-4 h-4 text-accent-500 shrink-0" />
                 <div>
                   <span className="block text-xs font-black uppercase tracking-wider">{t.settings.deduplication}</span>
                   <span className="text-[10px] text-neutral-400 font-mono">{t.settings.deduplicationDesc}</span>
@@ -404,7 +404,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
                     deduplication: { ...current, enabled: e.target.checked },
                   });
                 }}
-                className="w-4 h-4 accent-orange-500 rounded cursor-pointer"
+                className="w-4 h-4 accent-accent-500 rounded cursor-pointer"
               />
             </div>
 
@@ -444,7 +444,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
                           }}
                           className={`py-1.5 px-2 rounded-xl text-[10px] font-black uppercase tracking-wider border transition-all cursor-pointer ${
                             isSelected
-                              ? 'bg-orange-500 text-black border-orange-500 font-extrabold'
+                              ? 'bg-accent-500 text-black border-accent-500 font-extrabold'
                               : settings.theme === 'dark'
                               ? 'border-neutral-800 bg-neutral-900/60 text-neutral-400 hover:border-neutral-700'
                               : 'border-neutral-200 bg-white text-neutral-600'
@@ -530,7 +530,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
           }`}>
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-2.5">
-                <BellRing className="w-4 h-4 text-orange-500 shrink-0" />
+                <BellRing className="w-4 h-4 text-accent-500 shrink-0" />
                 <div>
                   <span className="block text-xs font-black uppercase tracking-wider">{t.settings.notifications}</span>
                   <span className="text-[10px] text-neutral-400 font-mono">{t.settings.notificationsDesc}</span>
@@ -540,7 +540,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
                 type="checkbox"
                 checked={settings.browserNotifications ?? false}
                 onChange={(e) => handleToggleNotification(e.target.checked)}
-                className="w-4 h-4 accent-orange-500 rounded cursor-pointer"
+                className="w-4 h-4 accent-accent-500 rounded cursor-pointer"
               />
             </div>
 
@@ -552,14 +552,14 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
                 Status:
                 {permissionState === 'granted' && <span className="text-emerald-400 font-bold">● Active</span>}
                 {permissionState === 'denied' && <span className="text-red-400 font-bold">● Blocked by OS</span>}
-                {(permissionState === 'prompt' || (permissionState as string) === 'default') && <span className="text-amber-400 font-bold">● Pending</span>}
+                {(permissionState === 'prompt' || (permissionState as string) === 'default') && <span className="text-accent-400 font-bold">● Pending</span>}
                 {permissionState === 'unsupported' && <span className="text-neutral-500 font-bold">● Unsupported</span>}
               </span>
 
               <button
                 type="button"
                 onClick={handleTestNotification}
-                className="px-2.5 py-1 rounded-xl bg-orange-500/20 border border-orange-500/40 text-orange-400 hover:bg-orange-500/30 font-bold text-[10px] flex items-center gap-1 transition-colors"
+                className="px-2.5 py-1 rounded-xl bg-accent-500/20 border border-accent-500/40 text-accent-400 hover:bg-accent-500/30 font-bold text-[10px] flex items-center gap-1 transition-colors"
               >
                 <Send className="w-3 h-3" />
                 <span>{t.settings.testNotification}</span>
@@ -570,7 +570,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
           {/* Breaking News Keywords Manager */}
           <div>
             <label className="block text-xs font-black uppercase tracking-wider mb-2 flex items-center gap-1.5">
-              <AlertTriangle className="w-4 h-4 text-orange-500" />
+              <AlertTriangle className="w-4 h-4 text-accent-500" />
               {t.settings.breakingKeywords}
             </label>
             <p className="text-[10px] text-neutral-400 mb-2 font-mono">
@@ -581,7 +581,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
               {settings.breakingKeywords.map((kw) => (
                 <span
                   key={kw}
-                  className="inline-flex items-center gap-1 px-2.5 py-1 rounded-xl bg-orange-500/10 border border-orange-500/30 text-orange-400 text-[11px] font-bold"
+                  className="inline-flex items-center gap-1 px-2.5 py-1 rounded-xl bg-accent-500/10 border border-accent-500/30 text-accent-400 text-[11px] font-bold"
                 >
                   {kw}
                   <button
@@ -601,12 +601,12 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
                 onChange={(e) => setKeywordInput(e.target.value)}
                 placeholder={t.settings.keywordPlaceholder}
                 className={`flex-1 px-3 py-2 text-xs font-semibold rounded-xl border outline-none ${
-                  settings.theme === 'dark' ? 'bg-neutral-950 border-neutral-800 focus:border-orange-500' : 'bg-neutral-50 border-neutral-200'
+                  settings.theme === 'dark' ? 'bg-neutral-950 border-neutral-800 focus:border-accent-500' : 'bg-neutral-50 border-neutral-200'
                 }`}
               />
               <button
                 type="submit"
-                className="px-3 py-2 rounded-xl bg-orange-500 text-black font-black text-xs uppercase tracking-wider hover:bg-orange-400 transition-colors"
+                className="px-3 py-2 rounded-xl bg-accent-500 text-black font-black text-xs uppercase tracking-wider hover:bg-accent-400 transition-colors"
               >
                 + {t.settings.addKeyword}
               </button>
@@ -618,7 +618,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
             settings.theme === 'dark' ? 'border-neutral-800 bg-neutral-950/60' : 'border-neutral-200 bg-neutral-50/80'
           }`}>
             <div className="flex items-center gap-2.5">
-              <Volume2 className="w-4 h-4 text-orange-500 shrink-0" />
+              <Volume2 className="w-4 h-4 text-accent-500 shrink-0" />
               <div>
                 <span className="block text-xs font-black uppercase tracking-wider">{t.settings.soundAlerts}</span>
                 <span className="text-[10px] text-neutral-400 font-mono">{t.settings.soundAlertsDesc}</span>
@@ -628,7 +628,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
               type="checkbox"
               checked={settings.soundAlerts ?? true}
               onChange={(e) => onUpdateSettings({ ...settings, soundAlerts: e.target.checked })}
-              className="w-4 h-4 accent-orange-500 rounded cursor-pointer"
+              className="w-4 h-4 accent-accent-500 rounded cursor-pointer"
             />
           </div>
 
@@ -638,7 +638,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
               settings.theme === 'dark' ? 'border-neutral-800 bg-neutral-950/60' : 'border-neutral-200 bg-neutral-50/80'
             }`}>
               <div className="flex items-center gap-2">
-                <Monitor className="w-4 h-4 text-orange-500 shrink-0" />
+                <Monitor className="w-4 h-4 text-accent-500 shrink-0" />
                 <span className="font-extrabold text-xs uppercase tracking-wider">
                   {t.settings.desktop.title}
                 </span>
@@ -656,7 +656,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
                   type="checkbox"
                   checked={minimizeToTray}
                   onChange={(e) => handleToggleMinimizeToTray(e.target.checked)}
-                  className="w-4 h-4 accent-orange-500 rounded cursor-pointer shrink-0"
+                  className="w-4 h-4 accent-accent-500 rounded cursor-pointer shrink-0"
                 />
               </div>
 
@@ -674,7 +674,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
                   type="checkbox"
                   checked={autoStart}
                   onChange={(e) => handleToggleAutoStart(e.target.checked)}
-                  className="w-4 h-4 accent-orange-500 rounded cursor-pointer shrink-0"
+                  className="w-4 h-4 accent-accent-500 rounded cursor-pointer shrink-0"
                 />
               </div>
 
@@ -692,7 +692,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
                   type="checkbox"
                   checked={settings.flashTaskbarOnBreaking ?? true}
                   onChange={(e) => handleToggleFlashTaskbar(e.target.checked)}
-                  className="w-4 h-4 accent-orange-500 rounded cursor-pointer shrink-0"
+                  className="w-4 h-4 accent-accent-500 rounded cursor-pointer shrink-0"
                 />
               </div>
 
@@ -701,37 +701,37 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
                 settings.theme === 'dark' ? 'border-neutral-800/80' : 'border-neutral-200'
               }`}>
                 <div className="flex items-center gap-1.5 text-[11px] font-bold text-neutral-300">
-                  <Keyboard className="w-3.5 h-3.5 text-orange-400" />
+                  <Keyboard className="w-3.5 h-3.5 text-accent-400" />
                   <span>{t.settings.desktop.shortcutsTitle}</span>
                 </div>
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-1.5 text-[10px] font-mono">
-                  <div className="flex items-center justify-between p-1.5 rounded-lg bg-orange-950/20 border border-orange-500/30 sm:col-span-2">
-                    <span className="text-orange-300 font-bold truncate mr-2">{t.settings.desktop.shortcutGlobalToggle}</span>
-                    <kbd className="px-1.5 py-0.5 rounded bg-orange-500/20 text-orange-400 font-extrabold shrink-0 border border-orange-500/40">Ctrl+Shift+R</kbd>
+                  <div className="flex items-center justify-between p-1.5 rounded-lg bg-accent-950/20 border border-accent-500/30 sm:col-span-2">
+                    <span className="text-accent-300 font-bold truncate mr-2">{t.settings.desktop.shortcutGlobalToggle}</span>
+                    <kbd className="px-1.5 py-0.5 rounded bg-accent-500/20 text-accent-400 font-extrabold shrink-0 border border-accent-500/40">Ctrl+Shift+R</kbd>
                   </div>
                   <div className="flex items-center justify-between p-1.5 rounded-lg bg-neutral-900/60 border border-neutral-800/60">
                     <span className="text-neutral-400 truncate mr-2">{t.settings.desktop.shortcutRefresh}</span>
-                    <kbd className="px-1.5 py-0.5 rounded bg-neutral-800 text-orange-400 font-bold shrink-0">F5 / Ctrl+R</kbd>
+                    <kbd className="px-1.5 py-0.5 rounded bg-neutral-800 text-accent-400 font-bold shrink-0">F5 / Ctrl+R</kbd>
                   </div>
                   <div className="flex items-center justify-between p-1.5 rounded-lg bg-neutral-900/60 border border-neutral-800/60">
                     <span className="text-neutral-400 truncate mr-2">{t.settings.desktop.shortcutSearch}</span>
-                    <kbd className="px-1.5 py-0.5 rounded bg-neutral-800 text-orange-400 font-bold shrink-0">Ctrl+F</kbd>
+                    <kbd className="px-1.5 py-0.5 rounded bg-neutral-800 text-accent-400 font-bold shrink-0">Ctrl+F</kbd>
                   </div>
                   <div className="flex items-center justify-between p-1.5 rounded-lg bg-neutral-900/60 border border-neutral-800/60">
                     <span className="text-neutral-400 truncate mr-2">{t.settings.desktop.shortcutSettings}</span>
-                    <kbd className="px-1.5 py-0.5 rounded bg-neutral-800 text-orange-400 font-bold shrink-0">Ctrl+,</kbd>
+                    <kbd className="px-1.5 py-0.5 rounded bg-neutral-800 text-accent-400 font-bold shrink-0">Ctrl+,</kbd>
                   </div>
                   <div className="flex items-center justify-between p-1.5 rounded-lg bg-neutral-900/60 border border-neutral-800/60">
                     <span className="text-neutral-400 truncate mr-2">{t.settings.desktop.shortcutBookmarks}</span>
-                    <kbd className="px-1.5 py-0.5 rounded bg-neutral-800 text-orange-400 font-bold shrink-0">Ctrl+B</kbd>
+                    <kbd className="px-1.5 py-0.5 rounded bg-neutral-800 text-accent-400 font-bold shrink-0">Ctrl+B</kbd>
                   </div>
                   <div className="flex items-center justify-between p-1.5 rounded-lg bg-neutral-900/60 border border-neutral-800/60">
                     <span className="text-neutral-400 truncate mr-2">{t.settings.desktop.shortcutNewBlock}</span>
-                    <kbd className="px-1.5 py-0.5 rounded bg-neutral-800 text-orange-400 font-bold shrink-0">Ctrl+N</kbd>
+                    <kbd className="px-1.5 py-0.5 rounded bg-neutral-800 text-accent-400 font-bold shrink-0">Ctrl+N</kbd>
                   </div>
                   <div className="flex items-center justify-between p-1.5 rounded-lg bg-neutral-900/60 border border-neutral-800/60">
                     <span className="text-neutral-400 truncate mr-2">{t.settings.desktop.shortcutTheme}</span>
-                    <kbd className="px-1.5 py-0.5 rounded bg-neutral-800 text-orange-400 font-bold shrink-0">Ctrl+D</kbd>
+                    <kbd className="px-1.5 py-0.5 rounded bg-neutral-800 text-accent-400 font-bold shrink-0">Ctrl+D</kbd>
                   </div>
                 </div>
               </div>
@@ -822,7 +822,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
           {/* Layout Grid Columns */}
           <div>
             <label className="block text-xs font-black uppercase tracking-wider mb-2 flex items-center gap-1.5">
-              <LayoutGrid className="w-4 h-4 text-orange-500" />
+              <LayoutGrid className="w-4 h-4 text-accent-500" />
               {t.settings.layoutCols}
             </label>
             <div className="grid grid-cols-3 gap-2">
@@ -833,7 +833,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
                   onClick={() => onUpdateSettings({ ...settings, layoutCols: cols })}
                   className={`py-2.5 px-3 rounded-2xl border text-xs font-black uppercase tracking-wider transition-all ${
                     settings.layoutCols === cols
-                      ? 'bg-orange-500 text-black border-orange-500'
+                      ? 'bg-accent-500 text-black border-accent-500'
                       : settings.theme === 'dark'
                       ? 'bg-neutral-950/60 border-neutral-800 text-neutral-400 hover:border-neutral-700'
                       : 'bg-neutral-50 border-neutral-200 text-neutral-600'
@@ -851,16 +851,16 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
           } space-y-3`}>
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-2">
-                <Info className="w-4 h-4 text-orange-500" />
+                <Info className="w-4 h-4 text-accent-500" />
                 <span className="font-extrabold text-xs uppercase tracking-wider">RADAR RSS</span>
               </div>
-              <span className="px-2 py-0.5 rounded text-[10px] font-mono bg-amber-500/20 text-amber-400 font-bold border border-amber-500/30">
-                v0.2.0
+              <span className="px-2 py-0.5 rounded text-[10px] font-mono bg-accent-500/20 text-accent-400 font-bold border border-accent-500/30">
+                v0.2.1
               </span>
             </div>
 
             <p className="text-xs text-neutral-400 font-mono pl-6">
-              Version 0.2.0 · Global Real-Time News (English Default)
+              Version 0.2.1 · Global Real-Time News (English Default)
             </p>
 
             <a
