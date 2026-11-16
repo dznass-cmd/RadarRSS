@@ -234,16 +234,19 @@ export const DynamicBlockCard: React.FC<DynamicBlockCardProps> = ({
     }`}>
       
       {/* Block Header */}
-      <div className={`px-4 sm:px-6 py-3 sm:py-4 border-b flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3 ${
-        theme === 'dark' ? 'bg-neutral-900/60 border-neutral-700/80' : 'bg-neutral-50 border-neutral-200'
+      <div className={`px-4 sm:px-5 py-3 border-b flex items-center justify-between gap-3 ${
+        theme === 'dark' ? 'bg-neutral-900/70 border-neutral-800/80' : 'bg-neutral-50/90 border-neutral-200'
       }`}>
-        <div className="flex items-center gap-3 min-w-0">
+        <div className="flex items-center gap-2.5 min-w-0 flex-1">
           <div className={`w-2.5 h-2.5 rounded-full ${acc.bg} shadow-xs shrink-0`} />
-          <h2 className="font-semibold text-sm tracking-normal min-w-0 break-words flex flex-wrap items-center gap-2">
-            {block.title}
+          <h2 className="font-bold text-sm tracking-wide uppercase min-w-0 truncate flex items-center gap-2" title={block.title}>
+            <span className="truncate">{block.title}</span>
             {block.filterKeyword && (
-              <span className={`text-[9px] font-black uppercase px-2 py-0.5 rounded ${acc.bgLight} ${acc.textDark} border ${acc.borderLight} truncate`}>
-                {block.filterKeyword}
+              <span
+                title={`${language === 'pt' ? 'Filtro:' : 'Filter:'} ${block.filterKeyword}`}
+                className={`text-[9px] font-black uppercase px-2 py-0.5 rounded-md ${acc.bgLight} ${acc.textDark} border ${acc.borderLight} shrink-0 max-w-[85px] sm:max-w-[110px] truncate`}
+              >
+                {block.filterKeyword.includes('|') ? `${block.filterKeyword.split('|')[0]}...` : block.filterKeyword}
               </span>
             )}
           </h2>
@@ -253,25 +256,102 @@ export const DynamicBlockCard: React.FC<DynamicBlockCardProps> = ({
         </div>
 
         <div className="flex items-center gap-2 shrink-0">
-          <button onClick={onGenerateAISummary} disabled={isGeneratingAI || displayItems.length === 0}
-            title={t.block.aiSummary} className={`flex items-center gap-2 px-3 py-2 rounded-xl text-xs font-semibold ${acc.bgLight} ${acc.textDark}`}>
-            <Sparkles className="w-4 h-4" />{isGeneratingAI ? '...' : t.block.aiSummary}
+          <button
+            onClick={onGenerateAISummary}
+            disabled={isGeneratingAI || displayItems.length === 0}
+            title={t.block.aiSummary}
+            className={`flex items-center gap-1.5 px-2.5 py-1.5 rounded-xl text-xs font-bold transition-all ${acc.bgLight} ${acc.textDark} hover:${acc.bgLight20} border ${acc.borderLight} disabled:opacity-50 disabled:cursor-not-allowed`}
+          >
+            <Sparkles className={`w-3.5 h-3.5 ${isGeneratingAI ? 'animate-spin' : ''}`} />
+            <span className="hidden sm:inline">{isGeneratingAI ? '...' : t.block.aiSummary}</span>
           </button>
-          <button onClick={() => setMenuOpen(!menuOpen)} aria-expanded={menuOpen}
+          <button
+            onClick={() => setMenuOpen(!menuOpen)}
+            aria-expanded={menuOpen}
             aria-label={language === 'pt' ? 'Opções do bloco' : 'Block options'}
-            className="p-2 rounded-xl hover:bg-neutral-500/10"><MoreHorizontal className="w-5 h-5" /></button>
+            className={`p-2 rounded-xl transition-all cursor-pointer ${
+              menuOpen
+                ? `${acc.bgLight} ${acc.textDark} border ${acc.borderLight}`
+                : theme === 'dark'
+                ? 'hover:bg-neutral-800 text-neutral-400 hover:text-neutral-200'
+                : 'hover:bg-neutral-200 text-neutral-600 hover:text-neutral-900'
+            }`}
+          >
+            <MoreHorizontal className="w-4 h-4" />
+          </button>
         </div>
       </div>
-      {menuOpen && <div className="flex flex-wrap items-center gap-2 px-5 py-3 border-b border-neutral-500/20">
-        {(['hero', 'grid', 'list', 'compact'] as BlockLayout[]).map(layout =>
-          <button key={layout} onClick={() => { onUpdateBlockLayout(layout); setMenuOpen(false); }}
-            className={`px-3 py-2 rounded-lg text-xs ${block.layout === layout ? `${acc.bgLight} ${acc.textDark}` : ''}`}>
-            {t.createBlock.layouts[layout]}
-          </button>)}
-        <button onClick={() => { onRefreshBlock(); setMenuOpen(false); }} className="px-3 py-2 text-xs">{t.block.refresh}</button>
-        <button onClick={() => { onEditBlock(); setMenuOpen(false); }} className="px-3 py-2 text-xs">{t.block.edit}</button>
-        <button onClick={() => { onDeleteBlock(); setMenuOpen(false); }} className="px-3 py-2 text-xs text-red-400">{t.block.remove}</button>
-      </div>}
+
+      {menuOpen && (
+        <div className={`px-4 py-3 border-b flex flex-wrap items-center justify-between gap-3 text-xs animate-in fade-in duration-150 ${
+          theme === 'dark'
+            ? 'bg-neutral-900/95 border-neutral-800 text-neutral-200 backdrop-blur-md'
+            : 'bg-neutral-100/95 border-neutral-200 text-neutral-800'
+        }`}>
+          {/* Layout Switcher */}
+          <div className="flex items-center gap-1 flex-wrap">
+            <span className="text-[10px] font-mono font-bold uppercase text-neutral-400 mr-1.5">
+              {language === 'pt' ? 'Layout:' : 'Layout:'}
+            </span>
+            {(['hero', 'grid', 'list', 'compact'] as BlockLayout[]).map((layout) => (
+              <button
+                key={layout}
+                onClick={() => {
+                  onUpdateBlockLayout(layout);
+                  setMenuOpen(false);
+                }}
+                className={`px-2.5 py-1 rounded-lg text-xs font-semibold transition-all cursor-pointer ${
+                  block.layout === layout
+                    ? `${acc.bg} text-black shadow-xs font-bold`
+                    : theme === 'dark'
+                    ? 'hover:bg-neutral-800 text-neutral-300'
+                    : 'hover:bg-neutral-200 text-neutral-700'
+                }`}
+              >
+                {t.createBlock.layouts[layout]}
+              </button>
+            ))}
+          </div>
+
+          {/* Actions */}
+          <div className="flex items-center gap-1.5 ml-auto">
+            <button
+              onClick={() => {
+                onRefreshBlock();
+                setMenuOpen(false);
+              }}
+              className={`px-2.5 py-1 rounded-lg text-xs font-semibold transition-all cursor-pointer flex items-center gap-1 ${
+                theme === 'dark' ? 'hover:bg-neutral-800 text-neutral-300' : 'hover:bg-neutral-200 text-neutral-700'
+              }`}
+            >
+              <RefreshCw className="w-3 h-3" />
+              <span>{t.block.refresh}</span>
+            </button>
+            <button
+              onClick={() => {
+                onEditBlock();
+                setMenuOpen(false);
+              }}
+              className={`px-2.5 py-1 rounded-lg text-xs font-semibold transition-all cursor-pointer flex items-center gap-1 ${
+                theme === 'dark' ? 'hover:bg-neutral-800 text-neutral-300' : 'hover:bg-neutral-200 text-neutral-700'
+              }`}
+            >
+              <Settings2 className="w-3 h-3" />
+              <span>{t.block.edit}</span>
+            </button>
+            <button
+              onClick={() => {
+                onDeleteBlock();
+                setMenuOpen(false);
+              }}
+              className="px-2.5 py-1 rounded-lg text-xs font-semibold text-red-400 hover:bg-red-500/10 border border-transparent hover:border-red-500/30 transition-all cursor-pointer flex items-center gap-1"
+            >
+              <Trash2 className="w-3 h-3" />
+              <span>{t.block.remove}</span>
+            </button>
+          </div>
+        </div>
+      )}
 
       {block.aiSummary && (
         <div className={`p-4 border-b transition-all text-xs ${
@@ -499,7 +579,7 @@ export const DynamicBlockCard: React.FC<DynamicBlockCardProps> = ({
                         onClick={() => onSelectArticle(item)}
                         className={`p-3 rounded-2xl border transition-all cursor-pointer group flex items-center justify-between gap-3 ${
                           theme === 'dark'
-                            ? 'bg-[#131520]/80 border-neutral-800/80 hover:border-accent-500/60 hover:shadow-md'
+                            ? 'bg-neutral-900/60 border-neutral-800/80 hover:border-accent-500/50 hover:bg-neutral-900/90'
                             : 'bg-neutral-50 border-neutral-200 hover:border-accent-500/60'
                         }`}
                       >
@@ -565,7 +645,7 @@ export const DynamicBlockCard: React.FC<DynamicBlockCardProps> = ({
                         onClick={() => onSelectArticle(item)}
                         className={`p-3 rounded-2xl border transition-all cursor-pointer group flex items-center justify-between gap-3 ${
                           theme === 'dark'
-                            ? 'bg-[#131520]/80 border-neutral-800/80 hover:border-accent-500/60 hover:shadow-md'
+                            ? 'bg-neutral-900/60 border-neutral-800/80 hover:border-accent-500/50 hover:bg-neutral-900/90'
                             : 'bg-neutral-50 border-neutral-200 hover:border-accent-500/60'
                         }`}
                       >
@@ -632,8 +712,8 @@ export const DynamicBlockCard: React.FC<DynamicBlockCardProps> = ({
                       className={`rounded-2xl border p-3.5 flex flex-col justify-between group cursor-pointer transition-all duration-200 ${
                         theme === 'dark'
                           ? isFirst
-                            ? 'bg-[#141520] border-accent-500/80 shadow-[0_0_20px_rgba(245,158,11,0.15)] hover:border-accent-400'
-                            : 'bg-[#13141c]/90 border-neutral-800/80 hover:border-accent-500/60 hover:shadow-[0_0_20px_rgba(245,158,11,0.1)]'
+                            ? `bg-neutral-900/90 border-accent-500/70 shadow-md hover:border-accent-400`
+                            : 'bg-neutral-900/60 border-neutral-800/80 hover:border-accent-500/50 hover:bg-neutral-900/90'
                           : isFirst
                             ? 'bg-white border-accent-500/80 shadow-md'
                             : 'bg-white border-neutral-200 hover:border-accent-500/60 shadow-xs'
@@ -730,7 +810,7 @@ export const DynamicBlockCard: React.FC<DynamicBlockCardProps> = ({
                     onClick={() => onSelectArticle(item)}
                     className={`p-3 rounded-2xl border flex items-center justify-between gap-4 group cursor-pointer transition-all ${
                       theme === 'dark'
-                        ? 'bg-[#13141c]/80 border-neutral-800/80 hover:border-accent-500/60'
+                        ? 'bg-neutral-900/60 border-neutral-800/80 hover:border-accent-500/50 hover:bg-neutral-900/90'
                         : 'bg-white border-neutral-200 hover:border-accent-500/60'
                     }`}
                   >
@@ -808,9 +888,12 @@ export const DynamicBlockCard: React.FC<DynamicBlockCardProps> = ({
                   >
                     <div className="flex items-center gap-2 min-w-0">
                       <span className="w-1.5 h-1.5 rounded-full bg-accent-500 shrink-0" />
-                      <span className={`text-[10px] font-bold shrink-0 ${
-                        theme === 'dark' ? 'text-zinc-400' : 'text-neutral-600'
-                      }`}>
+                      <span
+                        title={item.sourceName}
+                        className={`text-[10px] font-bold shrink-0 max-w-[110px] sm:max-w-[150px] truncate ${
+                          theme === 'dark' ? 'text-zinc-400' : 'text-neutral-600'
+                        }`}
+                      >
                         [{item.sourceName}]
                       </span>
                       <h4 className={`font-medium text-xs truncate group-hover:text-accent-500 ${

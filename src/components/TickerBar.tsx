@@ -47,15 +47,21 @@ export const TickerBar: React.FC<TickerBarProps> = ({ items, onSelectArticle, th
 
   return (
     <div className="max-w-[1680px] w-full mx-auto px-4 sm:px-6 lg:px-8 pt-4">
-      <div className={`w-full overflow-hidden text-xs py-2 px-4 rounded-2xl border transition-all shadow-md flex items-center gap-3 ${
+      <div className={`w-full overflow-hidden text-xs py-2 px-4 rounded-2xl border transition-all shadow-sm flex items-center gap-3 backdrop-blur-md ${
         theme === 'dark'
-          ? 'bg-gradient-to-r from-accent-950/40 via-[#19150d] to-accent-950/40 border-accent-500/40 text-neutral-200'
-          : 'bg-accent-50 border-accent-300 text-accent-950'
+          ? 'bg-[var(--surface-panel)]/90 border-neutral-800/80 text-neutral-200'
+          : 'bg-white/90 border-neutral-200 text-neutral-900 shadow-xs'
       }`}>
         
-        {/* Left Label Prefix with border separator */}
-        <div className="flex items-center gap-1.5 shrink-0 text-accent-400 font-extrabold tracking-wider uppercase text-xs pr-3 border-r border-accent-500/30 z-10 select-none">
-          <span className="text-accent-400 font-black">{t.ticker.breaking}</span>
+        {/* Left Label Prefix with radar live indicator */}
+        <div className="flex items-center gap-2 shrink-0 pr-3.5 border-r border-neutral-300 dark:border-neutral-800 z-10 select-none">
+          <span className="relative flex h-2 w-2">
+            <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-red-500 opacity-75"></span>
+            <span className="relative inline-flex rounded-full h-2 w-2 bg-red-600"></span>
+          </span>
+          <span className="font-black tracking-wider uppercase text-[11px] text-red-600 dark:text-red-400">
+            {t.ticker.breaking}
+          </span>
         </div>
 
         {/* Horizontal Scrolling Headlines with soft gradient edge mask */}
@@ -65,8 +71,8 @@ export const TickerBar: React.FC<TickerBarProps> = ({ items, onSelectArticle, th
           onMouseLeave={() => setIsHovered(false)}
           className="flex-1 overflow-x-auto no-scrollbar stories-scroll-container whitespace-nowrap flex items-center gap-5 py-0.5 px-3"
           style={{
-            maskImage: 'linear-gradient(to right, transparent 0%, black 20px, black calc(100% - 20px), transparent 100%)',
-            WebkitMaskImage: 'linear-gradient(to right, transparent 0%, black 20px, black calc(100% - 20px), transparent 100%)',
+            maskImage: 'linear-gradient(to right, transparent 0%, black 28px, black calc(100% - 28px), transparent 100%)',
+            WebkitMaskImage: 'linear-gradient(to right, transparent 0%, black 28px, black calc(100% - 28px), transparent 100%)',
           }}
         >
           {doubledItems.map((item, idx) => (
