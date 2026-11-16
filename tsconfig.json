@@ -23,5 +23,5 @@
     "allowImportingTsExtensions": true,
     "noEmit": true
   },
-  "exclude": ["node_modules", "dist", "src-tauri/target", "android/.gradle", "android/app/build", "android/app/src/main/assets/public"]
+  "exclude": ["node_modules", "dist", "release", "src-tauri/target", "android/.gradle", "android/app/build", "android/app/src/main/assets/public"]
 }
