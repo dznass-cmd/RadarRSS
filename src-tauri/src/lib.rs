@@ -21,8 +21,11 @@ fn which_node() -> String {
             }
         }
     }
-    if std::path::Path::new("/home/dznas/.local/nodejs/bin/node").exists() {
-        return "/home/dznas/.local/nodejs/bin/node".to_string();
+    if let Ok(home) = std::env::var("HOME") {
+        let user_node = std::path::Path::new(&home).join(".local/nodejs/bin/node");
+        if user_node.exists() {
+            return user_node.to_string_lossy().to_string();
+        }
     }
     "node".to_string()
 }

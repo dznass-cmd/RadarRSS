@@ -6,7 +6,10 @@ app.disableHardwareAcceleration();
 app.commandLine.appendSwitch('no-sandbox');
 app.commandLine.appendSwitch('disable-gpu');
 
-const outDir = '/home/dznas/.gemini/antigravity/brain/1dca84a7-1f90-4274-9ebc-0a16a9885401';
+const outDir = process.env.OUTPUT_DIR || path.join(__dirname, '..', 'test-screenshots');
+if (!fs.existsSync(outDir)) {
+  fs.mkdirSync(outDir, { recursive: true });
+}
 const opmlFilePath = path.join(__dirname, '..', 'exemplo_feeds.opml');
 const opmlContent = fs.readFileSync(opmlFilePath, 'utf8');
 
